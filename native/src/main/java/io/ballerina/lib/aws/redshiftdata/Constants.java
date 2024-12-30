@@ -21,6 +21,8 @@ package io.ballerina.lib.aws.redshiftdata;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
+import java.math.BigDecimal;
+
 /**
  * Represents the constants related to Ballerina AWS Redshift Data Connector.
  */
@@ -28,8 +30,8 @@ public interface Constants {
     // Constants Related to Native Client Adapter
     String NATIVE_CLIENT = "nativeClient";
     String NATIVE_DATABASE_CONFIG = "nativeDatabaseConfig";
-    long DEFAULT_TIMEOUT = 60L; // In seconds
-    long DEFAULT_POLLING_INTERVAL = 2L; // In seconds
+    BigDecimal DEFAULT_TIMEOUT = new BigDecimal(60); // In seconds
+    BigDecimal DEFAULT_POLLING_INTERVAL = new BigDecimal(2); // In seconds
 
     // Constants Related to Connection Config
     BString REGION = StringUtils.fromString("region");

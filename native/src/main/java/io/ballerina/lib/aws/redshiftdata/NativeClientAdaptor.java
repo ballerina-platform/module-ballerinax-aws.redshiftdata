@@ -38,6 +38,7 @@ import software.amazon.awssdk.services.redshiftdata.model.DescribeStatementRespo
 import software.amazon.awssdk.services.redshiftdata.model.ExecuteStatementRequest;
 import software.amazon.awssdk.services.redshiftdata.model.SubStatementData;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -174,9 +175,11 @@ public class NativeClientAdaptor {
 
     // helper methods
     private static DescribeStatementResponse getDescribeStatement(RedshiftDataClient nativeClient,
-                                                                  String statementId, long timeout, long pollInterval) {
-        long timeoutMillis = timeout * 1000; // convert seconds to milliseconds
-        long pollIntervalMillis = pollInterval * 1000; // convert seconds to milliseconds
+                                                                  String statementId, BigDecimal timeout,
+                                                                  BigDecimal pollInterval) {
+        // convert seconds to milliseconds
+        long timeoutMillis = timeout.multiply(BigDecimal.valueOf(1000)).longValue();
+        long pollIntervalMillis = pollInterval.multiply(BigDecimal.valueOf(1000)).longValue();
         long startTime = System.currentTimeMillis();
         DescribeStatementRequest describeStatementRequest = DescribeStatementRequest.builder()
                 .id(statementId)
