@@ -51,4 +51,17 @@ public interface Constants {
     // Constants Related to Parameterized Query
     BString QUERY_STRINGS = StringUtils.fromString("strings");
     BString QUERY_INSERTIONS = StringUtils.fromString("insertions");
+
+    // Constants Related to Result Config
+    BString TIMEOUT = StringUtils.fromString("timeout");
+    BString POLLING_INTERVAL = StringUtils.fromString("pollingInterval");
+
+    // Constants Related to Result Iterator
+    String RESULT_ITERATOR_OBJECT = "ResultIterator";
+    String NATIVE_COLUMN_METADATA = "ColumnMetadata";
+    String NATIVE_RESULT_RESPONSE = "ResultResponse";
+    String NATIVE_INNER_RESULT_ITERATOR = "InnerGetResultIterator";
+    String NATIVE_RECORD_TYPE = "RecordType";
+    String NATIVE_INDEX = "Index";
+    String NATIVE_COLUMN_INDEX_MAP = "IndexMap"; // field name -> result column index
 }

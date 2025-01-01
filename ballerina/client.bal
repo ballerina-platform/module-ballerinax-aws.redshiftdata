@@ -63,6 +63,18 @@ public isolated client class Client {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
 
+    # Retrieves the results of a previously executed SQL statement.
+    #
+    # + statementId - The identifier of the SQL statement
+    # + resultConfig - The configurations related to the execution of getting the results
+    # + rowTypes - The typedesc of the record to which the result needs to be returned
+    # + return - Stream of records in the type of rowTypes or an `redshiftdata:Error`
+    remote isolated function getQueryResult(string statementId,
+            typedesc<record {}> rowTypes = <>, *ResultConfig resultConfig)
+    returns stream<rowTypes, sql:Error?>|Error = @java:Method {
+        'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
+    } external;
+
     # Closes the AWS Redshift Data API client.
     # ```ballerina
     # check redshift->close();
@@ -72,5 +84,12 @@ public isolated client class Client {
     remote function close() returns Error? = @java:Method {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
-
 }
+
+isolated function nextResult(ResultIterator iterator) returns record {}|Error? = @java:Method {
+    'class: "io.ballerina.lib.aws.redshiftdata.QueryResultProcessor"
+} external;
+
+isolated function closeResult(ResultIterator iterator) returns Error? = @java:Method {
+    'class: "io.ballerina.lib.aws.redshiftdata.QueryResultProcessor"
+} external;

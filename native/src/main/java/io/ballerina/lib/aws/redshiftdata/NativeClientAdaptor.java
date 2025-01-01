@@ -25,7 +25,9 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
@@ -36,7 +38,9 @@ import software.amazon.awssdk.services.redshiftdata.model.BatchExecuteStatementR
 import software.amazon.awssdk.services.redshiftdata.model.DescribeStatementRequest;
 import software.amazon.awssdk.services.redshiftdata.model.DescribeStatementResponse;
 import software.amazon.awssdk.services.redshiftdata.model.ExecuteStatementRequest;
+import software.amazon.awssdk.services.redshiftdata.model.GetStatementResultRequest;
 import software.amazon.awssdk.services.redshiftdata.model.SubStatementData;
+import software.amazon.awssdk.services.redshiftdata.paginators.GetStatementResultIterable;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -161,6 +165,38 @@ public class NativeClientAdaptor {
         return null;
     }
 
+    public static Object getQueryResult(Environment env, BObject bClient, BString bStatementId,
+                                        BTypedesc recordType, BMap<BString, Object> bResultConfig) {
+        RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
+        String statementId = StringUtils.getStringValue(bStatementId);
+        ResultConfig resultConfig = new ResultConfig(bResultConfig);
+        Future future = env.markAsync();
+        EXECUTOR_SERVICE.execute(() -> {
+            try {
+                String mainStatementId = extractMainStatementId(statementId);
+                // Wait for the statement to complete within the specified timeout
+                DescribeStatementResponse describeStatementResponse = getDescribeStatement(nativeClient,
+                        mainStatementId, resultConfig.timeout(), resultConfig.pollingInterval());
+                if (!describeStatementResponse.hasResultSet()) {
+                    throw new RuntimeException("Query result is not available for the statement: " + statementId);
+                }
+
+                GetStatementResultIterable nativeResultIterable = nativeClient
+                        .getStatementResultPaginator(GetStatementResultRequest.builder().id(statementId).build());
+
+                BStream resultStream = QueryResultProcessor.getRecordStream(nativeResultIterable, recordType);
+
+                future.complete(resultStream);
+            } catch (Exception e) {
+                String errorMsg = String.format("Error occurred while getting the query result:\n %s",
+                        e.getMessage());
+                BError bError = CommonUtils.createError(errorMsg, e);
+                future.complete(bError);
+            }
+        });
+        return null;
+    }
+
     public static Object close(BObject bClient) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
         try {
@@ -191,7 +227,7 @@ public class NativeClientAdaptor {
                 case FINISHED:
                     return response;
                 case FAILED:
-                    throw new RuntimeException("Statement execution failed");
+                    throw new RuntimeException("Statement execution failed: " + response.error());
                 case ABORTED:
                     throw new RuntimeException("Statement execution aborted");
                 default:
@@ -203,5 +239,10 @@ public class NativeClientAdaptor {
             }
         }
         throw new RuntimeException("Statement execution timed out");
+    }
+
+    private static String extractMainStatementId(String statementId) {
+        int colonIndex = statementId.indexOf(':');
+        return (colonIndex != -1) ? statementId.substring(0, colonIndex) : statementId;
     }
 }

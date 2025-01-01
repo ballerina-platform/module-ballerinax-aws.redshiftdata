@@ -95,11 +95,11 @@ public type DatabaseConfig record {|
     string databaseUser;
 |};
 
-# Configuration for the execution of the query
+# Configuration related to get the results
 #
 # + timeout - The timeout to be used getting the query results and execution results in `seconds`
 # + pollingInterval - The polling interval to be used getting the query results and execution results in `seconds`
-public type ExecutionConfig record {|
+public type ResultConfig record {|
     decimal timeout = 30;
     decimal pollingInterval = 5;
 |};
@@ -107,3 +107,42 @@ public type ExecutionConfig record {|
 public type ExecutionResult record {
     *sql:ExecutionResult;
 };
+
+# The result iterator used to iterate results in stream returned from `getQueryResult` method.
+#
+# + isClosed - Indicates the stream state
+class ResultIterator {
+    private boolean isClosed = false;
+
+    isolated function init() returns error? {
+    }
+
+    public isolated function next() returns record {|record {} value;|}|Error? {
+        if self.isClosed {
+            return error Error("Stream is closed. Therefore, no operations are allowed further on the stream.");
+        }
+        record {}|Error? result = nextResult(self);
+        if result is record {} {
+            record {|
+                record {} value;
+            |} streamRecord = {value: result};
+            return streamRecord;
+        } else if result is Error {
+            self.isClosed = true;
+            return result;
+        } else {
+            self.isClosed = true;
+            return result;
+        }
+    }
+
+    public isolated function close() returns Error? {
+        if !self.isClosed {
+            Error? e = closeResult(self);
+            if e is () {
+                self.isClosed = true;
+            }
+            return e;
+        }
+    }
+}
