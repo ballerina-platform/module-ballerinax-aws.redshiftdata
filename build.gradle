@@ -17,6 +17,8 @@
  */
 
 plugins {
+    id "com.github.spotbugs-base"
+    id "de.undercouch.download"
 }
 
 description = 'AWS Redshift Data API connector for Ballerina.'
