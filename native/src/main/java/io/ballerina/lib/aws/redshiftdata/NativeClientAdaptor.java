@@ -91,9 +91,9 @@ public class NativeClientAdaptor {
                                           Object bDatabaseConfig) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
         DatabaseConfig databaseConfig;
-        if (bDatabaseConfig == null)
+        if (bDatabaseConfig == null) {
             databaseConfig = (DatabaseConfig) bClient.getNativeData(Constants.NATIVE_DATABASE_CONFIG);
-        else {
+        } else {
             databaseConfig = new DatabaseConfig((BMap<BString, Object>) bDatabaseConfig);
         }
         ParameterizedQuery parameterizedQuery = new ParameterizedQuery(bSqlStatement);
@@ -129,9 +129,9 @@ public class NativeClientAdaptor {
                                                Object bDatabaseConfig) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
         DatabaseConfig databaseConfig;
-        if (bDatabaseConfig == null)
+        if (bDatabaseConfig == null) {
             databaseConfig = (DatabaseConfig) bClient.getNativeData(Constants.NATIVE_DATABASE_CONFIG);
-        else {
+        } else {
             databaseConfig = new DatabaseConfig((BMap<BString, Object>) bDatabaseConfig);
         }
         String[] preparedQuery = new String[bSqlStatementsArray.size()];

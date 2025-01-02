@@ -101,8 +101,8 @@ public class QueryResultProcessor {
         try {
             // Fetch the next record when the current row is processed
             if (index >= (rows.size() - 1)) {
-                Iterator<GetStatementResultResponse> innerResultIterator = (Iterator<GetStatementResultResponse>) bResultIterator
-                        .getNativeData(Constants.NATIVE_INNER_RESULT_ITERATOR);
+                Iterator<GetStatementResultResponse> innerResultIterator = (Iterator<GetStatementResultResponse>)
+                        bResultIterator.getNativeData(Constants.NATIVE_INNER_RESULT_ITERATOR);
                 if (innerResultIterator.hasNext()) {
                     resultResponse = innerResultIterator.next();
                     rows = resultResponse.records();
