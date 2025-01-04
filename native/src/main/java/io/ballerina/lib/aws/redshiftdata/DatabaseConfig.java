@@ -28,22 +28,44 @@ import io.ballerina.runtime.api.values.BString;
  * @param clusterId    The Redshift cluster ID.
  * @param databaseName The name of the database.
  * @param databaseUser The username of the database.
+ * @param secretArn    The ARN of the secret containing the database credentials.
  */
-public record DatabaseConfig(String clusterId, String databaseName, String databaseUser) {
+public record DatabaseConfig(String clusterId, String databaseName, String databaseUser, String secretArn) {
 
     public DatabaseConfig(BMap<BString, Object> bDatabaseConfig) {
-        this(getClusterId(bDatabaseConfig), getDatabaseName(bDatabaseConfig), getDatabaseUser(bDatabaseConfig));
+        this(
+                getClusterId(bDatabaseConfig),
+                getDatabaseName(bDatabaseConfig),
+                getDatabaseUser(bDatabaseConfig),
+                getSecretArn(bDatabaseConfig)
+        );
     }
 
     private static String getClusterId(BMap<BString, Object> bDatabaseConfig) {
-        return bDatabaseConfig.getStringValue(Constants.CLUSTER_ID).getValue();
+        if (bDatabaseConfig.containsKey(Constants.CLUSTER_ID)) {
+            return bDatabaseConfig.getStringValue(Constants.CLUSTER_ID).getValue();
+        }
+        return null;
     }
 
     private static String getDatabaseName(BMap<BString, Object> bDatabaseConfig) {
-        return bDatabaseConfig.getStringValue(Constants.DATABASE_NAME).getValue();
+        if (bDatabaseConfig.containsKey(Constants.DATABASE_NAME)) {
+            return bDatabaseConfig.getStringValue(Constants.DATABASE_NAME).getValue();
+        }
+        return null;
     }
 
     private static String getDatabaseUser(BMap<BString, Object> bDatabaseConfig) {
-        return bDatabaseConfig.getStringValue(Constants.DATABASE_USER).getValue();
+        if (bDatabaseConfig.containsKey(Constants.DATABASE_USER)) {
+            return bDatabaseConfig.getStringValue(Constants.DATABASE_USER).getValue();
+        }
+        return null;
+    }
+
+    private static String getSecretArn(BMap<BString, Object> bDatabaseConfig) {
+        if (bDatabaseConfig.containsKey(Constants.SECRET_ARN)) {
+            return bDatabaseConfig.getStringValue(Constants.SECRET_ARN).getValue();
+        }
+        return null;
     }
 }

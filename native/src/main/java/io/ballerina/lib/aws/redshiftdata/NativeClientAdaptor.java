@@ -38,6 +38,7 @@ import software.amazon.awssdk.services.redshiftdata.model.BatchExecuteStatementR
 import software.amazon.awssdk.services.redshiftdata.model.DescribeStatementRequest;
 import software.amazon.awssdk.services.redshiftdata.model.DescribeStatementResponse;
 import software.amazon.awssdk.services.redshiftdata.model.ExecuteStatementRequest;
+import software.amazon.awssdk.services.redshiftdata.model.ExecuteStatementResponse;
 import software.amazon.awssdk.services.redshiftdata.model.GetStatementResultRequest;
 import software.amazon.awssdk.services.redshiftdata.model.SubStatementData;
 import software.amazon.awssdk.services.redshiftdata.paginators.GetStatementResultIterable;
@@ -48,7 +49,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Representation of {@link software.amazon.awssdk.services.redshiftdata.RedshiftDataClient} with
+ * Representation of {@link RedshiftDataClient} with
  * utility methods to invoke as inter-op functions.
  */
 public class NativeClientAdaptor {
@@ -88,34 +89,20 @@ public class NativeClientAdaptor {
 
     @SuppressWarnings("unchecked")
     public static Object executeStatement(Environment env, BObject bClient, BObject bSqlStatement,
-                                          Object bDatabaseConfig) {
+                                          BMap<BString, Object> bExecuteStatementConfig) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
-        DatabaseConfig databaseConfig;
-        if (bDatabaseConfig == null) {
-            databaseConfig = (DatabaseConfig) bClient.getNativeData(Constants.NATIVE_DATABASE_CONFIG);
-        } else {
-            databaseConfig = new DatabaseConfig((BMap<BString, Object>) bDatabaseConfig);
-        }
-        ParameterizedQuery parameterizedQuery = new ParameterizedQuery(bSqlStatement);
-        ExecuteStatementRequest.Builder requestBuilder = ExecuteStatementRequest.builder()
-                .clusterIdentifier(databaseConfig.clusterId())
-                .database(databaseConfig.databaseName())
-                .dbUser(databaseConfig.databaseUser())
-                .sql(parameterizedQuery.getQueryString());
-        // Set sql query parameters if available
-        if (parameterizedQuery.hasParameters()) {
-            requestBuilder.parameters(parameterizedQuery.getParameters());
-        }
-
-        ExecuteStatementRequest statementRequest = requestBuilder.build();
+        DatabaseConfig databaseConfig = (DatabaseConfig) bClient.getNativeData(Constants.NATIVE_DATABASE_CONFIG);
+        ExecuteStatementRequest executeStatementRequest = CommonUtils.getNativeExecuteStatementRequest(
+                bSqlStatement, bExecuteStatementConfig, databaseConfig);
         Future future = env.markAsync();
         EXECUTOR_SERVICE.execute(() -> {
             try {
-                String statementId = nativeClient.executeStatement(statementRequest).id();
-                BString bStatementId = StringUtils.fromString(statementId);
-                future.complete(bStatementId);
+                ExecuteStatementResponse executeStatementResponse = nativeClient
+                        .executeStatement(executeStatementRequest);
+                BMap<BString, Object> bResponse = CommonUtils.getExecuteStatementResponse(executeStatementResponse);
+                future.complete(bResponse);
             } catch (Exception e) {
-                String errorMsg = String.format("Error occurred while executing the statement: %s",
+                String errorMsg = String.format("Error occurred while executing execute-statement request: %s",
                         e.getMessage());
                 BError bError = CommonUtils.createError(errorMsg, e);
                 future.complete(bError);

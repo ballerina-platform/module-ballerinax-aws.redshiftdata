@@ -47,6 +47,7 @@ public interface Constants {
     BString CLUSTER_ID = StringUtils.fromString("clusterId");
     BString DATABASE_NAME = StringUtils.fromString("databaseName");
     BString DATABASE_USER = StringUtils.fromString("databaseUser");
+    BString SECRET_ARN = StringUtils.fromString("secretArn");
 
     // Constants Related to Parameterized Query
     BString QUERY_STRINGS = StringUtils.fromString("strings");
@@ -64,4 +65,21 @@ public interface Constants {
     String NATIVE_RECORD_TYPE = "RecordType";
     String NATIVE_INDEX = "Index";
     String NATIVE_COLUMN_INDEX_MAP = "IndexMap"; // field name -> result column index
+
+    // Constants Related to Execute Statement Config
+    BString EXECUTE_STATEMENT_CONFIG_CLIENT_TOKEN = StringUtils.fromString("clientToken");
+    BString EXECUTE_STATEMENT_CONFIG_STATEMENT_NAME = StringUtils.fromString("statementName");
+    BString EXECUTE_STATEMENT_CONFIG_WITH_EVENT = StringUtils.fromString("withEvent");
+    BString EXECUTE_STATEMENT_CONFIG_SESSION_ID = StringUtils.fromString("sessionId");
+    BString EXECUTE_STATEMENT_CONFIG_SESSION_KEEP_ALIVE_SECONDS = StringUtils.fromString("sessionKeepAliveSeconds");
+    BString EXECUTE_STATEMENT_CONFIG_WORKGROUP_NAME = StringUtils.fromString("workgroupName");
+
+    // Constants related to Execute Statement Response
+    String EXECUTE_STATEMENT_RES_RECORD = "ExecuteStatementResponse";
+    BString EXECUTE_STATEMENT_RES_CREATE_AT = StringUtils.fromString("createdAt");
+    BString EXECUTE_STATEMENT_RES_HAS_DB_GROUPS = StringUtils.fromString("hasDbGroups");
+    BString EXECUTE_STATEMENT_RES_DB_GROUPS = StringUtils.fromString("dbGroups");
+    BString EXECUTE_STATEMENT_RES_STATEMENT_ID = StringUtils.fromString("statementId");
+    BString EXECUTE_STATEMENT_RES_SESSION_ID = StringUtils.fromString("sessionId");
+    BString EXECUTE_STATEMENT_RES_WORKGROUP_NAME = StringUtils.fromString("workgroupName");
 }

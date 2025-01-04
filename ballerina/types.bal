@@ -99,8 +99,8 @@ public type DatabaseConfig record {|
         minLength: 1,
         maxLength: 63
     }
-    string clusterId;
-    string databaseName;
+    string clusterId?;
+    string databaseName?;
     string databaseUser?;
     string secretArn?;
 |};
@@ -114,6 +114,56 @@ public type ResultConfig record {|
     string nextToken?;
     decimal timeout = 30;
     decimal pollingInterval = 5;
+|};
+
+# Configuration related to execute statement.
+#
+# + databaseConfig - The database configurations.
+# + clientToken - A unique, case-sensitive identifier that you provide to ensure the idempotency of the request.
+# + statementName - The name of the SQL statement.
+# + withEvent - A value that indicates whether to send an event to the Amazon EventBridge event bus after the SQL statement runs.
+# + sessionId - The session identifier of the query.
+# + sessionKeepAliveSeconds - The number of seconds to keep the session alive after the query finishes.
+# + workgroupName - The serverless workgroup name or Amazon Resource Name (ARN).
+public type ExecuteStatementConfig record {|
+    DatabaseConfig databaseConfig?;
+    string clientToken?;
+    @constraint:String {
+        minLength: 1,
+        maxLength: 500
+    }
+    string statementName?;
+    boolean withEvent?;
+    @constraint:String {
+        pattern: re `^[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}(:\d+)?$`
+    }
+    string sessionId?;
+    @constraint:Int {
+        minValue: 0,
+        maxValue: 86400
+    }
+    int sessionKeepAliveSeconds?;
+    @constraint:String {
+        pattern: re `^(([a-z0-9-]+)|(arn:(aws(-[a-z]+)*):redshift-serverless:[a-z]{2}(-gov)?-[a-z]+-\d{1}:\d{12}:workgroup/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}))$`
+    }
+    string workgroupName?;
+|};
+
+# The response from the `executeStatement` method.
+#
+# + createdAt - The date and time (UTC) the statement was created.
+# + hasDbGroups - For responses, this returns true if the service returned a value for the DbGroups property.
+# + dbGroups - A list of colon (:) separated names of database groups.
+# + statementId - The identifier of the SQL statement whose results are to be fetched.
+# + sessionId - The session identifier of the query.
+# + workgroupName - The serverless workgroup name or Amazon Resource Name (ARN).
+public type ExecuteStatementResponse record {|
+    time:Utc createdAt;
+    boolean hasDbGroups;
+    string[] dbGroups;
+    string statementId;
+    string sessionId?;
+    string workgroupName?;
 |};
 
 # Describes the details about a specific instance when a query was run by the Amazon Redshift Data API.

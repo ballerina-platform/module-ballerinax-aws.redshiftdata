@@ -37,18 +37,23 @@ public isolated client class Client {
     # Executes the SQL query.
     #
     # + sqlStatement - The SQL statement to be executed
-    # + databaseConfig - The database configurations.
+    # + executeStatementConfig - The configurations related to the execution of the statement.
     # + return - The statementId that can be used to retrieve the results or an error
-    remote isolated function executeStatement(sql:ParameterizedQuery sqlStatement, DatabaseConfig? databaseConfig = ())
-    returns string|Error {
+    remote isolated function executeStatement(sql:ParameterizedQuery sqlStatement,
+            *ExecuteStatementConfig executeStatementConfig)
+    returns ExecuteStatementResponse|Error {
         if sqlStatement.strings.length() == 0 {
-            return error Error("SQL statement cannot be empty");
+            return error Error("SQL statement cannot be empty.");
         }
-        return self.externExecuteStatement(sqlStatement, databaseConfig);
-    };
+        if sqlStatement.insertions.some(insertion => insertion is ()) {
+            return error Error("SQL statement cannot have nil parameters.");
+        }
+        return self.externExecuteStatement(sqlStatement, executeStatementConfig);
+    }
 
-    isolated function externExecuteStatement(sql:ParameterizedQuery sqlStatement, DatabaseConfig? databaseConfig = ())
-    returns string|Error = @java:Method {
+    isolated function externExecuteStatement(sql:ParameterizedQuery sqlStatement,
+            ExecuteStatementConfig executeStatementConfig)
+    returns ExecuteStatementResponse|Error = @java:Method {
         name: "executeStatement",
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;

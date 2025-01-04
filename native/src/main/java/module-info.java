@@ -24,6 +24,7 @@ module io.ballerina.stdlib.java.aws.redshiftdata {
     requires software.amazon.awssdk.regions;
     requires com.google.gson;
     requires io.ballerina.stdlib.sql;
+    requires io.ballerina.stdlib.time;
     requires io.ballerina.runtime;
 
     exports io.ballerina.lib.aws.redshiftdata;
