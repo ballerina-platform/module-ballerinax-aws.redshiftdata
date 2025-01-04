@@ -35,6 +35,7 @@ import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.services.redshiftdata.RedshiftDataClient;
 import software.amazon.awssdk.services.redshiftdata.model.BatchExecuteStatementRequest;
+import software.amazon.awssdk.services.redshiftdata.model.BatchExecuteStatementResponse;
 import software.amazon.awssdk.services.redshiftdata.model.DescribeStatementRequest;
 import software.amazon.awssdk.services.redshiftdata.model.DescribeStatementResponse;
 import software.amazon.awssdk.services.redshiftdata.model.ExecuteStatementRequest;
@@ -112,38 +113,29 @@ public class NativeClientAdaptor {
     }
 
     @SuppressWarnings("unchecked")
-    public static Object batchExecuteStatement(Environment env, BObject bClient, BArray bSqlStatementsArray,
-                                               Object bDatabaseConfig) {
+    public static Object batchExecuteStatement(Environment env, BObject bClient, BArray bSqlStatements,
+                                               BMap<BString, Object> bExecuteStatementConfig) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
-        DatabaseConfig databaseConfig;
-        if (bDatabaseConfig == null) {
-            databaseConfig = (DatabaseConfig) bClient.getNativeData(Constants.NATIVE_DATABASE_CONFIG);
-        } else {
-            databaseConfig = new DatabaseConfig((BMap<BString, Object>) bDatabaseConfig);
-        }
-        String[] preparedQuery = new String[bSqlStatementsArray.size()];
-        for (int i = 0; i < bSqlStatementsArray.size(); i++) {
-            preparedQuery[i] = (new ParameterizedQuery((BObject) bSqlStatementsArray.get(i))).getPreparedQuery();
-        }
-        BatchExecuteStatementRequest batchExecuteStatementRequest = BatchExecuteStatementRequest.builder()
-                .clusterIdentifier(databaseConfig.clusterId())
-                .database(databaseConfig.databaseName())
-                .dbUser(databaseConfig.databaseUser())
-                .sqls(preparedQuery)
-                .build();
+        DatabaseConfig databaseConfig = (DatabaseConfig) bClient.getNativeData(Constants.NATIVE_DATABASE_CONFIG);
+        BatchExecuteStatementRequest batchExecuteStatementRequest = CommonUtils.getNativeBatchExecuteStatementRequest(
+                bSqlStatements, bExecuteStatementConfig, databaseConfig);
         Future future = env.markAsync();
         EXECUTOR_SERVICE.execute(() -> {
             try {
-                String statementId = nativeClient.batchExecuteStatement(batchExecuteStatementRequest).id();
-                DescribeStatementResponse describeStatementResponse = getDescribeStatement(nativeClient, statementId,
-                        Constants.DEFAULT_TIMEOUT, Constants.DEFAULT_POLLING_INTERVAL);
+                BatchExecuteStatementResponse batchExecuteStatementResponse = nativeClient
+                        .batchExecuteStatement(batchExecuteStatementRequest);
+                DescribeStatementResponse describeStatementResponse = nativeClient
+                        .describeStatement(DescribeStatementRequest.builder()
+                                .id(batchExecuteStatementResponse.id())
+                                .build());
                 String[] subStatementIds = describeStatementResponse.subStatements().stream()
                         .map(SubStatementData::id)
                         .toArray(String[]::new);
-                BArray bStatementIds = StringUtils.fromStringArray(subStatementIds);
-                future.complete(bStatementIds);
+                BMap<BString, Object> bResponse = CommonUtils
+                        .getBatchExecuteStatementResponse(batchExecuteStatementResponse, subStatementIds);
+                future.complete(bResponse);
             } catch (Exception e) {
-                String errorMsg = String.format("Error occurred while executing the batch statement: %s",
+                String errorMsg = String.format("Error occurred while executing the batchExecuteStatement: %s",
                         e.getMessage());
                 BError bError = CommonUtils.createError(errorMsg, e);
                 future.complete(bError);

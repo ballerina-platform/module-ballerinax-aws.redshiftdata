@@ -61,10 +61,11 @@ public isolated client class Client {
     # Executes the SQL queries in a batch.
     #
     # + sqlStatements - The SQL statements to be executed
-    # + databaseConfig - The database configurations.
+    # + executeStatementConfig - The configurations related to the execution of the statements.
     # + return - The statementIds that can be used to retrieve the results or an error
-    remote isolated function batchExecuteStatement(sql:ParameterizedQuery[] sqlStatements, DatabaseConfig? databaseConfig = ())
-    returns string[]|Error = @java:Method {
+    remote isolated function batchExecuteStatement(SqlStatements sqlStatements,
+            *ExecuteStatementConfig executeStatementConfig)
+    returns BatchExecuteStatementResponse|Error = @java:Method {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
 

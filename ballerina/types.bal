@@ -166,6 +166,21 @@ public type ExecuteStatementResponse record {|
     string workgroupName?;
 |};
 
+# One or more SQL statements to run.
+@constraint:Array {
+    minLength: 1,
+    maxLength: 40
+}
+public type SqlStatements string[];
+
+# The response from the `batchExecuteStatement` method.
+#
+# + subStatementIds - The statement IDs of the SQL statements. Which are used to retrieve the results.
+public type BatchExecuteStatementResponse record {|
+    *ExecuteStatementResponse;
+    string[] subStatementIds;
+|};
+
 # Describes the details about a specific instance when a query was run by the Amazon Redshift Data API.
 #
 # + statementId - The identifier of the SQL statement whose results are to be fetched.
