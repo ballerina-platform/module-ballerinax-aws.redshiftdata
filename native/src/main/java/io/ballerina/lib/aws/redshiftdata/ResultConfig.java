@@ -13,12 +13,12 @@ public record ResultConfig(BigDecimal timeout, BigDecimal pollingInterval) {
     }
 
     private static BigDecimal getTimeout(BMap<BString, Object> bResultConfig) {
-        BDecimal bTimeout = (BDecimal) bResultConfig.get(Constants.TIMEOUT);
+        BDecimal bTimeout = (BDecimal) bResultConfig.get(Constants.RESULT_CONFIG_TIMEOUT);
         return bTimeout.decimalValue();
     }
 
     private static BigDecimal getPollingInterval(BMap<BString, Object> bResultConfig) {
-        BDecimal bPollingInterval = (BDecimal) bResultConfig.get(Constants.POLLING_INTERVAL);
+        BDecimal bPollingInterval = (BDecimal) bResultConfig.get(Constants.RESULT_CONFIG_POLLING_INTERVAL);
         return bPollingInterval.decimalValue();
     }
 }

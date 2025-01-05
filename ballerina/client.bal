@@ -81,6 +81,16 @@ public isolated client class Client {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
 
+    # Describes the details about a specific instance when a query was run by the Amazon Redshift Data API.
+    #
+    # + statementId - The identifier of the SQL statement
+    # + resultConfig - The configurations related to the execution of getting the results
+    # + return - The details about the execution of the statement or batch of statements or an `redshiftdata:Error`
+    remote isolated function getExecutionResult(StatementId statementId, *ResultConfig resultConfig)
+    returns ExecutionResult|Error = @java:Method {
+        'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
+    } external;
+
     # Closes the AWS Redshift Data API client.
     # ```ballerina
     # check redshift->close();

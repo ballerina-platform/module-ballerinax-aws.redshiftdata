@@ -181,6 +181,12 @@ public type BatchExecuteStatementResponse record {|
     string[] subStatementIds;
 |};
 
+# The identifier of the SQL statement
+@constraint:String {
+    pattern: re `^[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}(:\d+)?$`
+}
+public type StatementId string;
+
 # Describes the details about a specific instance when a query was run by the Amazon Redshift Data API.
 #
 # + statementId - The identifier of the SQL statement whose results are to be fetched.
@@ -204,10 +210,10 @@ public type ExecutionResult record {|
     string statementId;
     time:Utc createdAt;
     decimal duration;
-    string 'error;
+    string 'error?;
     boolean hasResultSet;
-    string queryString;
-    string redshiftQueryId;
+    string queryString?;
+    int redshiftQueryId;
     int resultRows;
     int resultSize;
     Status status;
@@ -215,9 +221,9 @@ public type ExecutionResult record {|
     boolean hasQueryParameters;
     boolean hasSubStatements;
     int redshiftPid;
-    string sessionId;
-    SubStatementData subStatements;
-    string workgroupName;
+    string sessionId?;
+    SubStatementData[] subStatements;
+    string workgroupName?;
 |};
 
 # Information about an SQL statement.
@@ -237,21 +243,33 @@ public type SubStatementData record {|
     string statementId;
     time:Utc createdAt;
     decimal duration; // in seconds
-    string 'error;
+    string 'error?;
     boolean hasResultSet;
     string queryString;
-    string redshiftQueryId;
+    int redshiftQueryId;
     int resultRows;
     int resultSize;
     Status status;
     time:Utc updatedAt;
 |};
 
+# The status of the SQL statement being described. 
+# 
+# + SUBMITTED - The query was submitted, but not yet processed.
+# + PICKED - The query has been chosen to be run.
+# + STARTED - The query run has started.
+# + FINISHED - The query has finished running.
+# + ABORTED - The query run was stopped by the user.
+# + FAILED - The query run failed.
+# + ALL - A status value that includes all query statuses. This value can be used to filter results.
 public enum Status {
     SUBMITTED,
-    PENDING,
+    PICKED,
+    STARTED,
+    FINISHED,
+    ABORTED,
     FAILED,
-    SUCCESS
+    ALL
 }
 
 # The result iterator used to iterate results in stream returned from `getQueryResult` method.

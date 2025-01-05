@@ -19,7 +19,9 @@
 package io.ballerina.lib.aws.redshiftdata;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -29,9 +31,12 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.stdlib.time.nativeimpl.Utc;
 import software.amazon.awssdk.services.redshiftdata.model.BatchExecuteStatementRequest;
 import software.amazon.awssdk.services.redshiftdata.model.BatchExecuteStatementResponse;
+import software.amazon.awssdk.services.redshiftdata.model.DescribeStatementResponse;
 import software.amazon.awssdk.services.redshiftdata.model.ExecuteStatementRequest;
 import software.amazon.awssdk.services.redshiftdata.model.ExecuteStatementResponse;
+import software.amazon.awssdk.services.redshiftdata.model.SubStatementData;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -192,5 +197,72 @@ public final class CommonUtils {
         response.put(Constants.BATCH_EXECUTE_STATEMENT_RES_SUB_STATEMENT_IDS,
                 ValueCreator.createArrayValue(bSubStatementIds));
         return response;
+    }
+
+    public static BMap<BString, Object> getExecutionResultResponse(DescribeStatementResponse nativeResponse) {
+        BMap<BString, Object> response = ValueCreator.createRecordValue(
+                ModuleUtils.getModule(), Constants.EXECUTION_RESULT_RECORD);
+
+        ArrayType subStatementDataArrayType = TypeCreator.createArrayType(ValueCreator.createRecordValue(
+                ModuleUtils.getModule(), Constants.SUB_STATEMENT_DATA_RECORD).getType());
+        BArray subStatementsArray = ValueCreator.createArrayValue(subStatementDataArrayType);
+        for (SubStatementData subStatementData : nativeResponse.subStatements()) {
+            subStatementsArray.append(getSubStatementData(subStatementData));
+        }
+        response.put(Constants.EXECUTION_RESULT_SUB_STATEMENTS, subStatementsArray);
+        response.put(Constants.EXECUTION_RESULT_STATEMENT_ID, StringUtils.fromString(nativeResponse.id()));
+        response.put(Constants.EXECUTION_RESULT_CREATED_AT, new Utc(nativeResponse.createdAt()).build());
+        response.put(Constants.EXECUTION_RESULT_UPDATED_AT, new Utc(nativeResponse.updatedAt()).build());
+        response.put(Constants.EXECUTION_RESULT_STATUS, StringUtils.fromString(nativeResponse.statusAsString()));
+        response.put(Constants.EXECUTION_RESULT_HAS_RESULT_SET, nativeResponse.hasResultSet());
+        response.put(Constants.EXECUTION_RESULT_REDSHIFT_QUERY_ID, nativeResponse.redshiftQueryId());
+        response.put(Constants.EXECUTION_RESULT_RESULT_ROWS, nativeResponse.resultRows());
+        response.put(Constants.EXECUTION_RESULT_RESULT_SIZE, nativeResponse.resultSize());
+        response.put(Constants.EXECUTION_RESULT_HAS_QUERY_PARAMETERS, nativeResponse.hasQueryParameters());
+        response.put(Constants.EXECUTION_RESULT_HAS_SUB_STATEMENTS, nativeResponse.hasSubStatements());
+        response.put(Constants.EXECUTION_RESULT_REDSHIFT_PID, nativeResponse.redshiftPid());
+        // Convert the duration from nanoseconds to seconds
+        response.put(Constants.EXECUTION_RESULT_DURATION,
+                ValueCreator.createDecimalValue(convertNanosToSeconds(nativeResponse.duration())));
+        if (Objects.nonNull(nativeResponse.queryString())) {
+            response.put(Constants.EXECUTION_RESULT_QUERY_STRING,
+                    StringUtils.fromString(nativeResponse.queryString()));
+        }
+        if (Objects.nonNull(nativeResponse.sessionId())) {
+            response.put(Constants.EXECUTION_RESULT_SESSION_ID, StringUtils.fromString(nativeResponse.sessionId()));
+        }
+        if (Objects.nonNull(nativeResponse.workgroupName())) {
+            response.put(Constants.EXECUTION_RESULT_WORKGROUP_NAME,
+                    StringUtils.fromString(nativeResponse.workgroupName()));
+        }
+        if (Objects.nonNull(nativeResponse.error()) && !nativeResponse.error().isEmpty()) {
+            response.put(Constants.EXECUTION_RESULT_ERROR, StringUtils.fromString(nativeResponse.error()));
+        }
+        return response;
+    }
+
+    private static BMap<BString, Object> getSubStatementData(SubStatementData subStatementData) {
+        BMap<BString, Object> record = ValueCreator.createRecordValue(
+                ModuleUtils.getModule(), Constants.SUB_STATEMENT_DATA_RECORD);
+        record.put(Constants.SUB_STATEMENT_DATA_STATEMENT_ID, StringUtils.fromString(subStatementData.id()));
+        record.put(Constants.SUB_STATEMENT_DATA_CREATED_AT, new Utc(subStatementData.createdAt()).build());
+        record.put(Constants.SUB_STATEMENT_DATA_UPDATED_AT, new Utc(subStatementData.updatedAt()).build());
+        record.put(Constants.SUB_STATEMENT_DATA_STATUS, StringUtils.fromString(subStatementData.statusAsString()));
+        record.put(Constants.SUB_STATEMENT_DATA_HAS_RESULT_SET, subStatementData.hasResultSet());
+        record.put(Constants.SUB_STATEMENT_DATA_QUERY_STRING, StringUtils.fromString(subStatementData.queryString()));
+        record.put(Constants.SUB_STATEMENT_DATA_REDSHIFT_QUERY_ID, subStatementData.redshiftQueryId());
+        record.put(Constants.SUB_STATEMENT_DATA_RESULT_ROWS, subStatementData.resultRows());
+        record.put(Constants.SUB_STATEMENT_DATA_RESULT_SIZE, subStatementData.resultSize());
+        // Convert the duration from nanoseconds to seconds
+        record.put(Constants.SUB_STATEMENT_DATA_DURATION,
+                ValueCreator.createDecimalValue(convertNanosToSeconds(subStatementData.duration())));
+        if (Objects.nonNull(subStatementData.error()) && !subStatementData.error().isEmpty()) {
+            record.put(Constants.SUB_STATEMENT_DATA_ERROR, StringUtils.fromString(subStatementData.error()));
+        }
+        return record;
+    }
+
+    private static BigDecimal convertNanosToSeconds(long nanos) {
+        return BigDecimal.valueOf(nanos).divide(BigDecimal.valueOf(1_000_000_000));
     }
 }

@@ -144,6 +144,29 @@ public class NativeClientAdaptor {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
+    public static Object getExecutionResult(Environment env, BObject bClient, BString bStatementId,
+                                               BMap<BString, Object> bResultRequest) {
+        RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
+        String statementId = StringUtils.getStringValue(bStatementId);
+        ResultConfig resultConfig = new ResultConfig(bResultRequest);
+        Future future = env.markAsync();
+        EXECUTOR_SERVICE.execute(() -> {
+            try {
+                DescribeStatementResponse describeStatementResponse = getDescribeStatement(nativeClient,
+                        statementId, resultConfig.timeout(), resultConfig.pollingInterval());
+                BMap<BString, Object> bResponse = CommonUtils.getExecutionResultResponse(describeStatementResponse);
+                future.complete(bResponse);
+            } catch (Exception e) {
+                String errorMsg = String.format("Error occurred while executing the getExecutionResult: %s",
+                        e.getMessage());
+                BError bError = CommonUtils.createError(errorMsg, e);
+                future.complete(bError);
+            }
+        });
+        return null;
+    }
+
     public static Object getQueryResult(Environment env, BObject bClient, BString bStatementId,
                                         BTypedesc recordType, BMap<BString, Object> bResultConfig) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
