@@ -45,9 +45,9 @@ isolated function testBasicQueryResult() returns error? {
 
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
     Client redshift = check new Client(testConnectionConfig);
-    string statementId = check redshift->executeStatement(query);
+    ExecuteStatementResponse res = check redshift->executeStatement(query);
 
-    stream<User, sql:Error?> resultStream = check redshift->getQueryResult(statementId);
+    stream<User, Error?> resultStream = check redshift->getQueryResult(res.statementId);
     User[] resultArray = check from User user in resultStream
         select user;
 
@@ -66,9 +66,9 @@ isolated function testParameterizedQueryResult() returns error? {
     sql:ParameterizedQuery query = `SELECT * FROM Users WHERE user_id = ${user_id};`;
 
     Client redshift = check new Client(testConnectionConfig);
-    string statementId = check redshift->executeStatement(query);
+    ExecuteStatementResponse res = check redshift->executeStatement(query);
 
-    stream<User, sql:Error?> resultStream = check redshift->getQueryResult(statementId);
+    stream<User, Error?> resultStream = check redshift->getQueryResult(res.statementId);
     User[] resultArray = check from User user in resultStream
         select user;
 
@@ -99,9 +99,9 @@ isolated function testSupportedTypes() returns error? {
     _ = check redshift->executeStatement(insertQuery);
 
     sql:ParameterizedQuery selectQuery = `SELECT * FROM SupportedTypes;`;
-    string statementId = check redshift->executeStatement(selectQuery);
+    ExecuteStatementResponse res = check redshift->executeStatement(selectQuery);
 
-    stream<SupportedTypes, sql:Error?> queryResult = check redshift->getQueryResult(statementId);
+    stream<SupportedTypes, Error?> queryResult = check redshift->getQueryResult(res.statementId);
 
     SupportedTypes[] resultArray = check from SupportedTypes item in queryResult
         select item;
@@ -117,9 +117,9 @@ isolated function testNoQueryResult() returns error? {
     sql:ParameterizedQuery query = `DROP TABLE IF EXISTS non_existent_table;`;
 
     Client redshift = check new Client(testConnectionConfig);
-    string statementId = check redshift->executeStatement(query);
+    ExecuteStatementResponse res = check redshift->executeStatement(query);
 
-    stream<User, sql:Error?>|Error queryResult = redshift->getQueryResult(statementId);
+    stream<User, Error?>|Error queryResult = redshift->getQueryResult(res.statementId);
     test:assertTrue(queryResult is Error, "Query result is not an error");
 }
 
@@ -130,9 +130,9 @@ isolated function testNoResultRows() returns error? {
 
     sql:ParameterizedQuery query = `SELECT * FROM Users WHERE user_id = 0;`;
     Client redshift = check new Client(testConnectionConfig);
-    string statementId = check redshift->executeStatement(query);
+    ExecuteStatementResponse res = check redshift->executeStatement(query);
 
-    stream<User, sql:Error?> resultStream = check redshift->getQueryResult(statementId);
+    stream<User, Error?> resultStream = check redshift->getQueryResult(res.statementId);
     User[] resultArray = check from User user in resultStream
         select user;
 
@@ -140,28 +140,19 @@ isolated function testNoResultRows() returns error? {
 }
 
 @test:Config {
-    enable: false,
     groups: ["queryResult"]
 }
-isolated function testPaginationResult() returns error? {
-    sql:ParameterizedQuery query = `SELECT 
-        a.n + b.n * 10 + c.n * 100 + d.n * 1000 AS num,
-        REPEAT('X', 10000) AS large_column -- Generates a string of 10000 'X's
-        FROM 
-            (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) a,
-            (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) b,
-            (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) c,
-            (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) d
-        WHERE 
-        a.n + b.n * 10 + c.n * 100 + d.n * 1000 <= 2000;
-        `;
-
+isolated function testInvalidStatementId() returns error? {
     Client redshift = check new Client(testConnectionConfig);
-    string statementId = check redshift->executeStatement(query);
+    stream<User, Error?>|Error queryResult = redshift->getQueryResult("InvalidStatementId");
+    test:assertTrue(queryResult is Error, "Query result is not an error");
+}
 
-    stream<record {|string num;|}, sql:Error?> resultStream = check redshift->getQueryResult(statementId);
-    record {|string num;|}[] resultArray = check from var item in resultStream
-        select item;
-
-    test:assertEquals(resultArray.length(), 2000, "Invalid result count");
+@test:Config {
+    groups: ["queryResult"]
+}
+isolated function testIncorrectStatementId() returns error? {
+    Client redshift = check new Client(testConnectionConfig);
+    stream<User, Error?>|Error queryResult = redshift->getQueryResult("70662acc-f334-46f8-b953-3a9546796d7k");
+    test:assertTrue(queryResult is Error, "Query result is not an error");
 }
