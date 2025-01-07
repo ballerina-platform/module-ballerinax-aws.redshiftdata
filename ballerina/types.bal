@@ -110,7 +110,7 @@ public type DatabaseConfig record {|
 # + nextToken - A value that indicates the starting point for the next set of response records in a subsequent request.
 # + timeout - The timeout to be used getting the query results and execution results in `seconds`
 # + pollingInterval - The polling interval to be used getting the query results and execution results in `seconds`
-public type ResultConfig record {|
+public type RetrieveResultConfig record {|
     string nextToken?;
     decimal timeout = 30;
     decimal pollingInterval = 5;

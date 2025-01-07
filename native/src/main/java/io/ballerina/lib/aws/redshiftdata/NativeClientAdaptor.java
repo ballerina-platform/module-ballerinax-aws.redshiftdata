@@ -149,12 +149,12 @@ public class NativeClientAdaptor {
                                                BMap<BString, Object> bResultRequest) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
         String statementId = StringUtils.getStringValue(bStatementId);
-        ResultConfig resultConfig = new ResultConfig(bResultRequest);
+        RetrieveResultConfig retrieveResultConfig = new RetrieveResultConfig(bResultRequest);
         Future future = env.markAsync();
         EXECUTOR_SERVICE.execute(() -> {
             try {
                 DescribeStatementResponse describeStatementResponse = getDescribeStatement(nativeClient,
-                        statementId, resultConfig.timeout(), resultConfig.pollingInterval());
+                        statementId, retrieveResultConfig.timeout(), retrieveResultConfig.pollingInterval());
                 BMap<BString, Object> bResponse = CommonUtils.getExecutionResultResponse(describeStatementResponse);
                 future.complete(bResponse);
             } catch (Exception e) {
@@ -171,14 +171,14 @@ public class NativeClientAdaptor {
                                         BTypedesc recordType, BMap<BString, Object> bResultConfig) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
         String statementId = StringUtils.getStringValue(bStatementId);
-        ResultConfig resultConfig = new ResultConfig(bResultConfig);
+        RetrieveResultConfig retrieveResultConfig = new RetrieveResultConfig(bResultConfig);
         Future future = env.markAsync();
         EXECUTOR_SERVICE.execute(() -> {
             try {
                 String mainStatementId = extractMainStatementId(statementId);
                 // Wait for the statement to complete within the specified timeout
                 DescribeStatementResponse describeStatementResponse = getDescribeStatement(nativeClient,
-                        mainStatementId, resultConfig.timeout(), resultConfig.pollingInterval());
+                        mainStatementId, retrieveResultConfig.timeout(), retrieveResultConfig.pollingInterval());
                 if (!describeStatementResponse.hasResultSet()) {
                     throw new RuntimeException("Query result is not available for the statement: " + statementId);
                 }

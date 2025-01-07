@@ -6,9 +6,9 @@ import io.ballerina.runtime.api.values.BString;
 
 import java.math.BigDecimal;
 
-public record ResultConfig(BigDecimal timeout, BigDecimal pollingInterval) {
+public record RetrieveResultConfig(BigDecimal timeout, BigDecimal pollingInterval) {
 
-    public ResultConfig(BMap<BString, Object> bResultConfig) {
+    public RetrieveResultConfig(BMap<BString, Object> bResultConfig) {
         this(getTimeout(bResultConfig), getPollingInterval(bResultConfig));
     }
 

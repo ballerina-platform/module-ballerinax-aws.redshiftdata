@@ -170,11 +170,12 @@ isolated function testQueryResultWithConfig() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     ExecuteStatementResponse res = check redshift->executeStatement(query);
 
-    ResultConfig resultConfig = {
+    RetrieveResultConfig retrieveResultConfig = {
         timeout: 5,
         pollingInterval: 2
     };
-    stream<record {|int n;|}, Error?>|Error resultStream = redshift->getQueryResult(res.statementId, resultConfig = resultConfig);
+    stream<record {|int n;|}, Error?>|Error resultStream = redshift->getQueryResult(
+        res.statementId, retrieveResultConfig = retrieveResultConfig);
     test:assertTrue(resultStream is Error, "Result stream is not an error");
     if (resultStream is Error) {
         test:assertTrue(resultStream.message().includes("Statement execution timed out"), "Invalid error message");
