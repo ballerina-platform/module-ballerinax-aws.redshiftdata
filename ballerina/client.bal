@@ -101,11 +101,3 @@ public isolated client class Client {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
 }
-
-isolated function nextResult(ResultIterator iterator) returns record {}|Error? = @java:Method {
-    'class: "io.ballerina.lib.aws.redshiftdata.QueryResultProcessor"
-} external;
-
-isolated function closeResult(ResultIterator iterator) returns Error? = @java:Method {
-    'class: "io.ballerina.lib.aws.redshiftdata.QueryResultProcessor"
-} external;
