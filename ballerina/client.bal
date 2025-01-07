@@ -72,11 +72,11 @@ public isolated client class Client {
     # Retrieves the results of a previously executed SQL statement.
     #
     # + statementId - The identifier of the SQL statement
-    # + resultConfig - The configurations related to the execution of getting the results
+    # + retrieveResultConfig - The configurations related to the execution of getting the results
     # + rowTypes - The typedesc of the record to which the result needs to be returned
     # + return - Stream of records in the type of rowTypes or an `redshiftdata:Error`
     remote isolated function getQueryResult(StatementId statementId,
-            typedesc<record {}> rowTypes = <>, *ResultConfig resultConfig)
+            typedesc<record {}> rowTypes = <>, *RetrieveResultConfig retrieveResultConfig)
     returns stream<rowTypes, Error?>|Error = @java:Method {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
@@ -84,9 +84,9 @@ public isolated client class Client {
     # Describes the details about a specific instance when a query was run by the Amazon Redshift Data API.
     #
     # + statementId - The identifier of the SQL statement
-    # + resultConfig - The configurations related to the execution of getting the results
+    # + retrieveResultConfig - The configurations related to the execution of getting the results
     # + return - The details about the execution of the statement or batch of statements or an `redshiftdata:Error`
-    remote isolated function getExecutionResult(StatementId statementId, *ResultConfig resultConfig)
+    remote isolated function getExecutionResult(StatementId statementId, *RetrieveResultConfig retrieveResultConfig)
     returns ExecutionResult|Error = @java:Method {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
