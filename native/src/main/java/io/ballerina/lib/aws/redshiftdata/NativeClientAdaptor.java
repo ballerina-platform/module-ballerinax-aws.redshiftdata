@@ -102,7 +102,7 @@ public class NativeClientAdaptor {
                 BMap<BString, Object> bResponse = CommonUtils.getExecuteStatementResponse(executeStatementResponse);
                 future.complete(bResponse);
             } catch (Exception e) {
-                String errorMsg = String.format("Error occurred while executing execute-statement request: %s",
+                String errorMsg = String.format("Error occurred while executing the executeStatement: %s",
                         e.getMessage());
                 BError bError = CommonUtils.createError(errorMsg, e);
                 future.complete(bError);
@@ -189,7 +189,7 @@ public class NativeClientAdaptor {
 
                 future.complete(resultStream);
             } catch (Exception e) {
-                String errorMsg = String.format("Error occurred while getting the query result:\n %s",
+                String errorMsg = String.format("Error occurred while executing the getQueryResult: %s",
                         e.getMessage());
                 BError bError = CommonUtils.createError(errorMsg, e);
                 future.complete(bError);
