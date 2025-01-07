@@ -174,10 +174,10 @@ public class NativeClientAdaptor {
         Future future = env.markAsync();
         EXECUTOR_SERVICE.execute(() -> {
             try {
-                String mainStatementId = extractMainStatementId(statementId);
+                String parentStatementId = extractParentStatementId(statementId);
                 // Wait for the statement to complete within the specified timeout
                 DescribeStatementResponse describeStatementResponse = getDescribeStatement(nativeClient,
-                        mainStatementId, retrieveResultConfig.timeout(), retrieveResultConfig.pollingInterval());
+                        parentStatementId, retrieveResultConfig.timeout(), retrieveResultConfig.pollingInterval());
                 if (!describeStatementResponse.hasResultSet()) {
                     throw new RuntimeException("Query result is not available for the statement: " + statementId);
                 }
@@ -242,7 +242,7 @@ public class NativeClientAdaptor {
         throw new RuntimeException("Statement execution timed out");
     }
 
-    private static String extractMainStatementId(String statementId) {
+    private static String extractParentStatementId(String statementId) {
         int colonIndex = statementId.indexOf(':');
         return (colonIndex != -1) ? statementId.substring(0, colonIndex) : statementId;
     }
