@@ -156,3 +156,27 @@ isolated function testIncorrectStatementId() returns error? {
     stream<User, Error?>|Error queryResult = redshift->getQueryResult("70662acc-f334-46f8-b953-3a9546796d7k");
     test:assertTrue(queryResult is Error, "Query result is not an error");
 }
+
+@test:Config {
+    groups: ["queryResult"]
+}
+isolated function testQueryResultWithConfig() returns error? {
+    // This query will take about 15 seconds to execute
+    sql:ParameterizedQuery query =
+        `SELECT SUM(SQRT(ABS(SIN(a.num * b.num * random())))) AS expensive_computation
+            FROM generate_series(1, 10000) AS a(num)
+            CROSS JOIN generate_series(1, 2000) AS b(num);
+        `;
+    Client redshift = check new Client(testConnectionConfig);
+    ExecuteStatementResponse res = check redshift->executeStatement(query);
+
+    ResultConfig resultConfig = {
+        timeout: 5,
+        pollingInterval: 2
+    };
+    stream<record {|int n;|}, Error?>|Error resultStream = redshift->getQueryResult(res.statementId, resultConfig = resultConfig);
+    test:assertTrue(resultStream is Error, "Result stream is not an error");
+    if (resultStream is Error) {
+        test:assertTrue(resultStream.message().includes("Statement execution timed out"), "Invalid error message");
+    }
+}
