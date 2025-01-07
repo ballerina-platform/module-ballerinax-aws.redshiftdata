@@ -20,7 +20,6 @@ package io.ballerina.lib.aws.redshiftdata;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Future;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
@@ -148,7 +147,7 @@ public class NativeClientAdaptor {
     public static Object getExecutionResult(Environment env, BObject bClient, BString bStatementId,
                                                BMap<BString, Object> bResultRequest) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
-        String statementId = StringUtils.getStringValue(bStatementId);
+        String statementId = bStatementId.getValue();
         RetrieveResultConfig retrieveResultConfig = new RetrieveResultConfig(bResultRequest);
         Future future = env.markAsync();
         EXECUTOR_SERVICE.execute(() -> {
@@ -170,7 +169,7 @@ public class NativeClientAdaptor {
     public static Object getQueryResult(Environment env, BObject bClient, BString bStatementId,
                                         BTypedesc recordType, BMap<BString, Object> bResultConfig) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
-        String statementId = StringUtils.getStringValue(bStatementId);
+        String statementId = bStatementId.getValue();
         RetrieveResultConfig retrieveResultConfig = new RetrieveResultConfig(bResultConfig);
         Future future = env.markAsync();
         EXECUTOR_SERVICE.execute(() -> {
