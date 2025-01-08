@@ -34,15 +34,25 @@ isolated function testBasicBatchExecuteStatement() returns error? {
     groups: ["batchExecute"]
 }
 isolated function testBatchExecuteSessionId() returns error? {
-    Client redshift = check new Client(testConnectionConfig);
+    ConnectionConfig connectionConfig = {
+        region: testRegion,
+        authConfig: testAuthConfig,
+        dbAccessConfig: {
+            id: TEST_CLUSTER_ID,
+            database: TEST_DATABASE_NAME,
+            dbUser: TEST_DB_USER,
+            sessionKeepAliveSeconds: 3600
+        }
+    };
+    Client redshift = check new Client(connectionConfig);
     string[] queries = ["SELECT * FROM Users", "SELECT * FROM Users"];
-    BatchExecuteStatementResponse res1 = check redshift->batchExecuteStatement(queries, {sessionKeepAliveSeconds: 3600});
+    BatchExecuteStatementResponse res1 = check redshift->batchExecuteStatement(queries);
 
     test:assertTrue(res1.statementId != "", "Statement ID is empty");
     test:assertTrue(res1.sessionId is string && res1.sessionId != "", "Session ID is empty");
 
     runtime:sleep(2); // wait for session to establish
     BatchExecuteStatementResponse res2 = check redshift->batchExecuteStatement(queries,
-        {sessionId: res1.sessionId, databaseConfig: {}});
+        {dbAccessConfig: res1.sessionId});
     test:assertTrue(res2.sessionId == res1.sessionId, "Session ID is not equal");
 }

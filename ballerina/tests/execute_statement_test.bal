@@ -38,14 +38,23 @@ isolated function testBasicStatement() returns error? {
     groups: ["execute"]
 }
 isolated function testSessionId() returns error? {
-    Client redshift = check new Client(testConnectionConfig);
-    ExecuteStatementResponse res1 = check redshift->executeStatement(`SELECT * FROM Users`,
-        {sessionKeepAliveSeconds: 3600});
+    ConnectionConfig connectionConfig = {
+        region: testRegion,
+        authConfig: testAuthConfig,
+        dbAccessConfig: {
+            id: TEST_CLUSTER_ID,
+            database: TEST_DATABASE_NAME,
+            dbUser: TEST_DB_USER,
+            sessionKeepAliveSeconds: 3600
+        }
+    };
+    Client redshift = check new Client(connectionConfig);
+    ExecuteStatementResponse res1 = check redshift->executeStatement(`SELECT * FROM Users`);
     test:assertTrue(res1.sessionId is string && res1.sessionId != "", "Session ID is empty");
 
     runtime:sleep(2); // wait for session to establish
     ExecuteStatementResponse res2 = check redshift->executeStatement(`SELECT * FROM Users`,
-        {sessionId: res1.sessionId, databaseConfig: {}});
+        {dbAccessConfig: res1.sessionId});
     test:assertTrue(res2.sessionId == res1.sessionId, "Session ID is not equal");
 }
 
@@ -55,15 +64,13 @@ isolated function testSessionId() returns error? {
 isolated function testExecuteStatementConfig() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     ExecuteStatementConfig config = {
-        databaseConfig: testDatabaseConfig,
-        sessionKeepAliveSeconds: 5,
+        dbAccessConfig: testDbAccessConfig,
         clientToken: "testToken",
         statementName: "testStatement",
         withEvent: true
     };
     ExecuteStatementResponse res = check redshift->executeStatement(`SELECT * FROM Users`, config);
     test:assertTrue(res.statementId != "", "Statement ID is empty");
-    test:assertTrue(res.workgroupName == config.workgroupName, "Workgroup name is not equal");
 }
 
 @test:Config {
@@ -103,14 +110,14 @@ isolated function testWithDbConfigs() returns error? {
     ConnectionConfig mockConnectionConfig = {
         region: testRegion,
         authConfig: testAuthConfig,
-        databaseConfig: {
-            clusterId: "",
-            databaseName: "",
-            databaseUser: ""
+        dbAccessConfig: {
+            id: "",
+            database: "",
+            dbUser: ""
         }
     };
     Client redshift = check new Client(mockConnectionConfig);
     ExecuteStatementResponse res = check redshift->executeStatement(`SELECT * FROM Users`,
-        {databaseConfig: testDatabaseConfig});
+        {dbAccessConfig: testDbAccessConfig});
     test:assertTrue(res.statementId != "", "Statement ID is empty");
 }

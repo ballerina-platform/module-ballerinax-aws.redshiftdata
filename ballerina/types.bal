@@ -17,16 +17,16 @@
 import ballerina/constraint;
 import ballerina/time;
 
-# Additional configurations related to redshift data api
+# Additional configurations related to Redshift Data API
 #
-# + region - The AWS region with which the connector should communicate
-# + authConfig - The authentication configurations for the redshift data api
-# + databaseConfig - The database configurations
-# This can be overridden in the individual execute and batchExecute requests.
+# + region - The AWS region with which the connector should communicate.
+# + authConfig - The authentication configurations for the Redshift Data API.
+# + dbAccessConfig - The database access configurations for the Redshift Data API.
+# This can be overridden in the individual `executeStatement` and `batchExecuteStatement` requests.
 public type ConnectionConfig record {|
     Region region;
     AuthConfig authConfig;
-    DatabaseConfig databaseConfig?;
+    Cluster|WorkGroup dbAccessConfig?;
 |};
 
 # An Amazon Web Services region that hosts a set of Amazon services.
@@ -75,35 +75,83 @@ public enum Region {
     US_WEST_2 = "us-west-2"
 }
 
-# Auth configurations for the redshift data api
+# Auth configurations for the Redshift Data API.
 #
-# + accessKeyId - The AWS access key ID.
-# + secretAccessKey - The AWS secret access key.
-# + sessionToken - The session token if the credentials are temporary.
+# + accessKeyId - The AWS access key ID, used to identify the user interacting with AWS.
+# + secretAccessKey - The AWS secret access key, used to authenticate the user interacting with AWS.
+# + sessionToken - The AWS session token, used for authenticating a user with temporary permission to a resource.
 public type AuthConfig record {|
     string accessKeyId;
     string secretAccessKey;
     string sessionToken?;
 |};
 
-# Database configurations
+# Represents the configuration details required for connecting to an Amazon Redshift cluster.
 #
-# User must provide either `databaseUser` or `secretArn`
-#
-# + clusterId - The cluster identifier.
-# + databaseName - The name of the database.
-# + databaseUser - The database user name.
+# + id - The cluster identifier. 
+# + database - The name of the database.
+# + dbUser - The database user name. 
 # + secretArn - The name or ARN of the secret that enables access to the database.
-public type DatabaseConfig record {|
+# + sessionKeepAliveSeconds - The number of seconds to keep the session alive after the query finishes.
+public type Cluster record {|
     @constraint:String {
-        minLength: 1,
-        maxLength: 63
+        minLength: {
+            value: 1,
+            message: "The cluster ID should be at least 1 character long"
+        },
+        maxLength: {
+            value: 63,
+            message: "The cluster ID should be at most 63 characters long"
+        }
     }
-    string clusterId?;
-    string databaseName?;
-    string databaseUser?;
+    string id;
+    string database;
+    string dbUser?;
     string secretArn?;
+    @constraint:Int {
+        minValue: {
+            value: 0,
+            message: "The sessionKeepAliveSeconds should be greater than or equal to 0"
+        },
+        maxValue: {
+            value: 86400,
+            message: "The sessionKeepAliveSeconds should be less than or equal to 86400"
+        }
+    }
+    int sessionKeepAliveSeconds?;
 |};
+
+# Represents the configuration details required for connecting to an Amazon Redshift workgroup.
+#
+# + name - The serverless workgroup name or Amazon Resource Name (ARN).
+# + database - The name of the database. 
+# + secretArn - The name or ARN of the secret that enables access to the database.
+# + sessionKeepAliveSeconds - The number of seconds to keep the session alive after the query finishes.
+public type WorkGroup record {|
+    string name;
+    string database;
+    string secretArn?;
+    @constraint:Int {
+        minValue: {
+            value: 0,
+            message: "The sessionKeepAliveSeconds should be greater than or equal to 0"
+        },
+        maxValue: {
+            value: 86400,
+            message: "The sessionKeepAliveSeconds should be less than or equal to 86400"
+        }
+    }
+    int sessionKeepAliveSeconds?;
+|};
+
+# The session identifier of the query.
+@constraint:String {
+    pattern: {
+        value: re `^[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}(:\d+)?$`,
+        message: "Invalid session ID format"
+    }
+}
+public type SessionId string;
 
 # Configuration related to get the results
 #
@@ -116,37 +164,28 @@ public type RetrieveResultConfig record {|
     decimal pollingInterval = 5;
 |};
 
-# Configuration related to execute statement.
+# Represents the configuration details required for `executeStatement` method.
 #
-# + databaseConfig - The database configurations.
-# + clientToken - A unique, case-sensitive identifier that you provide to ensure the idempotency of the request.
+# + dbAccessConfig - The database access configurations for the redshift data api.
+# + clientToken - A unique, case-sensitive identifier that you provide to ensure the idempotency of the request. 
 # + statementName - The name of the SQL statement.
-# + withEvent - A value that indicates whether to send an event to the Amazon EventBridge event bus after the SQL statement runs.
-# + sessionId - The session identifier of the query.
-# + sessionKeepAliveSeconds - The number of seconds to keep the session alive after the query finishes.
-# + workgroupName - The serverless workgroup name or Amazon Resource Name (ARN).
+# + withEvent - A value that indicates whether to send an event to the Amazon EventBridge event bus after the SQL 
+# statement runs.
 public type ExecuteStatementConfig record {|
-    DatabaseConfig databaseConfig?;
+    Cluster|WorkGroup|SessionId dbAccessConfig?;
     string clientToken?;
     @constraint:String {
-        minLength: 1,
-        maxLength: 500
+        minLength: {
+            value: 1,
+            message: "The statement name should be at least 1 character long"
+        },
+        maxLength: {
+            value: 500,
+            message: "The statement name should be at most 500 characters long"
+        }
     }
     string statementName?;
     boolean withEvent?;
-    @constraint:String {
-        pattern: re `^[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}(:\d+)?$`
-    }
-    string sessionId?;
-    @constraint:Int {
-        minValue: 0,
-        maxValue: 86400
-    }
-    int sessionKeepAliveSeconds?;
-    @constraint:String {
-        pattern: re `^(([a-z0-9-]+)|(arn:(aws(-[a-z]+)*):redshift-serverless:[a-z]{2}(-gov)?-[a-z]+-\d{1}:\d{12}:workgroup/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}))$`
-    }
-    string workgroupName?;
 |};
 
 # The response from the `executeStatement` method.
@@ -162,7 +201,7 @@ public type ExecuteStatementResponse record {|
     boolean hasDbGroups;
     string[] dbGroups;
     string statementId;
-    string sessionId?;
+    SessionId sessionId?;
     string workgroupName?;
 |};
 
@@ -221,7 +260,7 @@ public type ExecutionResult record {|
     boolean hasQueryParameters;
     boolean hasSubStatements;
     int redshiftPid;
-    string sessionId?;
+    SessionId sessionId?;
     SubStatementData[] subStatements;
     string workgroupName?;
 |};
