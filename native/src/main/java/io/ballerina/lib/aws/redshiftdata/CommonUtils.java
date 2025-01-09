@@ -123,20 +123,17 @@ public final class CommonUtils {
         BMap<BString, Object> response = ValueCreator.createRecordValue(
                 ModuleUtils.getModule(), Constants.EXECUTE_STATEMENT_RES_RECORD);
 
-        BString[] dbGroups = nativeResponse.dbGroups().stream()
-                .map(StringUtils::fromString)
-                .toArray(BString[]::new);
-        response.put(Constants.EXECUTE_STATEMENT_RES_DB_GROUPS, ValueCreator.createArrayValue(dbGroups));
+        if (nativeResponse.hasDbGroups()) {
+            BString[] dbGroups = nativeResponse.dbGroups().stream()
+                    .map(StringUtils::fromString)
+                    .toArray(BString[]::new);
+            response.put(Constants.EXECUTE_STATEMENT_RES_DB_GROUPS, ValueCreator.createArrayValue(dbGroups));
+        }
         response.put(Constants.EXECUTE_STATEMENT_RES_CREATE_AT, new Utc(nativeResponse.createdAt()).build());
-        response.put(Constants.EXECUTE_STATEMENT_RES_HAS_DB_GROUPS, nativeResponse.hasDbGroups());
         response.put(Constants.EXECUTE_STATEMENT_RES_STATEMENT_ID, StringUtils.fromString(nativeResponse.id()));
         if (Objects.nonNull(nativeResponse.sessionId())) {
             response.put(Constants.EXECUTE_STATEMENT_RES_SESSION_ID,
                     StringUtils.fromString(nativeResponse.sessionId()));
-        }
-        if (Objects.nonNull(nativeResponse.workgroupName())) {
-            response.put(Constants.EXECUTE_STATEMENT_RES_WORKGROUP_NAME,
-                    StringUtils.fromString(nativeResponse.workgroupName()));
         }
         return response;
     }

@@ -26,8 +26,6 @@ isolated function testBasicStatement() returns error? {
 
     test:assertTrue(res.statementId != "", "Statement ID is empty");
     test:assertTrue(res.createdAt[0] > 0, "Invalid createdAt time");
-    test:assertTrue(res.hasDbGroups == false, "Invalid hasDbGroups value");
-    test:assertTrue(res.workgroupName is (), "Workgroup name is not nill");
     test:assertTrue(res.sessionId is (), "Session ID is not nill"); // Since we are not using sessionKeepAliveSeconds
 }
 

@@ -103,7 +103,7 @@ public class NativeClientAdaptor {
                 future.complete(bResponse);
             } catch (Exception e) {
                 String errorMsg = String.format("Error occurred while executing the executeStatement: %s",
-                        e.getMessage());
+                        Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
                 BError bError = CommonUtils.createError(errorMsg, e);
                 future.complete(bError);
             }

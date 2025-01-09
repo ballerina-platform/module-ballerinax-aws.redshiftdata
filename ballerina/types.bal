@@ -191,18 +191,14 @@ public type ExecuteStatementConfig record {|
 # The response from the `executeStatement` method.
 #
 # + createdAt - The date and time (UTC) the statement was created.
-# + hasDbGroups - For responses, this returns true if the service returned a value for the DbGroups property.
 # + dbGroups - A list of colon (:) separated names of database groups.
 # + statementId - The identifier of the SQL statement whose results are to be fetched.
 # + sessionId - The session identifier of the query.
-# + workgroupName - The serverless workgroup name or Amazon Resource Name (ARN).
 public type ExecuteStatementResponse record {|
     time:Utc createdAt;
-    boolean hasDbGroups;
-    string[] dbGroups;
-    string statementId;
+    string[] dbGroups?;
+    StatementId statementId;
     SessionId sessionId?;
-    string workgroupName?;
 |};
 
 # One or more SQL statements to run.
