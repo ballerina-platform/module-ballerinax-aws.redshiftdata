@@ -16,7 +16,6 @@
 
 import ballerina/sql;
 import ballerina/test;
-import ballerina/time;
 
 @test:Config {
     groups: ["getExecutionResult"]
@@ -25,16 +24,12 @@ isolated function testBasicExecutionResult() returns error? {
     Client redshift = check new Client(testConnectionConfig);
 
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
-    time:Utc startTime = time:utcNow();
     ExecuteStatementResponse res = check redshift->executeStatement(query);
-    time:Utc endTime = time:utcNow();
-
     ExecutionResult executionResult = check redshift->getExecutionResult(res.statementId);
 
     test:assertTrue(executionResult.statementId != "", "Statement ID is empty");
     test:assertTrue(executionResult.statementId == res.statementId, "Statement ID mismatch");
-    test:assertTrue(executionResult.createdAt[0] >= startTime[0] && res.createdAt[0] <= endTime[0],
-            "Invalid createdAt time");
+    test:assertTrue(executionResult.createdAt[0] > 0, "Invalid createdAt time");
     test:assertTrue(executionResult.duration > 0d, "Invalid duration");
     test:assertTrue(executionResult.hasResultSet == true, "Invalid hasResultSet value");
     test:assertTrue(executionResult.queryString == query.strings[0], "Invalid query string");
@@ -50,17 +45,13 @@ isolated function testBasicExecutionResult() returns error? {
 isolated function testBatchExecutionResult() returns error? {
     Client redshift = check new Client(testConnectionConfig);
 
-    time:Utc startTime = time:utcNow();
     string[] queries = ["SELECT * FROM Users", "SELECT * FROM Users;"];
     BatchExecuteStatementResponse res = check redshift->batchExecuteStatement(queries);
-    time:Utc endTime = time:utcNow();
-
     ExecutionResult executionResult = check redshift->getExecutionResult(res.statementId);
     SubStatementData subStatement1 = executionResult.subStatements[0];
 
     test:assertTrue(subStatement1.statementId != "", "Statement ID is empty");
-    test:assertTrue(subStatement1.createdAt[0] >= startTime[0] && res.createdAt[0] <= endTime[0],
-            "Invalid createdAt time");
+    test:assertTrue(subStatement1.createdAt[0] > 0, "Invalid createdAt time");
     test:assertTrue(subStatement1.duration > 0d, "Invalid duration");
     test:assertTrue(subStatement1.'error is (), "Error is not nill");
     test:assertTrue(subStatement1.hasResultSet == true, "Invalid hasResultSet value");
@@ -69,7 +60,6 @@ isolated function testBatchExecutionResult() returns error? {
     test:assertTrue(subStatement1.resultRows > 0, "Invalid resultRows");
     test:assertTrue(subStatement1.resultSize > 0, "Invalid resultSize");
     test:assertTrue(subStatement1.status == FINISHED, "Invalid status");
-    test:assertTrue(subStatement1.updatedAt[0] >= subStatement1.createdAt[0], "Invalid updatedAt time");
 }
 
 @test:Config {

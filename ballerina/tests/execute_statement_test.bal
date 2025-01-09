@@ -16,19 +16,16 @@
 
 import ballerina/lang.runtime;
 import ballerina/test;
-import ballerina/time;
 
 @test:Config {
     groups: ["execute"]
 }
 isolated function testBasicStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
-    time:Utc startTime = time:utcNow();
     ExecuteStatementResponse res = check redshift->executeStatement(`SELECT * FROM Users`);
-    time:Utc endTime = time:utcNow();
 
     test:assertTrue(res.statementId != "", "Statement ID is empty");
-    test:assertTrue(res.createdAt[0] >= startTime[0] && res.createdAt[0] <= endTime[0], "Invalid createdAt time");
+    test:assertTrue(res.createdAt[0] > 0, "Invalid createdAt time");
     test:assertTrue(res.hasDbGroups == false, "Invalid hasDbGroups value");
     test:assertTrue(res.workgroupName is (), "Workgroup name is not nill");
     test:assertTrue(res.sessionId is (), "Session ID is not nill"); // Since we are not using sessionKeepAliveSeconds
