@@ -69,7 +69,7 @@ public class NativeClientAdaptor {
                     .credentialsProvider(credentialsProvider)
                     .build();
             bClient.addNativeData(Constants.NATIVE_CLIENT, nativeClient);
-            bClient.addNativeData(Constants.NATIVE_DATABASE_CONFIG, connectionConfig.databaseConfig());
+            bClient.addNativeData(Constants.NATIVE_DB_ACCESS_CONFIG, connectionConfig.dbAccessConfig());
         } catch (Exception e) {
             String errorMsg = String.format("Error occurred while initializing the Redshift client: %s",
                     e.getMessage());
@@ -91,9 +91,9 @@ public class NativeClientAdaptor {
     public static Object executeStatement(Environment env, BObject bClient, BObject bSqlStatement,
                                           BMap<BString, Object> bExecuteStatementConfig) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
-        DatabaseConfig databaseConfig = (DatabaseConfig) bClient.getNativeData(Constants.NATIVE_DATABASE_CONFIG);
+        Object dbAccessConfig = bClient.getNativeData(Constants.NATIVE_DB_ACCESS_CONFIG);
         ExecuteStatementRequest executeStatementRequest = CommonUtils.getNativeExecuteStatementRequest(
-                bSqlStatement, bExecuteStatementConfig, databaseConfig);
+                bSqlStatement, bExecuteStatementConfig, dbAccessConfig);
         Future future = env.markAsync();
         EXECUTOR_SERVICE.execute(() -> {
             try {
@@ -115,9 +115,9 @@ public class NativeClientAdaptor {
     public static Object batchExecuteStatement(Environment env, BObject bClient, BArray bSqlStatements,
                                                BMap<BString, Object> bExecuteStatementConfig) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
-        DatabaseConfig databaseConfig = (DatabaseConfig) bClient.getNativeData(Constants.NATIVE_DATABASE_CONFIG);
+        Object dbAccessConfig = bClient.getNativeData(Constants.NATIVE_DB_ACCESS_CONFIG);
         BatchExecuteStatementRequest batchExecuteStatementRequest = CommonUtils.getNativeBatchExecuteStatementRequest(
-                bSqlStatements, bExecuteStatementConfig, databaseConfig);
+                bSqlStatements, bExecuteStatementConfig, dbAccessConfig);
         Future future = env.markAsync();
         EXECUTOR_SERVICE.execute(() -> {
             try {
@@ -145,7 +145,7 @@ public class NativeClientAdaptor {
 
     @SuppressWarnings("unchecked")
     public static Object getExecutionResult(Environment env, BObject bClient, BString bStatementId,
-                                               BMap<BString, Object> bResultRequest) {
+                                            BMap<BString, Object> bResultRequest) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
         String statementId = bStatementId.getValue();
         RetrieveResultConfig retrieveResultConfig = new RetrieveResultConfig(bResultRequest);

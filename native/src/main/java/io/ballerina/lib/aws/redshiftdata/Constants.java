@@ -29,25 +29,32 @@ import java.math.BigDecimal;
 public interface Constants {
     // Constants Related to Native Client Adapter
     String NATIVE_CLIENT = "nativeClient";
-    String NATIVE_DATABASE_CONFIG = "nativeDatabaseConfig";
+    String NATIVE_DB_ACCESS_CONFIG = "nativeDbAccessConfig";
     BigDecimal DEFAULT_TIMEOUT = new BigDecimal(60); // In seconds
     BigDecimal DEFAULT_POLLING_INTERVAL = new BigDecimal(2); // In seconds
 
     // Constants Related to Connection Config
-    BString REGION = StringUtils.fromString("region");
-    BString AUTH_CONFIG = StringUtils.fromString("authConfig");
-    BString DATABASE_CONFIG = StringUtils.fromString("databaseConfig");
+    BString CONNECTION_CONFIG_REGION = StringUtils.fromString("region");
+    BString CONNECTION_CONFIG_AUTH_CONFIG = StringUtils.fromString("authConfig");
+    BString CONNECTION_CONFIG_DB_ACCESS_CONFIG = StringUtils.fromString("dbAccessConfig");
 
     // Constants Related to Auth Config
     BString AWS_ACCESS_KEY_ID = StringUtils.fromString("accessKeyId");
     BString AWS_SECRET_ACCESS_KEY = StringUtils.fromString("secretAccessKey");
     BString AWS_SESSION_TOKEN = StringUtils.fromString("sessionToken");
 
-    // Constants Related to Database Config
-    BString CLUSTER_ID = StringUtils.fromString("clusterId");
-    BString DATABASE_NAME = StringUtils.fromString("databaseName");
-    BString DATABASE_USER = StringUtils.fromString("databaseUser");
-    BString SECRET_ARN = StringUtils.fromString("secretArn");
+    // Constants Related to Cluster
+    BString CLUSTER_ID = StringUtils.fromString("id");
+    BString CLUSTER_DATABASE = StringUtils.fromString("database");
+    BString CLUSTER_DB_USER = StringUtils.fromString("dbUser");
+    BString CLUSTER_SECRET_ARN = StringUtils.fromString("secretArn");
+    BString CLUSTER_SESSION_KEEP_ALIVE_SECONDS = StringUtils.fromString("sessionKeepAliveSeconds");
+
+    // Constants Related to WorkGroup
+    BString WORK_GROUP_NAME = StringUtils.fromString("name");
+    BString WORK_GROUP_DATABASE = StringUtils.fromString("database");
+    BString WORK_GROUP_SECRET_ARN = StringUtils.fromString("secretArn");
+    BString WORK_GROUP_SESSION_KEEP_ALIVE_SECONDS = StringUtils.fromString("sessionKeepAliveSeconds");
 
     // Constants Related to Parameterized Query
     BString QUERY_STRINGS = StringUtils.fromString("strings");

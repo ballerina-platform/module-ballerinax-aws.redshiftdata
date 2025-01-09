@@ -29,31 +29,38 @@ import software.amazon.awssdk.regions.Region;
  * @param region         The AWS region where the Redshift cluster is located.
  * @param authConfig     The authentication configuration required for the
  *                       Redshift Data Client.
- * @param databaseConfig The database configuration required for the Redshift
- *                       Data Client.
+ * @param dbAccessConfig The database access configurations for the Redshift Data API.
  */
-public record ConnectionConfig(Region region, AuthConfig authConfig, DatabaseConfig databaseConfig) {
+public record ConnectionConfig(Region region, AuthConfig authConfig, Object dbAccessConfig) {
 
     public ConnectionConfig(BMap<BString, Object> bConnectionConfig) {
-        this(getRegion(bConnectionConfig), getAuthConfig(bConnectionConfig), getDatabaseConfig(bConnectionConfig));
+        this(
+                getRegion(bConnectionConfig),
+                getAuthConfig(bConnectionConfig),
+                getDbAccessConfig(bConnectionConfig)
+        );
     }
 
     private static Region getRegion(BMap<BString, Object> bConnectionConfig) {
-        String regionStr = bConnectionConfig.getStringValue(Constants.REGION).getValue();
+        String regionStr = bConnectionConfig.getStringValue(Constants.CONNECTION_CONFIG_REGION).getValue();
         return Region.of(regionStr);
     }
 
     @SuppressWarnings("unchecked")
     private static AuthConfig getAuthConfig(BMap<BString, Object> bConnectionConfig) {
         BMap<BString, Object> bAuthConfig = (BMap<BString, Object>) bConnectionConfig
-                .getMapValue(Constants.AUTH_CONFIG);
+                .getMapValue(Constants.CONNECTION_CONFIG_AUTH_CONFIG);
         return new AuthConfig(bAuthConfig);
     }
 
     @SuppressWarnings("unchecked")
-    private static DatabaseConfig getDatabaseConfig(BMap<BString, Object> bConnectionConfig) {
-        BMap<BString, Object> bDatabaseConfig = (BMap<BString, Object>) bConnectionConfig
-                .get(Constants.DATABASE_CONFIG);
-        return new DatabaseConfig(bDatabaseConfig);
+    private static Object getDbAccessConfig(BMap<BString, Object> bConnectionConfig) {
+        BMap<BString, Object> bDbAccessConfig = (BMap<BString, Object>) bConnectionConfig
+                .get(Constants.CONNECTION_CONFIG_DB_ACCESS_CONFIG);
+
+        if (bDbAccessConfig.containsKey(Constants.CLUSTER_ID)) {
+            return new Cluster(bDbAccessConfig);
+        }
+        return new WorkGroup(bDbAccessConfig);
     }
 }

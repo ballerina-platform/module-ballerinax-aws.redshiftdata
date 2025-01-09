@@ -56,7 +56,7 @@ public final class CommonUtils {
 
     @SuppressWarnings("unchecked")
     public static ExecuteStatementRequest getNativeExecuteStatementRequest(
-            BObject bSqlStatement, BMap<BString, Object> bConfig, DatabaseConfig databaseConfig) {
+            BObject bSqlStatement, BMap<BString, Object> bConfig, Object dbAccessConfig) {
         ExecuteStatementRequest.Builder builder = ExecuteStatementRequest.builder();
 
         // Set the SQL statement
@@ -66,17 +66,43 @@ public final class CommonUtils {
             builder.parameters(parameterizedQuery.getParameters());
         }
 
-        // Set the database config
-        if (bConfig.containsKey(Constants.DATABASE_CONFIG)) {
-            Object bDatabaseConfig = bConfig.get(Constants.DATABASE_CONFIG);
-            databaseConfig = new DatabaseConfig((BMap<BString, Object>) bDatabaseConfig);
+        // if dbAccessConfig set in the ExecuteStatementConfig, it will override the init level dbAccessConfig
+        if (bConfig.containsKey(Constants.CONNECTION_CONFIG_DB_ACCESS_CONFIG)) {
+            Object bDbAccessConfigObj = bConfig.get(Constants.CONNECTION_CONFIG_DB_ACCESS_CONFIG);
+
+            if (bDbAccessConfigObj instanceof BString bSessionId) {
+                dbAccessConfig = new SessionId(bSessionId);
+            } else {
+                BMap<BString, Object> bDbAccessConfig = (BMap<BString, Object>) bDbAccessConfigObj;
+                if (bDbAccessConfig.containsKey(Constants.CLUSTER_ID)) {
+                    dbAccessConfig = new Cluster(bDbAccessConfig);
+                } else if (bDbAccessConfig.containsKey(Constants.WORK_GROUP_NAME)) {
+                    dbAccessConfig = new WorkGroup(bDbAccessConfig);
+                }
+            }
         }
-        builder.clusterIdentifier(databaseConfig.clusterId()).database(databaseConfig.databaseName());
-        if (databaseConfig.databaseUser() != null) {
-            builder.dbUser(databaseConfig.databaseUser());
-        }
-        if (databaseConfig.secretArn() != null) {
-            builder.secretArn(databaseConfig.secretArn());
+
+        // Set the database access configurations
+        if (dbAccessConfig instanceof Cluster cluster) {
+            builder.database(cluster.database());
+            builder.clusterIdentifier(cluster.id());
+            if (cluster.dbUser() != null) {
+                builder.dbUser(cluster.dbUser());
+            } else {
+                builder.secretArn(cluster.secretArn());
+            }
+            if (cluster.sessionKeepAliveSeconds() != null) {
+                builder.sessionKeepAliveSeconds(cluster.sessionKeepAliveSeconds());
+            }
+        } else if (dbAccessConfig instanceof WorkGroup workGroup) {
+            builder.workgroupName(workGroup.name());
+            builder.database(workGroup.database());
+            builder.secretArn(workGroup.secretArn());
+            if (workGroup.sessionKeepAliveSeconds() != null) {
+                builder.sessionKeepAliveSeconds(workGroup.sessionKeepAliveSeconds());
+            }
+        } else if (dbAccessConfig instanceof SessionId sessionId) {
+            builder.sessionId(sessionId.sessionId());
         }
 
         // Set other configurations
@@ -89,17 +115,6 @@ public final class CommonUtils {
         }
         if (bConfig.containsKey(Constants.EXECUTE_STATEMENT_CONFIG_WITH_EVENT)) {
             builder.withEvent(bConfig.getBooleanValue(Constants.EXECUTE_STATEMENT_CONFIG_WITH_EVENT));
-        }
-        if (bConfig.containsKey(Constants.EXECUTE_STATEMENT_CONFIG_SESSION_ID)) {
-            builder.sessionId(bConfig.getStringValue(Constants.EXECUTE_STATEMENT_CONFIG_SESSION_ID).getValue());
-        }
-        if (bConfig.containsKey(Constants.EXECUTE_STATEMENT_CONFIG_SESSION_KEEP_ALIVE_SECONDS)) {
-            builder.sessionKeepAliveSeconds(bConfig.getIntValue(
-                    Constants.EXECUTE_STATEMENT_CONFIG_SESSION_KEEP_ALIVE_SECONDS).intValue());
-        }
-        if (bConfig.containsKey(Constants.EXECUTE_STATEMENT_CONFIG_WORKGROUP_NAME)) {
-            builder.workgroupName(bConfig.getStringValue(
-                    Constants.EXECUTE_STATEMENT_CONFIG_WORKGROUP_NAME).getValue());
         }
         return builder.build();
     }
@@ -128,23 +143,48 @@ public final class CommonUtils {
 
     @SuppressWarnings("unchecked")
     public static BatchExecuteStatementRequest getNativeBatchExecuteStatementRequest(
-            BArray bSqlStatements, BMap<BString, Object> bConfig, DatabaseConfig databaseConfig) {
+            BArray bSqlStatements, BMap<BString, Object> bConfig, Object dbAccessConfig) {
         BatchExecuteStatementRequest.Builder builder = BatchExecuteStatementRequest.builder();
 
         // Set the SQL statements
         builder.sqls(bSqlStatements.getStringArray());
 
-        // Set the database config
-        if (bConfig.containsKey(Constants.DATABASE_CONFIG)) {
-            Object bDatabaseConfig = bConfig.get(Constants.DATABASE_CONFIG);
-            databaseConfig = new DatabaseConfig((BMap<BString, Object>) bDatabaseConfig);
+        // if dbAccessConfig set in the ExecuteStatementConfig, it will override the init level dbAccessConfig
+        if (bConfig.containsKey(Constants.CONNECTION_CONFIG_DB_ACCESS_CONFIG)) {
+            Object bDbAccessConfigObj = bConfig.get(Constants.CONNECTION_CONFIG_DB_ACCESS_CONFIG);
+            if (bDbAccessConfigObj instanceof BString bSessionId) {
+                dbAccessConfig = new SessionId(bSessionId);
+            } else {
+                BMap<BString, Object> bDbAccessConfig = (BMap<BString, Object>) bDbAccessConfigObj;
+                if (bDbAccessConfig.containsKey(Constants.CLUSTER_ID)) {
+                    dbAccessConfig = new Cluster(bDbAccessConfig);
+                } else if (bDbAccessConfig.containsKey(Constants.WORK_GROUP_NAME)) {
+                    dbAccessConfig = new WorkGroup(bDbAccessConfig);
+                }
+            }
         }
-        builder.clusterIdentifier(databaseConfig.clusterId()).database(databaseConfig.databaseName());
-        if (databaseConfig.databaseUser() != null) {
-            builder.dbUser(databaseConfig.databaseUser());
-        }
-        if (databaseConfig.secretArn() != null) {
-            builder.secretArn(databaseConfig.secretArn());
+
+        // Set the database access configurations
+        if (dbAccessConfig instanceof Cluster cluster) {
+            builder.database(cluster.database());
+            builder.clusterIdentifier(cluster.id());
+            if (cluster.dbUser() != null) {
+                builder.dbUser(cluster.dbUser());
+            } else {
+                builder.secretArn(cluster.secretArn());
+            }
+            if (cluster.sessionKeepAliveSeconds() != null) {
+                builder.sessionKeepAliveSeconds(cluster.sessionKeepAliveSeconds());
+            }
+        } else if (dbAccessConfig instanceof WorkGroup workGroup) {
+            builder.workgroupName(workGroup.name());
+            builder.database(workGroup.database());
+            builder.secretArn(workGroup.secretArn());
+            if (workGroup.sessionKeepAliveSeconds() != null) {
+                builder.sessionKeepAliveSeconds(workGroup.sessionKeepAliveSeconds());
+            }
+        } else if (dbAccessConfig instanceof SessionId sessionId) {
+            builder.sessionId(sessionId.sessionId());
         }
 
         // Set other configurations
@@ -157,17 +197,6 @@ public final class CommonUtils {
         }
         if (bConfig.containsKey(Constants.EXECUTE_STATEMENT_CONFIG_WITH_EVENT)) {
             builder.withEvent(bConfig.getBooleanValue(Constants.EXECUTE_STATEMENT_CONFIG_WITH_EVENT));
-        }
-        if (bConfig.containsKey(Constants.EXECUTE_STATEMENT_CONFIG_SESSION_ID)) {
-            builder.sessionId(bConfig.getStringValue(Constants.EXECUTE_STATEMENT_CONFIG_SESSION_ID).getValue());
-        }
-        if (bConfig.containsKey(Constants.EXECUTE_STATEMENT_CONFIG_SESSION_KEEP_ALIVE_SECONDS)) {
-            builder.sessionKeepAliveSeconds(bConfig.getIntValue(
-                    Constants.EXECUTE_STATEMENT_CONFIG_SESSION_KEEP_ALIVE_SECONDS).intValue());
-        }
-        if (bConfig.containsKey(Constants.EXECUTE_STATEMENT_CONFIG_WORKGROUP_NAME)) {
-            builder.workgroupName(bConfig.getStringValue(
-                    Constants.EXECUTE_STATEMENT_CONFIG_WORKGROUP_NAME).getValue());
         }
         return builder.build();
     }
