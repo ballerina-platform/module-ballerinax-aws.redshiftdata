@@ -37,7 +37,6 @@ import software.amazon.awssdk.services.redshiftdata.model.ExecuteStatementRespon
 import software.amazon.awssdk.services.redshiftdata.model.SubStatementData;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -144,11 +143,16 @@ public final class CommonUtils {
         BatchExecuteStatementRequest.Builder builder = BatchExecuteStatementRequest.builder();
 
         // Set the SQL statements
-        builder.sqls(bSqlStatements.getStringArray());
+        String[] sqlStatements = new String[bSqlStatements.size()];
+        for (int i = 0; i < bSqlStatements.size(); i++) {
+            sqlStatements[i] = new ParameterizedQuery((BObject) bSqlStatements.get(i)).getPreparedQuery();
+        }
+        builder.sqls(sqlStatements);
 
         // if dbAccessConfig set in the ExecuteStatementConfig, it will override the init level dbAccessConfig
         if (bConfig.containsKey(Constants.CONNECTION_CONFIG_DB_ACCESS_CONFIG)) {
             Object bDbAccessConfigObj = bConfig.get(Constants.CONNECTION_CONFIG_DB_ACCESS_CONFIG);
+
             if (bDbAccessConfigObj instanceof BString bSessionId) {
                 dbAccessConfig = new SessionId(bSessionId);
             } else {
@@ -199,29 +203,22 @@ public final class CommonUtils {
     }
 
     public static BMap<BString, Object> getBatchExecuteStatementResponse(
-            BatchExecuteStatementResponse nativeResponse, String[] subStatementIds) {
+            BatchExecuteStatementResponse nativeResponse) {
         BMap<BString, Object> response = ValueCreator.createRecordValue(
-                ModuleUtils.getModule(), Constants.BATCH_EXECUTE_STATEMENT_RES_RECORD);
+                ModuleUtils.getModule(), Constants.EXECUTE_STATEMENT_RES_RECORD);
 
-        BString[] dbGroups = nativeResponse.dbGroups().stream()
-                .map(StringUtils::fromString)
-                .toArray(BString[]::new);
-        response.put(Constants.BATCH_EXECUTE_STATEMENT_RES_DB_GROUPS, ValueCreator.createArrayValue(dbGroups));
-        response.put(Constants.BATCH_EXECUTE_STATEMENT_RES_CREATE_AT, new Utc(nativeResponse.createdAt()).build());
-        response.put(Constants.BATCH_EXECUTE_STATEMENT_RES_HAS_DB_GROUPS, nativeResponse.hasDbGroups());
-        response.put(Constants.BATCH_EXECUTE_STATEMENT_RES_STATEMENT_ID, StringUtils.fromString(nativeResponse.id()));
+        if (nativeResponse.hasDbGroups()) {
+            BString[] dbGroups = nativeResponse.dbGroups().stream()
+                    .map(StringUtils::fromString)
+                    .toArray(BString[]::new);
+            response.put(Constants.EXECUTE_STATEMENT_RES_DB_GROUPS, ValueCreator.createArrayValue(dbGroups));
+        }
+        response.put(Constants.EXECUTE_STATEMENT_RES_CREATE_AT, new Utc(nativeResponse.createdAt()).build());
+        response.put(Constants.EXECUTE_STATEMENT_RES_STATEMENT_ID, StringUtils.fromString(nativeResponse.id()));
         if (Objects.nonNull(nativeResponse.sessionId())) {
-            response.put(Constants.BATCH_EXECUTE_STATEMENT_RES_SESSION_ID,
+            response.put(Constants.EXECUTE_STATEMENT_RES_SESSION_ID,
                     StringUtils.fromString(nativeResponse.sessionId()));
         }
-        if (Objects.nonNull(nativeResponse.workgroupName())) {
-            response.put(Constants.BATCH_EXECUTE_STATEMENT_RES_WORKGROUP_NAME,
-                    StringUtils.fromString(nativeResponse.workgroupName()));
-        }
-        BString[] bSubStatementIds = Arrays.stream(subStatementIds)
-                .map(StringUtils::fromString).toArray(BString[]::new);
-        response.put(Constants.BATCH_EXECUTE_STATEMENT_RES_SUB_STATEMENT_IDS,
-                ValueCreator.createArrayValue(bSubStatementIds));
         return response;
     }
 

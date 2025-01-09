@@ -201,21 +201,6 @@ public type ExecuteStatementResponse record {|
     SessionId sessionId?;
 |};
 
-# One or more SQL statements to run.
-@constraint:Array {
-    minLength: 1,
-    maxLength: 40
-}
-public type SqlStatements string[];
-
-# The response from the `batchExecuteStatement` method.
-#
-# + subStatementIds - The statement IDs of the SQL statements. Which are used to retrieve the results.
-public type BatchExecuteStatementResponse record {|
-    *ExecuteStatementResponse;
-    string[] subStatementIds;
-|};
-
 # The identifier of the SQL statement
 @constraint:String {
     pattern: re `^[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}(:\d+)?$`

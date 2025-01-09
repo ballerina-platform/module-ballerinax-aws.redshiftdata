@@ -45,8 +45,8 @@ isolated function testBasicExecutionResult() returns error? {
 isolated function testBatchExecutionResult() returns error? {
     Client redshift = check new Client(testConnectionConfig);
 
-    string[] queries = ["SELECT * FROM Users", "SELECT * FROM Users;"];
-    BatchExecuteStatementResponse res = check redshift->batchExecuteStatement(queries);
+    sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM Users;`];
+    ExecuteStatementResponse res = check redshift->batchExecuteStatement(queries);
     ExecutionResult executionResult = check redshift->getExecutionResult(res.statementId);
     SubStatementData subStatement1 = executionResult.subStatements[0];
 
@@ -55,7 +55,7 @@ isolated function testBatchExecutionResult() returns error? {
     test:assertTrue(subStatement1.duration > 0d, "Invalid duration");
     test:assertTrue(subStatement1.'error is (), "Error is not nill");
     test:assertTrue(subStatement1.hasResultSet == true, "Invalid hasResultSet value");
-    test:assertTrue(subStatement1.queryString == queries[0], "Invalid query string");
+    test:assertTrue(subStatement1.queryString == "SELECT * FROM Users", "Invalid query string");
     test:assertTrue(subStatement1.redshiftQueryId > 0, "Invalid redshiftQueryId");
     test:assertTrue(subStatement1.resultRows > 0, "Invalid resultRows");
     test:assertTrue(subStatement1.resultSize > 0, "Invalid resultSize");
@@ -77,8 +77,8 @@ isolated function testIncorrectStatementExecutionResult() returns error? {
 }
 isolated function testIncorrectBatchStatementExecutionResult() returns error? {
     Client redshift = check new Client(testConnectionConfig);
-    string[] queries = ["SELECT * FROM Users", "SELECT * FROM non_existent_table;"];
-    BatchExecuteStatementResponse res = check redshift->batchExecuteStatement(queries);
+    sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM non_existent_table;`];
+    ExecuteStatementResponse res = check redshift->batchExecuteStatement(queries);
     ExecutionResult|Error executionResult = redshift->getExecutionResult(res.statementId);
     test:assertTrue(executionResult is Error, "Execution result is not an error");
 }

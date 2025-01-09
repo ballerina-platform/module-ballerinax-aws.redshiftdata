@@ -15,6 +15,7 @@
 //  under the License.
 
 import ballerina/lang.runtime;
+import ballerina/sql;
 import ballerina/test;
 
 @test:Config {
@@ -22,12 +23,12 @@ import ballerina/test;
 }
 isolated function testBasicBatchExecuteStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
-    string[] queries = ["SELECT * FROM Users", "SELECT * FROM Users"];
-    BatchExecuteStatementResponse res = check redshift->batchExecuteStatement(queries);
+    sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM Users`];
+    ExecuteStatementResponse res = check redshift->batchExecuteStatement(queries);
 
-    test:assertTrue(res.subStatementIds.length() == 2, "Invalid number of statement IDs");
-    test:assertTrue(res.subStatementIds[0] != "", "Statement ID is empty");
-    test:assertTrue(res.subStatementIds[1] != "", "Statement ID is empty");
+    test:assertTrue(res.statementId != "", "Statement ID is empty");
+    test:assertTrue(res.createdAt[0] > 0, "Invalid createdAt time");
+    test:assertTrue(res.sessionId is (), "Session ID is not nill"); // Since we are not using sessionKeepAliveSeconds
 }
 
 @test:Config {
@@ -45,14 +46,14 @@ isolated function testBatchExecuteSessionId() returns error? {
         }
     };
     Client redshift = check new Client(connectionConfig);
-    string[] queries = ["SELECT * FROM Users", "SELECT * FROM Users"];
-    BatchExecuteStatementResponse res1 = check redshift->batchExecuteStatement(queries);
+    sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM Users`];
+    ExecuteStatementResponse res1 = check redshift->batchExecuteStatement(queries);
 
     test:assertTrue(res1.statementId != "", "Statement ID is empty");
     test:assertTrue(res1.sessionId is string && res1.sessionId != "", "Session ID is empty");
 
     runtime:sleep(2); // wait for session to establish
-    BatchExecuteStatementResponse res2 = check redshift->batchExecuteStatement(queries,
+    ExecuteStatementResponse res2 = check redshift->batchExecuteStatement(queries,
         {dbAccessConfig: res1.sessionId});
     test:assertTrue(res2.sessionId == res1.sessionId, "Session ID is not equal");
 }

@@ -123,19 +123,12 @@ public class NativeClientAdaptor {
             try {
                 BatchExecuteStatementResponse batchExecuteStatementResponse = nativeClient
                         .batchExecuteStatement(batchExecuteStatementRequest);
-                DescribeStatementResponse describeStatementResponse = nativeClient
-                        .describeStatement(DescribeStatementRequest.builder()
-                                .id(batchExecuteStatementResponse.id())
-                                .build());
-                String[] subStatementIds = describeStatementResponse.subStatements().stream()
-                        .map(SubStatementData::id)
-                        .toArray(String[]::new);
                 BMap<BString, Object> bResponse = CommonUtils
-                        .getBatchExecuteStatementResponse(batchExecuteStatementResponse, subStatementIds);
+                        .getBatchExecuteStatementResponse(batchExecuteStatementResponse);
                 future.complete(bResponse);
             } catch (Exception e) {
                 String errorMsg = String.format("Error occurred while executing the batchExecuteStatement: %s",
-                        e.getMessage());
+                        Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
                 BError bError = CommonUtils.createError(errorMsg, e);
                 future.complete(bError);
             }
