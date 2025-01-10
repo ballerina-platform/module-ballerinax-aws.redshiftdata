@@ -23,3 +23,16 @@ isolated function testInit() returns error? {
     Client|Error redshift = new Client(testConnectionConfig);
     test:assertTrue(redshift is Client, "Client is not an instance of Client");
 }
+
+@test:Config {
+    groups: ["init"]
+}
+isolated function testNilDbAccessConfig() returns error? {
+    ConnectionConfig connectionConfig = {
+        region: testRegion,
+        authConfig: testAuthConfig,
+        dbAccessConfig: ()
+    };
+    Client|Error redshift = new Client(connectionConfig);
+    test:assertTrue(redshift is Client, "Client is not an instance of Client");
+}

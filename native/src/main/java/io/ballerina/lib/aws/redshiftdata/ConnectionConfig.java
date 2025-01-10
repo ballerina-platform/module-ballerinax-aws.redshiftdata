@@ -55,12 +55,14 @@ public record ConnectionConfig(Region region, AuthConfig authConfig, Object dbAc
 
     @SuppressWarnings("unchecked")
     private static Object getDbAccessConfig(BMap<BString, Object> bConnectionConfig) {
-        BMap<BString, Object> bDbAccessConfig = (BMap<BString, Object>) bConnectionConfig
-                .get(Constants.CONNECTION_CONFIG_DB_ACCESS_CONFIG);
-
-        if (bDbAccessConfig.containsKey(Constants.CLUSTER_ID)) {
-            return new Cluster(bDbAccessConfig);
+        if (bConnectionConfig.containsKey(Constants.CONNECTION_CONFIG_DB_ACCESS_CONFIG)) {
+            BMap<BString, Object> bDbAccessConfig = (BMap<BString, Object>) bConnectionConfig
+                    .get(Constants.CONNECTION_CONFIG_DB_ACCESS_CONFIG);
+            if (bDbAccessConfig.containsKey(Constants.CLUSTER_ID)) {
+                return new Cluster(bDbAccessConfig);
+            }
+            return new WorkGroup(bDbAccessConfig);
         }
-        return new WorkGroup(bDbAccessConfig);
+        return null;
     }
 }
