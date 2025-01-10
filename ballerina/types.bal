@@ -166,7 +166,8 @@ public type RetrieveResultConfig record {|
 
 # Represents the configuration details required for `executeStatement` method.
 #
-# + dbAccessConfig - The database access configurations for the redshift data api.
+# + dbAccessConfig - The database access configurations for the Redshift Data.
+# If dbAccessConfig set in the ExecuteStatementConfig, it will override the init level dbAccessConfig.
 # + clientToken - A unique, case-sensitive identifier that you provide to ensure the idempotency of the request. 
 # + statementName - The name of the SQL statement.
 # + withEvent - A value that indicates whether to send an event to the Amazon EventBridge event bus after the SQL 

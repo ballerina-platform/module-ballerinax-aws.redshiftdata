@@ -18,12 +18,28 @@
 import ballerina/jballerina.java;
 import ballerina/sql;
 
+# The AWS Redshift Data client.
 public isolated client class Client {
 
-    # Initializes AWS Redshift Data API client.
+    # Initialize AWS Redshift Data client.
+    # ```ballerina
+    # redshiftdata:Client redshift = check new (region = "us-east-2",
+    #    authConfig = {
+    #        accessKeyId: "<aws-access-key>",
+    #        secretAccessKey: "<aws-secret-key>"
+    #    },
+    #    dbAccessConfig = {
+    #        id: CLUSTER_ID,
+    #        database: DATABASE_NAME,
+    #        dbUser: DB_USER
+    #    }
+    # );
+    # ```
     #
-    # + connectionConfig - Configurations related to redshift data api
-    # + return - The `redshiftdata:Client` or `redshiftdata:Error` if the initialization fails
+    # + connectionConfig - The Redshift Data client configurations.
+    # If you provide a `dbAccessConfig` this configuration will be used
+    # when executing statements. You can also override this `dbAccessConfig` at the API level.
+    # + return - The `redshiftdata:Client` or a `redshiftdata:Error` if the initialization fails.
     public isolated function init(*ConnectionConfig connectionConfig) returns Error? {
         return self.externInit(connectionConfig);
     }
@@ -34,11 +50,14 @@ public isolated client class Client {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
 
-    # Executes the SQL query.
+    # Runs an SQL statement, which can be data manipulation language (DML) or data definition language (DDL).
+    # ```ballerina
+    # redshiftdata:ExecuteStatementResponse response = check redshift->executeStatement(`SELECT * FROM Users`);
+    # ```
     #
-    # + sqlStatement - The SQL statement to be executed
+    # + sqlStatement - The SQL statement to be executed.
     # + executeStatementConfig - The configurations related to the execution of the statement.
-    # + return - The statementId that can be used to retrieve the results or an error
+    # + return - The `redshiftdata:ExecuteStatementResponse` or a `redshiftdata:Error` if the execution fails.
     remote isolated function executeStatement(sql:ParameterizedQuery sqlStatement,
             *ExecuteStatementConfig executeStatementConfig)
     returns ExecuteStatementResponse|Error {
@@ -58,11 +77,15 @@ public isolated client class Client {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
 
-    # Executes the SQL queries in a batch.
+    # Runs one or more SQL statements, which can be data manipulation language (DML) or data definition language (DDL). The batch size should not exceed 40.
+    # ```ballerina
+    # redshiftdata:ExecuteStatementResponse response = check redshift->batchExecuteStatement([`<statement>`,
+    #    `<statement>`]);
+    # ```
     #
-    # + sqlStatements - The SQL statements to be executed
+    # + sqlStatements - The SQL statements to be executed.
     # + executeStatementConfig - The configurations related to the execution of the statements.
-    # + return - The statementIds that can be used to retrieve the results or an error
+    # + return - The `redshiftdata:ExecuteStatementResponse` or a `redshiftdata:Error` if the execution fails
     remote isolated function batchExecuteStatement(sql:ParameterizedQuery[] sqlStatements,
             *ExecuteStatementConfig executeStatementConfig)
     returns ExecuteStatementResponse|Error {
@@ -89,19 +112,25 @@ public isolated client class Client {
     } external;
 
     # Retrieves the results of a previously executed SQL statement.
+    # ```ballerina
+    # stream<User, Error?> response = check redshift->getStatementResult("<statement-id>");
+    # ```
     #
     # + statementId - The identifier of the SQL statement.
     # + rowTypes - The typedesc of the record to which the result needs to be returned.
-    # + return - Stream of records in the type of rowTypes or an `redshiftdata:Error`.
+    # + return - Stream of records in the type of rowTypes or a `redshiftdata:Error` if the retrieval fails.
     remote isolated function getStatementResult(StatementId statementId, typedesc<record {}> rowTypes = <>)
     returns stream<rowTypes, Error?>|Error = @java:Method {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
 
     # Describes the details about a specific instance when a query was run by the Amazon Redshift Data API.
+    # ```ballerina
+    # redshiftdata:DescribeStatementResponse response = check redshift->describeStatement("<statement-id>");
+    # ```
     #
-    # + statementId - The identifier of the SQL statement
-    # + return - The `DescribeStatementResponse` or an `redshiftdata:Error`
+    # + statementId - The identifier of the SQL statement.
+    # + return - The `redshiftdata:DescribeStatementResponse` or a `redshiftdata:Error` if the execution fails.
     remote isolated function describeStatement(StatementId statementId)
     returns DescribeStatementResponse|Error = @java:Method {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
@@ -112,7 +141,7 @@ public isolated client class Client {
     # check redshift->close();
     # ```
     #
-    # + return - A `redshiftdata:Error` if there is an error while closing the client resources or else nil
+    # + return - A `redshiftdata:Error` if there is an error while closing the client resources or else nil.
     remote function close() returns Error? = @java:Method {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
