@@ -183,7 +183,7 @@ public class NativeClientAdaptor {
             nativeClient.close();
         } catch (Exception e) {
             String errorMsg = String.format("Error occurred while closing the Redshift client: %s",
-                    e.getMessage());
+                    Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
             return CommonUtils.createError(errorMsg, e);
         }
         return null;
