@@ -26,7 +26,7 @@ isolated function testBasicStatement() returns error? {
 
     test:assertTrue(res.statementId != "", "Statement ID is empty");
     test:assertTrue(res.createdAt[0] > 0, "Invalid createdAt time");
-    test:assertTrue(res.sessionId is (), "Session ID is not nill"); // Since we are not using sessionKeepAliveSeconds
+    test:assertTrue(res.sessionId is (), "Session ID is not nil"); // Since we are not using sessionKeepAliveSeconds
 }
 
 @test:Config {
@@ -81,7 +81,7 @@ isolated function testParameterizedStatement() returns error? {
 @test:Config {
     groups: ["execute"]
 }
-isolated function testNillParameterizedStatement() returns error? {
+isolated function testNilParameterizedStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     string? tableName = ();
     ExecuteStatementResponse|Error res = redshift->executeStatement(`SELECT * FROM ${tableName}`);

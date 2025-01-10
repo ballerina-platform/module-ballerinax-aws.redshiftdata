@@ -28,7 +28,7 @@ isolated function testBasicBatchExecuteStatement() returns error? {
 
     test:assertTrue(res.statementId != "", "Statement ID is empty");
     test:assertTrue(res.createdAt[0] > 0, "Invalid createdAt time");
-    test:assertTrue(res.sessionId is (), "Session ID is not nill"); // Since we are not using sessionKeepAliveSeconds
+    test:assertTrue(res.sessionId is (), "Session ID is not nil"); // Since we are not using sessionKeepAliveSeconds
 }
 
 @test:Config {
