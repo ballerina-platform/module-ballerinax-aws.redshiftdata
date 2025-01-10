@@ -15,6 +15,7 @@
 //  under the License.
 //  
 
+import ballerina/constraint;
 import ballerina/jballerina.java;
 import ballerina/sql;
 
@@ -41,6 +42,10 @@ public isolated client class Client {
     # when executing statements. You can also override this `dbAccessConfig` at the API level.
     # + return - The `redshiftdata:Client` or a `redshiftdata:Error` if the initialization fails.
     public isolated function init(*ConnectionConfig connectionConfig) returns Error? {
+        ConnectionConfig|constraint:Error validated = constraint:validate(connectionConfig);
+        if validated is constraint:Error {
+            return error Error(string `Connection configuration validation failed: ${validated.message()}`);
+        }
         return self.externInit(connectionConfig);
     }
 
@@ -61,6 +66,10 @@ public isolated client class Client {
     remote isolated function executeStatement(sql:ParameterizedQuery sqlStatement,
             *ExecuteStatementConfig executeStatementConfig)
     returns ExecuteStatementResponse|Error {
+        ExecuteStatementConfig|constraint:Error validated = constraint:validate(executeStatementConfig);
+        if validated is constraint:Error {
+            return error Error(string `Execute statement configuration validation failed: ${validated.message()}`);
+        }
         if sqlStatement.strings.length() == 0 {
             return error Error("SQL statement cannot be empty.");
         }
@@ -89,6 +98,10 @@ public isolated client class Client {
     remote isolated function batchExecuteStatement(sql:ParameterizedQuery[] sqlStatements,
             *ExecuteStatementConfig executeStatementConfig)
     returns ExecuteStatementResponse|Error {
+        ExecuteStatementConfig|constraint:Error validated = constraint:validate(executeStatementConfig);
+        if validated is constraint:Error {
+            return error Error(string `Execute statement configuration validation failed: ${validated.message()}`);
+        }
         if sqlStatements.length() == 0 {
             return error Error("SQL statements cannot be empty.");
         }
