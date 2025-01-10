@@ -222,65 +222,65 @@ public final class CommonUtils {
         return response;
     }
 
-    public static BMap<BString, Object> getExecutionResultResponse(DescribeStatementResponse nativeResponse) {
+    public static BMap<BString, Object> getDescribeStatementResponse(DescribeStatementResponse nativeResponse) {
         BMap<BString, Object> response = ValueCreator.createRecordValue(
-                ModuleUtils.getModule(), Constants.EXECUTION_RESULT_RECORD);
+                ModuleUtils.getModule(), Constants.DESCRIBE_STATEMENT_RES_RECORD);
 
-        ArrayType subStatementDataArrayType = TypeCreator.createArrayType(ValueCreator.createRecordValue(
-                ModuleUtils.getModule(), Constants.SUB_STATEMENT_DATA_RECORD).getType());
-        BArray subStatementsArray = ValueCreator.createArrayValue(subStatementDataArrayType);
-        for (SubStatementData subStatementData : nativeResponse.subStatements()) {
-            subStatementsArray.append(getSubStatementData(subStatementData));
+        if (nativeResponse.hasSubStatements()) {
+            ArrayType subStatementDataArrayType = TypeCreator.createArrayType(ValueCreator.createRecordValue(
+                    ModuleUtils.getModule(), Constants.STATEMENT_DATA_RECORD).getType());
+            BArray subStatementsArray = ValueCreator.createArrayValue(subStatementDataArrayType);
+            for (SubStatementData subStatementData : nativeResponse.subStatements()) {
+                subStatementsArray.append(getSubStatementData(subStatementData));
+            }
+            response.put(Constants.DESCRIBE_STATEMENT_RES_SUB_STATEMENTS, subStatementsArray);
         }
-        response.put(Constants.EXECUTION_RESULT_SUB_STATEMENTS, subStatementsArray);
-        response.put(Constants.EXECUTION_RESULT_STATEMENT_ID, StringUtils.fromString(nativeResponse.id()));
-        response.put(Constants.EXECUTION_RESULT_CREATED_AT, new Utc(nativeResponse.createdAt()).build());
-        response.put(Constants.EXECUTION_RESULT_UPDATED_AT, new Utc(nativeResponse.updatedAt()).build());
-        response.put(Constants.EXECUTION_RESULT_STATUS, StringUtils.fromString(nativeResponse.statusAsString()));
-        response.put(Constants.EXECUTION_RESULT_HAS_RESULT_SET, nativeResponse.hasResultSet());
-        response.put(Constants.EXECUTION_RESULT_REDSHIFT_QUERY_ID, nativeResponse.redshiftQueryId());
-        response.put(Constants.EXECUTION_RESULT_RESULT_ROWS, nativeResponse.resultRows());
-        response.put(Constants.EXECUTION_RESULT_RESULT_SIZE, nativeResponse.resultSize());
-        response.put(Constants.EXECUTION_RESULT_HAS_QUERY_PARAMETERS, nativeResponse.hasQueryParameters());
-        response.put(Constants.EXECUTION_RESULT_HAS_SUB_STATEMENTS, nativeResponse.hasSubStatements());
-        response.put(Constants.EXECUTION_RESULT_REDSHIFT_PID, nativeResponse.redshiftPid());
+        response.put(Constants.DESCRIBE_STATEMENT_RES_REDSHIFT_PID, nativeResponse.redshiftPid());
+        if (Objects.nonNull(nativeResponse.sessionId())) {
+            response.put(Constants.DESCRIBE_STATEMENT_RES_SESSION_ID,
+                    StringUtils.fromString(nativeResponse.sessionId()));
+        }
+
+        // Set the statement data
+        response.put(Constants.STATEMENT_DATA_STATEMENT_ID, StringUtils.fromString(nativeResponse.id()));
+        response.put(Constants.STATEMENT_DATA_CREATED_AT, new Utc(nativeResponse.createdAt()).build());
+        response.put(Constants.STATEMENT_DATA_UPDATED_AT, new Utc(nativeResponse.updatedAt()).build());
+        response.put(Constants.STATEMENT_DATA_STATUS, StringUtils.fromString(nativeResponse.statusAsString()));
+        response.put(Constants.STATEMENT_DATA_HAS_RESULT_SET, nativeResponse.hasResultSet());
+        response.put(Constants.STATEMENT_DATA_REDSHIFT_QUERY_ID, nativeResponse.redshiftQueryId());
+        response.put(Constants.STATEMENT_DATA_RESULT_ROWS, nativeResponse.resultRows());
+        response.put(Constants.STATEMENT_DATA_RESULT_SIZE, nativeResponse.resultSize());
         // Convert the duration from nanoseconds to seconds
-        response.put(Constants.EXECUTION_RESULT_DURATION,
+        response.put(Constants.STATEMENT_DATA_DURATION,
                 ValueCreator.createDecimalValue(convertNanosToSeconds(nativeResponse.duration())));
         if (Objects.nonNull(nativeResponse.queryString())) {
-            response.put(Constants.EXECUTION_RESULT_QUERY_STRING,
-                    StringUtils.fromString(nativeResponse.queryString()));
+            response.put(Constants.STATEMENT_DATA_QUERY_STRING, StringUtils.fromString(nativeResponse.queryString()));
         }
-        if (Objects.nonNull(nativeResponse.sessionId())) {
-            response.put(Constants.EXECUTION_RESULT_SESSION_ID, StringUtils.fromString(nativeResponse.sessionId()));
-        }
-        if (Objects.nonNull(nativeResponse.workgroupName())) {
-            response.put(Constants.EXECUTION_RESULT_WORKGROUP_NAME,
-                    StringUtils.fromString(nativeResponse.workgroupName()));
-        }
-        if (Objects.nonNull(nativeResponse.error()) && !nativeResponse.error().isEmpty()) {
-            response.put(Constants.EXECUTION_RESULT_ERROR, StringUtils.fromString(nativeResponse.error()));
+        if (Objects.nonNull(nativeResponse.error())) {
+            response.put(Constants.STATEMENT_DATA_ERROR, StringUtils.fromString(nativeResponse.error()));
         }
         return response;
     }
 
     private static BMap<BString, Object> getSubStatementData(SubStatementData subStatementData) {
         BMap<BString, Object> record = ValueCreator.createRecordValue(
-                ModuleUtils.getModule(), Constants.SUB_STATEMENT_DATA_RECORD);
-        record.put(Constants.SUB_STATEMENT_DATA_STATEMENT_ID, StringUtils.fromString(subStatementData.id()));
-        record.put(Constants.SUB_STATEMENT_DATA_CREATED_AT, new Utc(subStatementData.createdAt()).build());
-        record.put(Constants.SUB_STATEMENT_DATA_UPDATED_AT, new Utc(subStatementData.updatedAt()).build());
-        record.put(Constants.SUB_STATEMENT_DATA_STATUS, StringUtils.fromString(subStatementData.statusAsString()));
-        record.put(Constants.SUB_STATEMENT_DATA_HAS_RESULT_SET, subStatementData.hasResultSet());
-        record.put(Constants.SUB_STATEMENT_DATA_QUERY_STRING, StringUtils.fromString(subStatementData.queryString()));
-        record.put(Constants.SUB_STATEMENT_DATA_REDSHIFT_QUERY_ID, subStatementData.redshiftQueryId());
-        record.put(Constants.SUB_STATEMENT_DATA_RESULT_ROWS, subStatementData.resultRows());
-        record.put(Constants.SUB_STATEMENT_DATA_RESULT_SIZE, subStatementData.resultSize());
+                ModuleUtils.getModule(), Constants.STATEMENT_DATA_RECORD);
+        record.put(Constants.STATEMENT_DATA_STATEMENT_ID, StringUtils.fromString(subStatementData.id()));
+        record.put(Constants.STATEMENT_DATA_CREATED_AT, new Utc(subStatementData.createdAt()).build());
+        record.put(Constants.STATEMENT_DATA_UPDATED_AT, new Utc(subStatementData.updatedAt()).build());
+        record.put(Constants.STATEMENT_DATA_STATUS, StringUtils.fromString(subStatementData.statusAsString()));
+        record.put(Constants.STATEMENT_DATA_HAS_RESULT_SET, subStatementData.hasResultSet());
+        record.put(Constants.STATEMENT_DATA_REDSHIFT_QUERY_ID, subStatementData.redshiftQueryId());
+        record.put(Constants.STATEMENT_DATA_RESULT_ROWS, subStatementData.resultRows());
+        record.put(Constants.STATEMENT_DATA_RESULT_SIZE, subStatementData.resultSize());
         // Convert the duration from nanoseconds to seconds
-        record.put(Constants.SUB_STATEMENT_DATA_DURATION,
+        record.put(Constants.STATEMENT_DATA_DURATION,
                 ValueCreator.createDecimalValue(convertNanosToSeconds(subStatementData.duration())));
-        if (Objects.nonNull(subStatementData.error()) && !subStatementData.error().isEmpty()) {
-            record.put(Constants.SUB_STATEMENT_DATA_ERROR, StringUtils.fromString(subStatementData.error()));
+        if (Objects.nonNull(subStatementData.queryString())) {
+            record.put(Constants.STATEMENT_DATA_QUERY_STRING, StringUtils.fromString(subStatementData.queryString()));
+        }
+        if (Objects.nonNull(subStatementData.error())) {
+            record.put(Constants.STATEMENT_DATA_ERROR, StringUtils.fromString(subStatementData.error()));
         }
         return record;
     }

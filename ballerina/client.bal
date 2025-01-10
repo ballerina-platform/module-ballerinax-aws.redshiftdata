@@ -103,10 +103,9 @@ public isolated client class Client {
     # Describes the details about a specific instance when a query was run by the Amazon Redshift Data API.
     #
     # + statementId - The identifier of the SQL statement
-    # + retrieveResultConfig - The configurations related to the execution of getting the results
-    # + return - The details about the execution of the statement or batch of statements or an `redshiftdata:Error`
-    remote isolated function getExecutionResult(StatementId statementId, *RetrieveResultConfig retrieveResultConfig)
-    returns ExecutionResult|Error = @java:Method {
+    # + return - The `DescribeStatementResponse` or an `redshiftdata:Error`
+    remote isolated function describeStatement(StatementId statementId)
+    returns DescribeStatementResponse|Error = @java:Method {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
 

@@ -64,39 +64,25 @@ public interface Constants {
     BString RESULT_CONFIG_TIMEOUT = StringUtils.fromString("timeout");
     BString RESULT_CONFIG_POLLING_INTERVAL = StringUtils.fromString("pollingInterval");
 
-    // Constants Related to Execution Result
-    String EXECUTION_RESULT_RECORD = "ExecutionResult";
-    BString EXECUTION_RESULT_STATEMENT_ID = StringUtils.fromString("statementId");
-    BString EXECUTION_RESULT_CREATED_AT = StringUtils.fromString("createdAt");
-    BString EXECUTION_RESULT_DURATION = StringUtils.fromString("duration");
-    BString EXECUTION_RESULT_ERROR = StringUtils.fromString("error");
-    BString EXECUTION_RESULT_HAS_RESULT_SET = StringUtils.fromString("hasResultSet");
-    BString EXECUTION_RESULT_QUERY_STRING = StringUtils.fromString("queryString");
-    BString EXECUTION_RESULT_REDSHIFT_QUERY_ID = StringUtils.fromString("redshiftQueryId");
-    BString EXECUTION_RESULT_RESULT_ROWS = StringUtils.fromString("resultRows");
-    BString EXECUTION_RESULT_RESULT_SIZE = StringUtils.fromString("resultSize");
-    BString EXECUTION_RESULT_STATUS = StringUtils.fromString("status");
-    BString EXECUTION_RESULT_UPDATED_AT = StringUtils.fromString("updatedAt");
-    BString EXECUTION_RESULT_HAS_QUERY_PARAMETERS = StringUtils.fromString("hasQueryParameters");
-    BString EXECUTION_RESULT_HAS_SUB_STATEMENTS = StringUtils.fromString("hasSubStatements");
-    BString EXECUTION_RESULT_REDSHIFT_PID = StringUtils.fromString("redshiftPid");
-    BString EXECUTION_RESULT_SESSION_ID = StringUtils.fromString("sessionId");
-    BString EXECUTION_RESULT_SUB_STATEMENTS = StringUtils.fromString("subStatements");
-    BString EXECUTION_RESULT_WORKGROUP_NAME = StringUtils.fromString("workgroupName");
+    // Constants Related to Describe Statement Response
+    String DESCRIBE_STATEMENT_RES_RECORD = "DescribeStatementResponse";
+    BString DESCRIBE_STATEMENT_RES_SUB_STATEMENTS = StringUtils.fromString("subStatements");
+    BString DESCRIBE_STATEMENT_RES_REDSHIFT_PID = StringUtils.fromString("redshiftPid");
+    BString DESCRIBE_STATEMENT_RES_SESSION_ID = StringUtils.fromString("sessionId");
 
-    // Constants Related to Sub Statement Data
-    String SUB_STATEMENT_DATA_RECORD = "SubStatementData";
-    BString SUB_STATEMENT_DATA_STATEMENT_ID = StringUtils.fromString("statementId");
-    BString SUB_STATEMENT_DATA_CREATED_AT = StringUtils.fromString("createdAt");
-    BString SUB_STATEMENT_DATA_DURATION = StringUtils.fromString("duration");
-    BString SUB_STATEMENT_DATA_ERROR = StringUtils.fromString("error");
-    BString SUB_STATEMENT_DATA_HAS_RESULT_SET = StringUtils.fromString("hasResultSet");
-    BString SUB_STATEMENT_DATA_QUERY_STRING = StringUtils.fromString("queryString");
-    BString SUB_STATEMENT_DATA_REDSHIFT_QUERY_ID = StringUtils.fromString("redshiftQueryId");
-    BString SUB_STATEMENT_DATA_RESULT_ROWS = StringUtils.fromString("resultRows");
-    BString SUB_STATEMENT_DATA_RESULT_SIZE = StringUtils.fromString("resultSize");
-    BString SUB_STATEMENT_DATA_STATUS = StringUtils.fromString("status");
-    BString SUB_STATEMENT_DATA_UPDATED_AT = StringUtils.fromString("updatedAt");
+    // Constants Related to Statement Data
+    String STATEMENT_DATA_RECORD = "StatementData";
+    BString STATEMENT_DATA_STATEMENT_ID = StringUtils.fromString("statementId");
+    BString STATEMENT_DATA_CREATED_AT = StringUtils.fromString("createdAt");
+    BString STATEMENT_DATA_DURATION = StringUtils.fromString("duration");
+    BString STATEMENT_DATA_ERROR = StringUtils.fromString("error");
+    BString STATEMENT_DATA_HAS_RESULT_SET = StringUtils.fromString("hasResultSet");
+    BString STATEMENT_DATA_QUERY_STRING = StringUtils.fromString("queryString");
+    BString STATEMENT_DATA_REDSHIFT_QUERY_ID = StringUtils.fromString("redshiftQueryId");
+    BString STATEMENT_DATA_RESULT_ROWS = StringUtils.fromString("resultRows");
+    BString STATEMENT_DATA_RESULT_SIZE = StringUtils.fromString("resultSize");
+    BString STATEMENT_DATA_STATUS = StringUtils.fromString("status");
+    BString STATEMENT_DATA_UPDATED_AT = StringUtils.fromString("updatedAt");
 
     // Constants Related to Result Iterator
     String RESULT_ITERATOR_OBJECT = "ResultIterator";

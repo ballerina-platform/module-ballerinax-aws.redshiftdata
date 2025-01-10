@@ -40,7 +40,6 @@ import software.amazon.awssdk.services.redshiftdata.model.DescribeStatementRespo
 import software.amazon.awssdk.services.redshiftdata.model.ExecuteStatementRequest;
 import software.amazon.awssdk.services.redshiftdata.model.ExecuteStatementResponse;
 import software.amazon.awssdk.services.redshiftdata.model.GetStatementResultRequest;
-import software.amazon.awssdk.services.redshiftdata.model.SubStatementData;
 import software.amazon.awssdk.services.redshiftdata.paginators.GetStatementResultIterable;
 
 import java.math.BigDecimal;
@@ -137,21 +136,19 @@ public class NativeClientAdaptor {
     }
 
     @SuppressWarnings("unchecked")
-    public static Object getExecutionResult(Environment env, BObject bClient, BString bStatementId,
-                                            BMap<BString, Object> bResultRequest) {
+    public static Object describeStatement(Environment env, BObject bClient, BString bStatementId) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
         String statementId = bStatementId.getValue();
-        RetrieveResultConfig retrieveResultConfig = new RetrieveResultConfig(bResultRequest);
         Future future = env.markAsync();
         EXECUTOR_SERVICE.execute(() -> {
             try {
-                DescribeStatementResponse describeStatementResponse = getDescribeStatement(nativeClient,
-                        statementId, retrieveResultConfig.timeout(), retrieveResultConfig.pollingInterval());
-                BMap<BString, Object> bResponse = CommonUtils.getExecutionResultResponse(describeStatementResponse);
+                DescribeStatementResponse describeStatementResponse = nativeClient.describeStatement(
+                        DescribeStatementRequest.builder().id(statementId).build());
+                BMap<BString, Object> bResponse = CommonUtils.getDescribeStatementResponse(describeStatementResponse);
                 future.complete(bResponse);
             } catch (Exception e) {
-                String errorMsg = String.format("Error occurred while executing the getExecutionResult: %s",
-                        e.getMessage());
+                String errorMsg = String.format("Error occurred while executing the describeStatement: %s",
+                        Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
                 BError bError = CommonUtils.createError(errorMsg, e);
                 future.complete(bError);
             }
