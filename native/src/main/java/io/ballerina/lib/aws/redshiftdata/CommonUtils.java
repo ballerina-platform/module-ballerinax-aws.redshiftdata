@@ -55,7 +55,7 @@ public final class CommonUtils {
 
     @SuppressWarnings("unchecked")
     public static ExecuteStatementRequest getNativeExecuteStatementRequest(
-            BObject bSqlStatement, BMap<BString, Object> bConfig, Object dbAccessConfig) {
+            BObject bSqlStatement, BMap<BString, Object> bConfig, Object dbAccessConfig) throws BError {
         ExecuteStatementRequest.Builder builder = ExecuteStatementRequest.builder();
 
         // Set the SQL statement
@@ -102,6 +102,9 @@ public final class CommonUtils {
             }
         } else if (dbAccessConfig instanceof SessionId sessionId) {
             builder.sessionId(sessionId.sessionId());
+        } else {
+            throw createError("No database access configuration provided in the initialization" +
+                    "of the client or in the execute statement config", null);
         }
 
         // Set other configurations
@@ -139,7 +142,7 @@ public final class CommonUtils {
 
     @SuppressWarnings("unchecked")
     public static BatchExecuteStatementRequest getNativeBatchExecuteStatementRequest(
-            BArray bSqlStatements, BMap<BString, Object> bConfig, Object dbAccessConfig) {
+            BArray bSqlStatements, BMap<BString, Object> bConfig, Object dbAccessConfig) throws BError {
         BatchExecuteStatementRequest.Builder builder = BatchExecuteStatementRequest.builder();
 
         // Set the SQL statements
@@ -186,6 +189,9 @@ public final class CommonUtils {
             }
         } else if (dbAccessConfig instanceof SessionId sessionId) {
             builder.sessionId(sessionId.sessionId());
+        } else {
+            throw createError("No database access configuration provided in the initialization" +
+                    "of the client or in the execute statement config", null);
         }
 
         // Set other configurations

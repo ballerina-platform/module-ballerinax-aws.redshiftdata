@@ -116,3 +116,22 @@ isolated function testWithDbConfigs() returns error? {
         {dbAccessConfig: testDbAccessConfig});
     test:assertTrue(res.statementId != "", "Statement ID is empty");
 }
+
+@test:Config {
+    groups: ["execute"]
+}
+isolated function testNoDbAccessConfig() returns error? {
+    ConnectionConfig connectionConfig = {
+        region: testRegion,
+        authConfig: testAuthConfig,
+        dbAccessConfig: ()
+    };
+    Client redshift = check new Client(connectionConfig);
+    ExecuteStatementResponse|Error res = redshift->executeStatement(`SELECT * FROM Users`);
+    test:assertTrue(res is Error, "Invalid error message");
+    if (res is Error) {
+        test:assertTrue(res.message() == "No database access configuration provided in the initialization" +
+                    "of the client or in the execute statement config",
+                "Invalid error message");
+    }
+}

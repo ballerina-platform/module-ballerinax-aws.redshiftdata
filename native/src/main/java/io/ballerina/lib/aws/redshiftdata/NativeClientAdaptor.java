@@ -90,15 +90,17 @@ public class NativeClientAdaptor {
                                           BMap<BString, Object> bExecuteStatementConfig) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
         Object dbAccessConfig = bClient.getNativeData(Constants.NATIVE_DB_ACCESS_CONFIG);
-        ExecuteStatementRequest executeStatementRequest = CommonUtils.getNativeExecuteStatementRequest(
-                bSqlStatement, bExecuteStatementConfig, dbAccessConfig);
         Future future = env.markAsync();
         EXECUTOR_SERVICE.execute(() -> {
             try {
+                ExecuteStatementRequest executeStatementRequest = CommonUtils.getNativeExecuteStatementRequest(
+                        bSqlStatement, bExecuteStatementConfig, dbAccessConfig);
                 ExecuteStatementResponse executeStatementResponse = nativeClient
                         .executeStatement(executeStatementRequest);
                 BMap<BString, Object> bResponse = CommonUtils.getExecuteStatementResponse(executeStatementResponse);
                 future.complete(bResponse);
+            } catch (BError e) {
+                future.complete(e);
             } catch (Exception e) {
                 String errorMsg = String.format("Error occurred while executing the executeStatement: %s",
                         Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
@@ -114,16 +116,18 @@ public class NativeClientAdaptor {
                                                BMap<BString, Object> bExecuteStatementConfig) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
         Object dbAccessConfig = bClient.getNativeData(Constants.NATIVE_DB_ACCESS_CONFIG);
-        BatchExecuteStatementRequest batchExecuteStatementRequest = CommonUtils.getNativeBatchExecuteStatementRequest(
-                bSqlStatements, bExecuteStatementConfig, dbAccessConfig);
         Future future = env.markAsync();
         EXECUTOR_SERVICE.execute(() -> {
             try {
+                BatchExecuteStatementRequest batchExecuteStatementRequest = CommonUtils
+                        .getNativeBatchExecuteStatementRequest(bSqlStatements, bExecuteStatementConfig, dbAccessConfig);
                 BatchExecuteStatementResponse batchExecuteStatementResponse = nativeClient
                         .batchExecuteStatement(batchExecuteStatementRequest);
                 BMap<BString, Object> bResponse = CommonUtils
                         .getBatchExecuteStatementResponse(batchExecuteStatementResponse);
                 future.complete(bResponse);
+            } catch (BError e) {
+                future.complete(e);
             } catch (Exception e) {
                 String errorMsg = String.format("Error occurred while executing the batchExecuteStatement: %s",
                         Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
