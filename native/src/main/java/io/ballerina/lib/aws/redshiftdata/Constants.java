@@ -21,8 +21,6 @@ package io.ballerina.lib.aws.redshiftdata;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
-import java.math.BigDecimal;
-
 /**
  * Represents the constants related to Ballerina AWS Redshift Data Connector.
  */
@@ -30,8 +28,6 @@ public interface Constants {
     // Constants Related to Native Client Adapter
     String NATIVE_CLIENT = "nativeClient";
     String NATIVE_DB_ACCESS_CONFIG = "nativeDbAccessConfig";
-    BigDecimal DEFAULT_TIMEOUT = new BigDecimal(60); // In seconds
-    BigDecimal DEFAULT_POLLING_INTERVAL = new BigDecimal(2); // In seconds
 
     // Constants Related to Connection Config
     BString CONNECTION_CONFIG_REGION = StringUtils.fromString("region");
@@ -60,10 +56,6 @@ public interface Constants {
     BString QUERY_STRINGS = StringUtils.fromString("strings");
     BString QUERY_INSERTIONS = StringUtils.fromString("insertions");
 
-    // Constants Related to Result Config
-    BString RESULT_CONFIG_TIMEOUT = StringUtils.fromString("timeout");
-    BString RESULT_CONFIG_POLLING_INTERVAL = StringUtils.fromString("pollingInterval");
-
     // Constants Related to Describe Statement Response
     String DESCRIBE_STATEMENT_RES_RECORD = "DescribeStatementResponse";
     BString DESCRIBE_STATEMENT_RES_SUB_STATEMENTS = StringUtils.fromString("subStatements");
@@ -86,12 +78,12 @@ public interface Constants {
 
     // Constants Related to Result Iterator
     String RESULT_ITERATOR_OBJECT = "ResultIterator";
-    String NATIVE_COLUMN_METADATA = "ColumnMetadata";
-    String NATIVE_RESULT_RESPONSE = "ResultResponse";
-    String NATIVE_INNER_RESULT_ITERATOR = "InnerGetResultIterator";
-    String NATIVE_RECORD_TYPE = "RecordType";
-    String NATIVE_INDEX = "Index";
-    String NATIVE_COLUMN_INDEX_MAP = "IndexMap"; // field name -> result column index
+    String RESULT_ITERATOR_RESULT_RESPONSE = "ResultResponse";
+    String RESULT_ITERATOR_RECORD_TYPE = "RecordType";
+    String RESULT_ITERATOR_CURRENT_RESULT_INDEX = "Index";
+    String RESULT_ITERATOR_COLUMN_INDEX_MAP = "IndexMap"; // field name -> result column index
+    String RESULT_ITERATOR_NATIVE_CLIENT = "nativeClient";
+    String RESULT_ITERATOR_STATEMENT_ID = "statementId";
 
     // Constants Related to Execute Statement Config
     BString EXECUTE_STATEMENT_CONFIG_CLIENT_TOKEN = StringUtils.fromString("clientToken");

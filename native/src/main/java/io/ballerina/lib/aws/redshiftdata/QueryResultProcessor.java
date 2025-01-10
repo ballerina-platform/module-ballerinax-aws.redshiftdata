@@ -29,15 +29,16 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
+import software.amazon.awssdk.services.redshiftdata.RedshiftDataClient;
 import software.amazon.awssdk.services.redshiftdata.model.ColumnMetadata;
 import software.amazon.awssdk.services.redshiftdata.model.Field;
+import software.amazon.awssdk.services.redshiftdata.model.GetStatementResultRequest;
 import software.amazon.awssdk.services.redshiftdata.model.GetStatementResultResponse;
-import software.amazon.awssdk.services.redshiftdata.paginators.GetStatementResultIterable;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents the utility functions for processing query results.
@@ -46,15 +47,10 @@ public class QueryResultProcessor {
     private QueryResultProcessor() {
     }
 
-    public static BStream getRecordStream(GetStatementResultIterable resultIterable, BTypedesc recordType) {
+    public static BStream getRecordStream(RedshiftDataClient nativeClient, String statementId,
+                                          GetStatementResultResponse nativeResultResponse, BTypedesc recordType) {
         try {
-            Iterator<GetStatementResultResponse> innerResultIterator = resultIterable.iterator();
-            if (!innerResultIterator.hasNext()) {
-                throw new RuntimeException("No records found in the result set");
-            }
-
-            GetStatementResultResponse resultResponse = innerResultIterator.next();
-            List<ColumnMetadata> columnMetadata = resultResponse.columnMetadata();
+            List<ColumnMetadata> columnMetadata = nativeResultResponse.columnMetadata();
             RecordType streamConstraint = (RecordType) TypeUtils.getReferredType(
                     recordType.getDescribingType());
 
@@ -67,49 +63,55 @@ public class QueryResultProcessor {
             for (String ballerinaField : ballerinaFields) {
                 columnIndex = resultFields.indexOf(ballerinaField);
                 if (columnIndex == -1) {
-                    throw new RuntimeException("Field '" + ballerinaField + "' not found in the result set");
+                    throw new RuntimeException("Field '" + ballerinaField + "' not found in the result set.");
                 }
                 columnIndexMap.put(ballerinaField, columnIndex);
             }
 
             BObject resultIterator = ValueCreator.createObjectValue(ModuleUtils.getModule(),
                     Constants.RESULT_ITERATOR_OBJECT);
-
-            resultIterator.addNativeData(Constants.NATIVE_INNER_RESULT_ITERATOR, innerResultIterator);
-            resultIterator.addNativeData(Constants.NATIVE_RESULT_RESPONSE, resultResponse);
-            resultIterator.addNativeData(Constants.NATIVE_INDEX, 0L);
-            resultIterator.addNativeData(Constants.NATIVE_COLUMN_INDEX_MAP, columnIndexMap);
-            resultIterator.addNativeData(Constants.NATIVE_RECORD_TYPE, streamConstraint);
+            resultIterator.addNativeData(Constants.RESULT_ITERATOR_RESULT_RESPONSE, nativeResultResponse);
+            resultIterator.addNativeData(Constants.RESULT_ITERATOR_CURRENT_RESULT_INDEX, 0L);
+            resultIterator.addNativeData(Constants.RESULT_ITERATOR_COLUMN_INDEX_MAP, columnIndexMap);
+            resultIterator.addNativeData(Constants.RESULT_ITERATOR_RECORD_TYPE, streamConstraint);
+            // Add additional data for fetching the next result set
+            resultIterator.addNativeData(Constants.RESULT_ITERATOR_STATEMENT_ID, statementId);
+            resultIterator.addNativeData(Constants.NATIVE_CLIENT, nativeClient);
 
             return ValueCreator.createStreamValue(TypeCreator.createStreamType(streamConstraint,
                     PredefinedTypes.TYPE_NULL), resultIterator);
         } catch (Exception e) {
-            throw new RuntimeException("Error occurred while creating the Record Stream: " + e.getMessage());
+            throw new RuntimeException("Error occurred while creating the Record Stream: "
+                    + Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
         }
     }
 
     @SuppressWarnings("unchecked")
     public static Object nextResult(BObject bResultIterator) {
-        RecordType recordType = (RecordType) bResultIterator.getNativeData(Constants.NATIVE_RECORD_TYPE);
-        long index = (long) bResultIterator.getNativeData(Constants.NATIVE_INDEX);
+        RecordType recordType = (RecordType) bResultIterator.getNativeData(Constants.RESULT_ITERATOR_RECORD_TYPE);
+        long index = (long) bResultIterator.getNativeData(Constants.RESULT_ITERATOR_CURRENT_RESULT_INDEX);
         Map<String, Integer> columnIndexMap = (Map<String, Integer>) bResultIterator
-                .getNativeData(Constants.NATIVE_COLUMN_INDEX_MAP);
+                .getNativeData(Constants.RESULT_ITERATOR_COLUMN_INDEX_MAP);
         GetStatementResultResponse resultResponse = (GetStatementResultResponse) bResultIterator
-                .getNativeData(Constants.NATIVE_RESULT_RESPONSE);
+                .getNativeData(Constants.RESULT_ITERATOR_RESULT_RESPONSE);
 
         List<List<Field>> rows = resultResponse.records();
         try {
-            // Fetch the next record when the current row is processed
-            if (index >= (rows.size() - 1)) {
-                Iterator<GetStatementResultResponse> innerResultIterator = (Iterator<GetStatementResultResponse>)
-                        bResultIterator.getNativeData(Constants.NATIVE_INNER_RESULT_ITERATOR);
-                if (innerResultIterator.hasNext()) {
-                    resultResponse = innerResultIterator.next();
+            // Fetch the next record when the current result set is processed
+            if (index >= rows.size()) {
+                if (Objects.nonNull(resultResponse.nextToken())) {
+                    RedshiftDataClient nativeClient = (RedshiftDataClient) bResultIterator
+                            .getNativeData(Constants.RESULT_ITERATOR_NATIVE_CLIENT);
+                    String statementId = (String) bResultIterator
+                            .getNativeData(Constants.RESULT_ITERATOR_STATEMENT_ID);
+
+                    resultResponse = nativeClient.getStatementResult(
+                            GetStatementResultRequest.builder()
+                                    .id(statementId).nextToken(resultResponse.nextToken()).build());
                     rows = resultResponse.records();
                     index = 0;
-                    bResultIterator.addNativeData(Constants.NATIVE_INDEX, index);
-                    bResultIterator.addNativeData(Constants.NATIVE_RESULT_RESPONSE, resultResponse);
-                    bResultIterator.addNativeData(Constants.NATIVE_INNER_RESULT_ITERATOR, innerResultIterator);
+                    bResultIterator.addNativeData(Constants.RESULT_ITERATOR_CURRENT_RESULT_INDEX, index);
+                    bResultIterator.addNativeData(Constants.RESULT_ITERATOR_RESULT_RESPONSE, resultResponse);
                 }
             }
 
@@ -123,7 +125,7 @@ public class QueryResultProcessor {
                     Field field = row.get(columnIndex);
                     record.put(StringUtils.fromString(fieldName), getFieldValue(field));
                 }
-                bResultIterator.addNativeData(Constants.NATIVE_INDEX, index + 1);
+                bResultIterator.addNativeData(Constants.RESULT_ITERATOR_CURRENT_RESULT_INDEX, index + 1);
                 return record;
             }
             closeResult(bResultIterator);
@@ -131,7 +133,7 @@ public class QueryResultProcessor {
         } catch (Exception e) {
             closeResult(bResultIterator);
             String errorMsg = String.format("Error occurred while iterating the Query result: %s",
-                    e.getMessage());
+                    Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
             return CommonUtils.createError(errorMsg, e);
         }
     }
@@ -153,12 +155,12 @@ public class QueryResultProcessor {
 
     public static void closeResult(BObject recordIterator) {
         try {
-            recordIterator.addNativeData(Constants.NATIVE_COLUMN_METADATA, null);
-            recordIterator.addNativeData(Constants.NATIVE_RESULT_RESPONSE, null);
-            recordIterator.addNativeData(Constants.NATIVE_INNER_RESULT_ITERATOR, null);
-            recordIterator.addNativeData(Constants.NATIVE_RECORD_TYPE, null);
-            recordIterator.addNativeData(Constants.NATIVE_INDEX, null);
-            recordIterator.addNativeData(Constants.NATIVE_COLUMN_INDEX_MAP, null);
+            recordIterator.addNativeData(Constants.RESULT_ITERATOR_RESULT_RESPONSE, null);
+            recordIterator.addNativeData(Constants.RESULT_ITERATOR_RECORD_TYPE, null);
+            recordIterator.addNativeData(Constants.RESULT_ITERATOR_CURRENT_RESULT_INDEX, null);
+            recordIterator.addNativeData(Constants.RESULT_ITERATOR_COLUMN_INDEX_MAP, null);
+            recordIterator.addNativeData(Constants.RESULT_ITERATOR_NATIVE_CLIENT, null);
+            recordIterator.addNativeData(Constants.RESULT_ITERATOR_STATEMENT_ID, null);
         } catch (Exception e) {
             throw new RuntimeException("Error occurred while closing the Query result: " + e.getMessage());
         }

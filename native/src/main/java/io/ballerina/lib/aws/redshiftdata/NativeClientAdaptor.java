@@ -40,9 +40,8 @@ import software.amazon.awssdk.services.redshiftdata.model.DescribeStatementRespo
 import software.amazon.awssdk.services.redshiftdata.model.ExecuteStatementRequest;
 import software.amazon.awssdk.services.redshiftdata.model.ExecuteStatementResponse;
 import software.amazon.awssdk.services.redshiftdata.model.GetStatementResultRequest;
-import software.amazon.awssdk.services.redshiftdata.paginators.GetStatementResultIterable;
+import software.amazon.awssdk.services.redshiftdata.model.GetStatementResultResponse;
 
-import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -156,31 +155,21 @@ public class NativeClientAdaptor {
         return null;
     }
 
-    public static Object getQueryResult(Environment env, BObject bClient, BString bStatementId,
-                                        BTypedesc recordType, BMap<BString, Object> bResultConfig) {
+    public static Object getStatementResult(Environment env, BObject bClient, BString bStatementId,
+                                            BTypedesc recordType) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
         String statementId = bStatementId.getValue();
-        RetrieveResultConfig retrieveResultConfig = new RetrieveResultConfig(bResultConfig);
         Future future = env.markAsync();
         EXECUTOR_SERVICE.execute(() -> {
             try {
-                String parentStatementId = extractParentStatementId(statementId);
-                // Wait for the statement to complete within the specified timeout
-                DescribeStatementResponse describeStatementResponse = getDescribeStatement(nativeClient,
-                        parentStatementId, retrieveResultConfig.timeout(), retrieveResultConfig.pollingInterval());
-                if (!describeStatementResponse.hasResultSet()) {
-                    throw new RuntimeException("Query result is not available for the statement: " + statementId);
-                }
-
-                GetStatementResultIterable nativeResultIterable = nativeClient
-                        .getStatementResultPaginator(GetStatementResultRequest.builder().id(statementId).build());
-
-                BStream resultStream = QueryResultProcessor.getRecordStream(nativeResultIterable, recordType);
-
+                GetStatementResultResponse nativeResultResponse = nativeClient
+                        .getStatementResult(GetStatementResultRequest.builder().id(statementId).build());
+                BStream resultStream = QueryResultProcessor
+                        .getRecordStream(nativeClient, statementId, nativeResultResponse, recordType);
                 future.complete(resultStream);
             } catch (Exception e) {
                 String errorMsg = String.format("Error occurred while executing the getQueryResult: %s",
-                        e.getMessage());
+                        Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
                 BError bError = CommonUtils.createError(errorMsg, e);
                 future.complete(bError);
             }
@@ -198,42 +187,5 @@ public class NativeClientAdaptor {
             return CommonUtils.createError(errorMsg, e);
         }
         return null;
-    }
-
-    // helper methods
-    private static DescribeStatementResponse getDescribeStatement(RedshiftDataClient nativeClient,
-                                                                  String statementId, BigDecimal timeout,
-                                                                  BigDecimal pollInterval) {
-        // convert seconds to milliseconds
-        long timeoutMillis = timeout.multiply(BigDecimal.valueOf(1000)).longValue();
-        long pollIntervalMillis = pollInterval.multiply(BigDecimal.valueOf(1000)).longValue();
-        long startTime = System.currentTimeMillis();
-        DescribeStatementRequest describeStatementRequest = DescribeStatementRequest.builder()
-                .id(statementId)
-                .build();
-        DescribeStatementResponse response;
-        while ((System.currentTimeMillis() - startTime) < timeoutMillis) {
-            response = nativeClient.describeStatement(describeStatementRequest);
-            switch (response.status()) {
-                case FINISHED:
-                    return response;
-                case FAILED:
-                    throw new RuntimeException("Statement execution failed: " + response.error());
-                case ABORTED:
-                    throw new RuntimeException("Statement execution aborted");
-                default:
-                    try {
-                        Thread.sleep(pollIntervalMillis);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-            }
-        }
-        throw new RuntimeException("Statement execution timed out");
-    }
-
-    private static String extractParentStatementId(String statementId) {
-        int colonIndex = statementId.indexOf(':');
-        return (colonIndex != -1) ? statementId.substring(0, colonIndex) : statementId;
     }
 }
