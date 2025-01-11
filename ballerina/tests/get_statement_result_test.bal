@@ -34,6 +34,7 @@ type SupportedTypes record {|
 |};
 
 @test:Config {
+    enable: IS_TESTS_ENABLED,
     groups: ["getStatementResult"]
 }
 isolated function testBasicQueryResult() returns error? {
@@ -59,6 +60,7 @@ isolated function testBasicQueryResult() returns error? {
 }
 
 @test:Config {
+    enable: IS_TESTS_ENABLED,
     groups: ["getStatementResult"]
 }
 isolated function testParameterizedQueryResult() returns error? {
@@ -77,6 +79,7 @@ isolated function testParameterizedQueryResult() returns error? {
 }
 
 @test:Config {
+    enable: IS_TESTS_ENABLED,
     groups: ["getStatementResult"]
 }
 isolated function testSupportedTypes() returns error? {
@@ -111,6 +114,7 @@ isolated function testSupportedTypes() returns error? {
 }
 
 @test:Config {
+    enable: IS_TESTS_ENABLED,
     groups: ["getStatementResult"]
 }
 isolated function testNoQueryResult() returns error? {
@@ -124,6 +128,7 @@ isolated function testNoQueryResult() returns error? {
 }
 
 @test:Config {
+    enable: IS_TESTS_ENABLED,
     groups: ["getStatementResult"]
 }
 isolated function testNoResultRows() returns error? {
@@ -139,6 +144,7 @@ isolated function testNoResultRows() returns error? {
 }
 
 @test:Config {
+    enable: IS_TESTS_ENABLED,
     groups: ["getStatementResult"]
 }
 isolated function testInvalidStatementId() returns error? {
@@ -149,6 +155,7 @@ isolated function testInvalidStatementId() returns error? {
 }
 
 @test:Config {
+    enable: IS_TESTS_ENABLED,
     groups: ["getStatementResult"]
 }
 isolated function testIncorrectStatementId() returns error? {
@@ -158,6 +165,7 @@ isolated function testIncorrectStatementId() returns error? {
 }
 
 @test:Config {
+    enable: IS_TESTS_ENABLED,
     groups: ["queryResult"]
 }
 isolated function testResultPagination() returns error? {

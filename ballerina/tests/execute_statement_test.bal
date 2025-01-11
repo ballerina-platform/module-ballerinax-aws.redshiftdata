@@ -18,6 +18,7 @@ import ballerina/lang.runtime;
 import ballerina/test;
 
 @test:Config {
+    enable: IS_TESTS_ENABLED,
     groups: ["execute"]
 }
 isolated function testBasicStatement() returns error? {
@@ -30,6 +31,7 @@ isolated function testBasicStatement() returns error? {
 }
 
 @test:Config {
+    enable: IS_TESTS_ENABLED,
     groups: ["execute"]
 }
 isolated function testSessionId() returns error? {
@@ -54,6 +56,7 @@ isolated function testSessionId() returns error? {
 }
 
 @test:Config {
+    enable: IS_TESTS_ENABLED,
     groups: ["execute"]
 }
 isolated function testExecuteStatementConfig() returns error? {
@@ -69,6 +72,7 @@ isolated function testExecuteStatementConfig() returns error? {
 }
 
 @test:Config {
+    enable: IS_TESTS_ENABLED,
     groups: ["execute"]
 }
 isolated function testParameterizedStatement() returns error? {
@@ -79,6 +83,7 @@ isolated function testParameterizedStatement() returns error? {
 }
 
 @test:Config {
+    enable: IS_TESTS_ENABLED,
     groups: ["execute"]
 }
 isolated function testNilParameterizedStatement() returns error? {
@@ -90,6 +95,7 @@ isolated function testNilParameterizedStatement() returns error? {
 }
 
 @test:Config {
+    enable: IS_TESTS_ENABLED,
     groups: ["execute"]
 }
 isolated function testEmptyStatement() returns error? {
@@ -99,6 +105,7 @@ isolated function testEmptyStatement() returns error? {
 }
 
 @test:Config {
+    enable: IS_TESTS_ENABLED,
     groups: ["execute"]
 }
 isolated function testWithDbConfigs() returns error? {
@@ -118,6 +125,7 @@ isolated function testWithDbConfigs() returns error? {
 }
 
 @test:Config {
+    enable: IS_TESTS_ENABLED,
     groups: ["execute"]
 }
 isolated function testNoDbAccessConfig() returns error? {

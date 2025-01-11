@@ -19,6 +19,7 @@ import ballerina/sql;
 import ballerina/test;
 
 @test:Config {
+    enable: IS_TESTS_ENABLED,
     groups: ["batchExecute"]
 }
 isolated function testBasicBatchExecuteStatement() returns error? {
@@ -32,6 +33,7 @@ isolated function testBasicBatchExecuteStatement() returns error? {
 }
 
 @test:Config {
+    enable: IS_TESTS_ENABLED,
     groups: ["batchExecute"]
 }
 isolated function testBatchExecuteSessionId() returns error? {

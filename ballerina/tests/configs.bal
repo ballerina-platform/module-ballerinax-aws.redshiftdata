@@ -16,6 +16,7 @@
 
 import ballerina/os;
 
+configurable boolean IS_TESTS_ENABLED = os:getEnv("IS_TESTS_ENABLED") is "true";
 configurable string TEST_AWS_ACCESS_KEY_ID = os:getEnv("REDSHIFT_AWS_ACCESS_KEY_ID");
 configurable string TEST_AWS_SECRET_ACCESS_KEY = os:getEnv("REDSHIFT_AWS_SECRET_ACCESS_KEY");
 configurable string TEST_AWS_REGION = os:getEnv("REDSHIFT_AWS_REGION");
