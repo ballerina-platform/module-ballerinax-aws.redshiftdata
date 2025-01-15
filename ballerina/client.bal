@@ -145,7 +145,17 @@ public isolated client class Client {
     # + statementId - The identifier of the SQL statement.
     # + return - The `redshiftdata:DescribeStatementResponse` or a `redshiftdata:Error` if the execution fails.
     remote isolated function describeStatement(StatementId statementId)
+    returns DescribeStatementResponse|Error {
+        StatementId|constraint:Error validated = constraint:validate(statementId);
+        if validated is constraint:Error {
+            return error Error(string `Statement ID validation failed: ${validated.message()}`);
+        }
+        return self.externDescribeStatement(statementId);
+    };
+
+    isolated function externDescribeStatement(StatementId statementId)
     returns DescribeStatementResponse|Error = @java:Method {
+        name: "describeStatement",
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
 

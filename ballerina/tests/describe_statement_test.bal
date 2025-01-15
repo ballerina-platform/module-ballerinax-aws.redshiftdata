@@ -126,6 +126,21 @@ isolated function testIncorrectBatchStatementDescribeStatement() returns error? 
     test:assertTrue(subStatements[1].'error != "", "SubStatement 2: Error message is empty");
 }
 
+@test:Config {
+    enable: IS_TESTS_ENABLED,
+    groups: ["describeStatement"]
+}
+isolated function testDescribeStatementWithInvalidStatementId() returns error? {
+    Client redshift = check new Client(testConnectionConfig);
+    StatementId invalidStatementId = "InvalidStatementId";
+    DescribeStatementResponse|Error res = redshift->describeStatement(invalidStatementId);
+    test:assertTrue(res is Error, "Query result is not an error");
+    if (res is Error) {
+        test:assertEquals(res.message(), "Statement ID validation failed: Validation failed for " +
+                "'$:pattern' constraint(s).", "Invalid Error Message");
+    }
+}
+
 // Helper function
 isolated function waitForDescribeStatementCompletion(Client redshift, string statementId) returns DescribeStatementResponse|Error {
     int i = 0;
