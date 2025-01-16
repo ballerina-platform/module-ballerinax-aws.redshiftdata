@@ -38,23 +38,13 @@ dependencies {
     implementation group: 'io.ballerina.stdlib', name: 'sql-native', version: "${stdlibSqlVersion}"
     implementation group: 'io.ballerina.stdlib', name: 'time-native', version: "${stdlibTimeVersion}"
     implementation group: 'org.ballerinalang', name: 'ballerina-runtime', version: "${ballerinaLangVersion}"
+    implementation group: 'software.amazon.awssdk', name: 'redshiftdata', version: "${awsJavaSdkVersion}"
 
-    // AWS SDK dependencies
-    implementation platform("software.amazon.awssdk:bom:${awsJavaSdkVersion}")
-    implementation 'software.amazon.awssdk:redshift'
-    implementation 'software.amazon.awssdk:auth'
-    implementation 'software.amazon.awssdk:netty-nio-client'
-    implementation 'software.amazon.awssdk:redshiftdata'
-    implementation 'software.amazon.awssdk:regions'
-
-    // Jackson dependencies
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.14.2'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.15.2'
-
-    // Gson
-    implementation 'com.google.code.gson:gson:2.10.1'
+    dist (group: 'software.amazon.awssdk', name: 'redshiftdata', version: "${awsJavaSdkVersion}") {
+        exclude group: "commons-logging", module: "commons-logging"
+        exclude group: "io.netty", module: "netty-buffer"
+        exclude group: "org.slf4j", module: "slf4j-api"
+    }
 }
 
 tasks.withType(JavaCompile) {
