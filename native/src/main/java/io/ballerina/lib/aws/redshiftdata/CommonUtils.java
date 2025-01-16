@@ -29,6 +29,9 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.stdlib.time.nativeimpl.Utc;
+import software.amazon.awssdk.awscore.exception.AwsErrorDetails;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.services.redshiftdata.model.BatchExecuteStatementRequest;
 import software.amazon.awssdk.services.redshiftdata.model.BatchExecuteStatementResponse;
 import software.amazon.awssdk.services.redshiftdata.model.DescribeStatementResponse;
@@ -48,9 +51,33 @@ public final class CommonUtils {
     private CommonUtils() {
     }
 
+    public static BError createError(String message) {
+        return ErrorCreator.createError(
+                ModuleUtils.getModule(), Constants.ERROR, StringUtils.fromString(message), null, null);
+    }
+
     public static BError createError(String message, Throwable exception) {
-        return ErrorCreator.createError(ModuleUtils.getModule(), "Error",
-                StringUtils.fromString(message), null, null);
+        BError cause = ErrorCreator.createError(exception);
+        BMap<BString, Object> errorDetails = ValueCreator.createRecordValue(
+                ModuleUtils.getModule(), Constants.ERROR_DETAILS);
+        if (exception instanceof AwsServiceException awsServiceException &&
+                Objects.nonNull(awsServiceException.awsErrorDetails())) {
+            AwsErrorDetails awsErrorDetails = awsServiceException.awsErrorDetails();
+            SdkHttpResponse sdkResponse = awsErrorDetails.sdkHttpResponse();
+            if (Objects.nonNull(sdkResponse)) {
+                errorDetails.put(
+                        Constants.ERROR_DETAILS_HTTP_STATUS_CODE, sdkResponse.statusCode());
+                sdkResponse.statusText().ifPresent(httpStatusTxt -> errorDetails.put(
+                        Constants.ERROR_DETAILS_HTTP_STATUS_TEXT, StringUtils.fromString(httpStatusTxt)));
+            }
+            errorDetails.put(
+                    Constants.ERROR_DETAILS_ERROR_CODE, StringUtils.fromString(awsErrorDetails.errorCode()));
+            errorDetails.put(
+                    Constants.ERROR_DETAILS_ERROR_MESSAGE, StringUtils.fromString(awsErrorDetails.errorMessage()));
+        }
+        return ErrorCreator.createError(
+                ModuleUtils.getModule(), Constants.ERROR, StringUtils.fromString(message), cause,
+                errorDetails);
     }
 
     @SuppressWarnings("unchecked")
@@ -104,7 +131,7 @@ public final class CommonUtils {
             builder.sessionId(sessionId.sessionId());
         } else {
             throw createError("No database access configuration provided in the initialization" +
-                    "of the client or in the execute statement config", null);
+                    "of the client or in the execute statement config");
         }
 
         // Set other configurations
@@ -191,7 +218,7 @@ public final class CommonUtils {
             builder.sessionId(sessionId.sessionId());
         } else {
             throw createError("No database access configuration provided in the initialization" +
-                    "of the client or in the execute statement config", null);
+                    "of the client or in the execute statement config");
         }
 
         // Set other configurations

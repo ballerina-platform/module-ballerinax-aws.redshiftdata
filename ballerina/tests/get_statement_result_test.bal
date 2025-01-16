@@ -125,6 +125,13 @@ isolated function testNoQueryResult() returns error? {
     _ = check waitForDescribeStatementCompletion(redshift, res.statementId);
     stream<User, Error?>|Error queryResult = redshift->getStatementResult(res.statementId);
     test:assertTrue(queryResult is Error, "Query result is not an error");
+    if (queryResult is Error) {
+        ErrorDetails errorDetails = queryResult.detail();
+        test:assertEquals(errorDetails.httpStatusCode, 400, "Invalid Status Code");
+        test:assertEquals(errorDetails.errorMessage, "Query does not have result. Please check query status with " +
+                "DescribeStatement.",
+                "Invalid Error message");
+    }
 }
 
 @test:Config {
@@ -152,6 +159,12 @@ isolated function testInvalidStatementId() returns error? {
     StatementId invalidStatementId = "InvalidStatementId";
     stream<User, Error?>|Error queryResult = redshift->getStatementResult(invalidStatementId);
     test:assertTrue(queryResult is Error, "Query result is not an error");
+    if (queryResult is Error) {
+        ErrorDetails errorDetails = queryResult.detail();
+        test:assertEquals(errorDetails.httpStatusCode, 400, "Invalid Status Code");
+        string errorMessage = errorDetails.errorMessage ?: "";
+        test:assertTrue(errorMessage.startsWith("id must satisfy regex pattern:"), "Invalid Error message");
+    }
 }
 
 @test:Config {
@@ -162,6 +175,12 @@ isolated function testIncorrectStatementId() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     stream<User, Error?>|Error queryResult = redshift->getStatementResult("70662acc-f334-46f8-b953-3a9546796d7k");
     test:assertTrue(queryResult is Error, "Query result is not an error");
+    if (queryResult is Error) {
+        ErrorDetails errorDetails = queryResult.detail();
+        test:assertEquals(errorDetails.httpStatusCode, 400, "Invalid Status Code");
+        test:assertEquals(errorDetails.errorMessage, "Query does not exist.",
+                "Invalid Error message");
+    }
 }
 
 @test:Config {

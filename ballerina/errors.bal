@@ -14,4 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type Error distinct error;
+# Represents a AWS Redshift Data distinct error.
+public type Error distinct error<ErrorDetails>;
+
+# The error details type for the AWS Redshift Data module.
+public type ErrorDetails record {|
+    # The HTTP status code for the error
+    int httpStatusCode?;
+    # The HTTP status text returned from the service
+    string httpStatusText?;
+    # The error code associated with the response
+    string errorCode?;
+    # The human-readable error message provided by the service
+    string errorMessage?;
+|};

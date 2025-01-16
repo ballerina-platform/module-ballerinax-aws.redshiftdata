@@ -22,6 +22,7 @@ module io.ballerina.stdlib.java.aws.redshiftdata {
     requires software.amazon.awssdk.http;
     requires software.amazon.awssdk.http.nio.netty;
     requires software.amazon.awssdk.regions;
+    requires software.amazon.awssdk.awscore;
     requires com.google.gson;
     requires io.ballerina.stdlib.sql;
     requires io.ballerina.stdlib.time;

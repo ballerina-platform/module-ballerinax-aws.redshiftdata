@@ -128,6 +128,31 @@ isolated function testWithDbConfigs() returns error? {
     enable: IS_TESTS_ENABLED,
     groups: ["execute"]
 }
+isolated function testWithInvalidDbConfigs() returns error? {
+    ConnectionConfig mockConnectionConfig = {
+        region: testRegion,
+        authConfig: testAuthConfig,
+        dbAccessConfig: {
+            id: "clusterId",
+            database: "dbName",
+            dbUser: "dbUser"
+        }
+    };
+    Client redshift = check new Client(mockConnectionConfig);
+    ExecuteStatementResponse|Error res = redshift->executeStatement(`SELECT * FROM Users`);
+    test:assertTrue(res is Error);
+    if (res is Error) {
+        ErrorDetails errorDetails = res.detail();
+        test:assertEquals(errorDetails.httpStatusCode, 400, "Invalid Status Code");
+        test:assertEquals(errorDetails.errorMessage, "Redshift endpoint doesn't exist in this region.",
+                "Invalid Error message");
+    }
+}
+
+@test:Config {
+    enable: IS_TESTS_ENABLED,
+    groups: ["execute"]
+}
 isolated function testNoDbAccessConfig() returns error? {
     ConnectionConfig connectionConfig = {
         region: testRegion,
@@ -138,7 +163,7 @@ isolated function testNoDbAccessConfig() returns error? {
     ExecuteStatementResponse|Error res = redshift->executeStatement(`SELECT * FROM Users`);
     test:assertTrue(res is Error, "Invalid error message");
     if (res is Error) {
-        test:assertTrue(res.message() == "No database access configuration provided in the initialization" +
+        test:assertEquals(res.message(), "No database access configuration provided in the initialization" +
                     "of the client or in the execute statement config",
                 "Invalid error message");
     }

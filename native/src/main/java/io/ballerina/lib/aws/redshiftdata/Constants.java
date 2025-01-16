@@ -29,6 +29,14 @@ public interface Constants {
     String NATIVE_CLIENT = "nativeClient";
     String NATIVE_DB_ACCESS_CONFIG = "nativeDbAccessConfig";
 
+    // Constants Related to Error
+    String ERROR = "Error";
+    String ERROR_DETAILS = "ErrorDetails";
+    BString ERROR_DETAILS_HTTP_STATUS_CODE = StringUtils.fromString("httpStatusCode");
+    BString ERROR_DETAILS_HTTP_STATUS_TEXT = StringUtils.fromString("httpStatusText");
+    BString ERROR_DETAILS_ERROR_CODE = StringUtils.fromString("errorCode");
+    BString ERROR_DETAILS_ERROR_MESSAGE = StringUtils.fromString("errorMessage");
+
     // Constants Related to Connection Config
     BString CONNECTION_CONFIG_REGION = StringUtils.fromString("region");
     BString CONNECTION_CONFIG_AUTH_CONFIG = StringUtils.fromString("authConfig");
