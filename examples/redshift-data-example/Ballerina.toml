@@ -1,0 +1,14 @@
+[package]
+org = "sample"
+name = "redshift_data_example"
+version = "0.1.0"
+distribution = "2201.10.2"
+
+[build-options]
+observabilityIncluded = true
+
+[[dependency]]
+org="ballerinax"
+name="aws.redshiftdata"
+version="0.1.0"
+repository="local"
