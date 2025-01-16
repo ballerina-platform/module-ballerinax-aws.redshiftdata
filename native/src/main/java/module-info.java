@@ -18,6 +18,10 @@
 
 module io.ballerina.stdlib.java.aws.redshiftdata {
     requires software.amazon.awssdk.services.redshiftdata;
+    requires software.amazon.awssdk.auth;
+    requires software.amazon.awssdk.http;
+    requires software.amazon.awssdk.regions;
+    requires software.amazon.awssdk.awscore;
     requires io.ballerina.stdlib.time;
     requires io.ballerina.runtime;
 
