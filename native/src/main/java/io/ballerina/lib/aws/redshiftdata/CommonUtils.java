@@ -97,7 +97,7 @@ public final class CommonUtils {
             Object bDbAccessConfigObj = bConfig.get(Constants.CONNECTION_CONFIG_DB_ACCESS_CONFIG);
 
             if (bDbAccessConfigObj instanceof BString bSessionId) {
-                dbAccessConfig = new SessionId(bSessionId);
+                dbAccessConfig = bSessionId.getValue();
             } else {
                 BMap<BString, Object> bDbAccessConfig = (BMap<BString, Object>) bDbAccessConfigObj;
                 if (bDbAccessConfig.containsKey(Constants.CLUSTER_ID)) {
@@ -127,8 +127,8 @@ public final class CommonUtils {
             if (workGroup.sessionKeepAliveSeconds() != null) {
                 builder.sessionKeepAliveSeconds(workGroup.sessionKeepAliveSeconds());
             }
-        } else if (dbAccessConfig instanceof SessionId sessionId) {
-            builder.sessionId(sessionId.sessionId());
+        } else if (dbAccessConfig instanceof String sessionId) {
+            builder.sessionId(sessionId);
         } else {
             throw createError("No database access configuration provided in the initialization" +
                     "of the client or in the execute statement config");
@@ -184,7 +184,7 @@ public final class CommonUtils {
             Object bDbAccessConfigObj = bConfig.get(Constants.CONNECTION_CONFIG_DB_ACCESS_CONFIG);
 
             if (bDbAccessConfigObj instanceof BString bSessionId) {
-                dbAccessConfig = new SessionId(bSessionId);
+                dbAccessConfig = bSessionId.getValue();
             } else {
                 BMap<BString, Object> bDbAccessConfig = (BMap<BString, Object>) bDbAccessConfigObj;
                 if (bDbAccessConfig.containsKey(Constants.CLUSTER_ID)) {
@@ -214,8 +214,8 @@ public final class CommonUtils {
             if (workGroup.sessionKeepAliveSeconds() != null) {
                 builder.sessionKeepAliveSeconds(workGroup.sessionKeepAliveSeconds());
             }
-        } else if (dbAccessConfig instanceof SessionId sessionId) {
-            builder.sessionId(sessionId.sessionId());
+        } else if (dbAccessConfig instanceof String sessionId) {
+            builder.sessionId(sessionId);
         } else {
             throw createError("No database access configuration provided in the initialization" +
                     "of the client or in the execute statement config");
