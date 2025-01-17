@@ -37,5 +37,4 @@ public class ModuleUtils {
     public static void setModule(Environment environment) {
         module = environment.getCurrentModule();
     }
-
 }
