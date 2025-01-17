@@ -17,43 +17,59 @@
 import ballerina/jballerina.java;
 
 # The result iterator used to iterate results in stream returned from `getQueryResult` method.
-class ResultIterator {
+isolated class ResultIterator {
     private boolean isClosed = false;
 
     public isolated function next() returns record {|record {} value;|}|Error? {
-        if self.isClosed {
+        boolean closed;
+        lock {
+            closed = self.isClosed;
+        }
+        if closed {
             return error Error("Stream is closed. Therefore, no operations are allowed further on the stream.");
         }
-        record {}|Error? result = nextResult(self);
+        record {}|Error? result = self.externNextResult(self);
         if result is record {} {
             record {|
                 record {} value;
             |} streamRecord = {value: result};
             return streamRecord;
         } else if result is Error {
-            self.isClosed = true;
+            lock {
+                self.isClosed = true;
+            }
             return result;
         } else {
-            self.isClosed = true;
+            lock {
+                self.isClosed = true;
+            }
             return result;
         }
     }
 
+    isolated function externNextResult(ResultIterator iterator) returns record {}|Error? = @java:Method {
+        name: "nextResult",
+        'class: "io.ballerina.lib.aws.redshiftdata.QueryResultProcessor"
+    } external;
+
     public isolated function close() returns Error? {
-        if !self.isClosed {
-            Error? e = closeResult(self);
+        boolean closed;
+        lock {
+            closed = self.isClosed;
+        }
+        if !closed {
+            Error? e = self.externCloseResult(self);
             if e is () {
-                self.isClosed = true;
+                lock {
+                    self.isClosed = true;
+                }
             }
             return e;
         }
     }
+
+    isolated function externCloseResult(ResultIterator iterator) returns Error? = @java:Method {
+        name: "closeResult",
+        'class: "io.ballerina.lib.aws.redshiftdata.QueryResultProcessor"
+    } external;
 }
-
-isolated function nextResult(ResultIterator iterator) returns record {}|Error? = @java:Method {
-    'class: "io.ballerina.lib.aws.redshiftdata.QueryResultProcessor"
-} external;
-
-isolated function closeResult(ResultIterator iterator) returns Error? = @java:Method {
-    'class: "io.ballerina.lib.aws.redshiftdata.QueryResultProcessor"
-} external;
