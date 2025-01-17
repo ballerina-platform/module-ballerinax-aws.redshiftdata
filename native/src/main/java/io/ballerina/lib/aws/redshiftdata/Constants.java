@@ -25,11 +25,11 @@ import io.ballerina.runtime.api.values.BString;
  * Represents the constants related to Ballerina AWS Redshift Data Connector.
  */
 public interface Constants {
-    // Constants Related to Native Client Adapter
+    // Constants related to native client adapter
     String NATIVE_CLIENT = "nativeClient";
     String NATIVE_DB_ACCESS_CONFIG = "nativeDbAccessConfig";
 
-    // Constants Related to Error
+    // Constants related to `Error`
     String ERROR = "Error";
     String ERROR_DETAILS = "ErrorDetails";
     BString ERROR_DETAILS_HTTP_STATUS_CODE = StringUtils.fromString("httpStatusCode");
@@ -37,40 +37,40 @@ public interface Constants {
     BString ERROR_DETAILS_ERROR_CODE = StringUtils.fromString("errorCode");
     BString ERROR_DETAILS_ERROR_MESSAGE = StringUtils.fromString("errorMessage");
 
-    // Constants Related to Connection Config
+    // Constants related to `ConnectionConfig`
     BString CONNECTION_CONFIG_REGION = StringUtils.fromString("region");
     BString CONNECTION_CONFIG_AUTH_CONFIG = StringUtils.fromString("authConfig");
     BString CONNECTION_CONFIG_DB_ACCESS_CONFIG = StringUtils.fromString("dbAccessConfig");
 
-    // Constants Related to Auth Config
+    // Constants related to `AuthConfig`
     BString AWS_ACCESS_KEY_ID = StringUtils.fromString("accessKeyId");
     BString AWS_SECRET_ACCESS_KEY = StringUtils.fromString("secretAccessKey");
     BString AWS_SESSION_TOKEN = StringUtils.fromString("sessionToken");
 
-    // Constants Related to Cluster
+    // Constants related to `Cluster`
     BString CLUSTER_ID = StringUtils.fromString("id");
     BString CLUSTER_DATABASE = StringUtils.fromString("database");
     BString CLUSTER_DB_USER = StringUtils.fromString("dbUser");
     BString CLUSTER_SECRET_ARN = StringUtils.fromString("secretArn");
     BString CLUSTER_SESSION_KEEP_ALIVE_SECONDS = StringUtils.fromString("sessionKeepAliveSeconds");
 
-    // Constants Related to WorkGroup
+    // Constants related to `WorkGroup`
     BString WORK_GROUP_NAME = StringUtils.fromString("name");
     BString WORK_GROUP_DATABASE = StringUtils.fromString("database");
     BString WORK_GROUP_SECRET_ARN = StringUtils.fromString("secretArn");
     BString WORK_GROUP_SESSION_KEEP_ALIVE_SECONDS = StringUtils.fromString("sessionKeepAliveSeconds");
 
-    // Constants Related to Parameterized Query
+    // Constants related to `ParameterizedQuery`
     BString QUERY_STRINGS = StringUtils.fromString("strings");
     BString QUERY_INSERTIONS = StringUtils.fromString("insertions");
 
-    // Constants Related to Describe Statement Response
+    // Constants related to `DescribeStatementResponse`
     String DESCRIBE_STATEMENT_RES_RECORD = "DescribeStatementResponse";
     BString DESCRIBE_STATEMENT_RES_SUB_STATEMENTS = StringUtils.fromString("subStatements");
     BString DESCRIBE_STATEMENT_RES_REDSHIFT_PID = StringUtils.fromString("redshiftPid");
     BString DESCRIBE_STATEMENT_RES_SESSION_ID = StringUtils.fromString("sessionId");
 
-    // Constants Related to Statement Data
+    // Constants related to `StatementData`
     String STATEMENT_DATA_RECORD = "StatementData";
     BString STATEMENT_DATA_STATEMENT_ID = StringUtils.fromString("statementId");
     BString STATEMENT_DATA_CREATED_AT = StringUtils.fromString("createdAt");
@@ -84,7 +84,7 @@ public interface Constants {
     BString STATEMENT_DATA_STATUS = StringUtils.fromString("status");
     BString STATEMENT_DATA_UPDATED_AT = StringUtils.fromString("updatedAt");
 
-    // Constants Related to Result Iterator
+    // Constants related to `ResultIterator`
     String RESULT_ITERATOR_OBJECT = "ResultIterator";
     String RESULT_ITERATOR_RESULT_RESPONSE = "ResultResponse";
     String RESULT_ITERATOR_RECORD_TYPE = "RecordType";
@@ -93,12 +93,12 @@ public interface Constants {
     String RESULT_ITERATOR_NATIVE_CLIENT = "nativeClient";
     String RESULT_ITERATOR_STATEMENT_ID = "statementId";
 
-    // Constants Related to Execute Statement Config
+    // Constants related to `ExecuteStatementConfig`
     BString EXECUTE_STATEMENT_CONFIG_CLIENT_TOKEN = StringUtils.fromString("clientToken");
     BString EXECUTE_STATEMENT_CONFIG_STATEMENT_NAME = StringUtils.fromString("statementName");
     BString EXECUTE_STATEMENT_CONFIG_WITH_EVENT = StringUtils.fromString("withEvent");
 
-    // Constants related to Execute Statement Response
+    // Constants related to `ExecuteStatementResponse`
     String EXECUTE_STATEMENT_RES_RECORD = "ExecuteStatementResponse";
     BString EXECUTE_STATEMENT_RES_CREATE_AT = StringUtils.fromString("createdAt");
     BString EXECUTE_STATEMENT_RES_DB_GROUPS = StringUtils.fromString("dbGroups");
