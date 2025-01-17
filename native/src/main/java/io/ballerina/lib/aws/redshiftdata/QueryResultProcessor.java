@@ -98,21 +98,19 @@ public class QueryResultProcessor {
         List<List<Field>> rows = resultResponse.records();
         try {
             // Fetch the next record when the current result set is processed
-            if (index >= rows.size()) {
-                if (Objects.nonNull(resultResponse.nextToken())) {
-                    RedshiftDataClient nativeClient = (RedshiftDataClient) bResultIterator
-                            .getNativeData(Constants.RESULT_ITERATOR_NATIVE_CLIENT);
-                    String statementId = (String) bResultIterator
-                            .getNativeData(Constants.RESULT_ITERATOR_STATEMENT_ID);
+            if (index >= rows.size() && Objects.nonNull(resultResponse.nextToken())) {
+                RedshiftDataClient nativeClient = (RedshiftDataClient) bResultIterator
+                        .getNativeData(Constants.RESULT_ITERATOR_NATIVE_CLIENT);
+                String statementId = (String) bResultIterator
+                        .getNativeData(Constants.RESULT_ITERATOR_STATEMENT_ID);
 
-                    resultResponse = nativeClient.getStatementResult(
-                            GetStatementResultRequest.builder()
-                                    .id(statementId).nextToken(resultResponse.nextToken()).build());
-                    rows = resultResponse.records();
-                    index = 0;
-                    bResultIterator.addNativeData(Constants.RESULT_ITERATOR_CURRENT_RESULT_INDEX, index);
-                    bResultIterator.addNativeData(Constants.RESULT_ITERATOR_RESULT_RESPONSE, resultResponse);
-                }
+                resultResponse = nativeClient.getStatementResult(
+                        GetStatementResultRequest.builder()
+                                .id(statementId).nextToken(resultResponse.nextToken()).build());
+                rows = resultResponse.records();
+                index = 0;
+                bResultIterator.addNativeData(Constants.RESULT_ITERATOR_CURRENT_RESULT_INDEX, index);
+                bResultIterator.addNativeData(Constants.RESULT_ITERATOR_RESULT_RESPONSE, resultResponse);
             }
 
             if (index < rows.size()) {
