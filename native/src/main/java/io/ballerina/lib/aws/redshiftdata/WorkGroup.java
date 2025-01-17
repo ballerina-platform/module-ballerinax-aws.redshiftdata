@@ -33,39 +33,12 @@ public record WorkGroup(String name, String database, String secretArn, Integer 
 
     public WorkGroup(BMap<BString, Object> bWorkGroup) {
         this(
-                getName(bWorkGroup),
-                getDatabase(bWorkGroup),
-                getSecretArn(bWorkGroup),
-                getSessionKeepAliveSeconds(bWorkGroup)
+                bWorkGroup.getStringValue(Constants.WORK_GROUP_NAME).getValue(),
+                bWorkGroup.getStringValue(Constants.WORK_GROUP_DATABASE).getValue(),
+                bWorkGroup.containsKey(Constants.WORK_GROUP_SECRET_ARN) ?
+                        bWorkGroup.getStringValue(Constants.WORK_GROUP_SECRET_ARN).getValue() : null,
+                bWorkGroup.containsKey(Constants.WORK_GROUP_SESSION_KEEP_ALIVE_SECONDS) ?
+                        bWorkGroup.getIntValue(Constants.WORK_GROUP_SESSION_KEEP_ALIVE_SECONDS).intValue() : null
         );
-    }
-
-    private static String getName(BMap<BString, Object> bWorkGroup) {
-        if (bWorkGroup.containsKey(Constants.WORK_GROUP_NAME)) {
-            return bWorkGroup.getStringValue(Constants.WORK_GROUP_NAME).getValue();
-        }
-        return null;
-    }
-
-    private static String getDatabase(BMap<BString, Object> bWorkGroup) {
-        if (bWorkGroup.containsKey(Constants.WORK_GROUP_DATABASE)) {
-            return bWorkGroup.getStringValue(Constants.WORK_GROUP_DATABASE).getValue();
-        }
-        return null;
-    }
-
-    private static String getSecretArn(BMap<BString, Object> bWorkGroup) {
-        if (bWorkGroup.containsKey(Constants.WORK_GROUP_SECRET_ARN)) {
-            return bWorkGroup.getStringValue(Constants.WORK_GROUP_SECRET_ARN).getValue();
-        }
-        return null;
-    }
-
-    private static Integer getSessionKeepAliveSeconds(BMap<BString, Object> bWorkGroup) {
-        if (bWorkGroup.containsKey(Constants.WORK_GROUP_SESSION_KEEP_ALIVE_SECONDS)) {
-            return Integer.parseInt(bWorkGroup.getStringValue(
-                    Constants.WORK_GROUP_SESSION_KEEP_ALIVE_SECONDS).getValue());
-        }
-        return null;
     }
 }

@@ -37,21 +37,11 @@ import io.ballerina.runtime.api.values.BString;
 public record AuthConfig(String accessKeyId, String secretAccessKey, String sessionToken) {
 
     public AuthConfig(BMap<BString, Object> bAuthConfig) {
-        this(getAccessKeyId(bAuthConfig), getSecretAccessKey(bAuthConfig), getSessionToken(bAuthConfig));
-    }
-
-    private static String getAccessKeyId(BMap<BString, Object> bAuthConfig) {
-        return bAuthConfig.getStringValue(Constants.AWS_ACCESS_KEY_ID).getValue();
-    }
-
-    private static String getSecretAccessKey(BMap<BString, Object> bAuthConfig) {
-        return bAuthConfig.getStringValue(Constants.AWS_SECRET_ACCESS_KEY).getValue();
-    }
-
-    private static String getSessionToken(BMap<BString, Object> bAuthConfig) {
-        if (bAuthConfig.containsKey(Constants.AWS_SESSION_TOKEN)) {
-            return bAuthConfig.getStringValue(Constants.AWS_SESSION_TOKEN).getValue();
-        }
-        return null;
+        this(
+                bAuthConfig.getStringValue(Constants.AWS_ACCESS_KEY_ID).getValue(),
+                bAuthConfig.getStringValue(Constants.AWS_SECRET_ACCESS_KEY).getValue(),
+                bAuthConfig.containsKey(Constants.AWS_SESSION_TOKEN) ?
+                        bAuthConfig.getStringValue(Constants.AWS_SESSION_TOKEN).getValue() : null
+        );
     }
 }

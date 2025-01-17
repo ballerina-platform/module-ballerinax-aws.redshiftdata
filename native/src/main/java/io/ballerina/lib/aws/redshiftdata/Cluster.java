@@ -34,46 +34,14 @@ public record Cluster(String id, String database, String dbUser, String secretAr
 
     public Cluster(BMap<BString, Object> bCluster) {
         this(
-                getId(bCluster),
-                getDatabase(bCluster),
-                getDbUser(bCluster),
-                getSecretArn(bCluster),
-                getSessionKeepAliveSeconds(bCluster)
+                bCluster.getStringValue(Constants.CLUSTER_ID).getValue(),
+                bCluster.getStringValue(Constants.CLUSTER_DATABASE).getValue(),
+                bCluster.containsKey(Constants.CLUSTER_DB_USER) ?
+                        bCluster.getStringValue(Constants.CLUSTER_DB_USER).getValue() : null,
+                bCluster.containsKey(Constants.CLUSTER_SECRET_ARN) ?
+                        bCluster.getStringValue(Constants.CLUSTER_SECRET_ARN).getValue() : null,
+                bCluster.containsKey(Constants.CLUSTER_SESSION_KEEP_ALIVE_SECONDS) ?
+                        bCluster.getIntValue(Constants.CLUSTER_SESSION_KEEP_ALIVE_SECONDS).intValue() : null
         );
-    }
-
-    private static String getId(BMap<BString, Object> bCluster) {
-        if (bCluster.containsKey(Constants.CLUSTER_ID)) {
-            return bCluster.getStringValue(Constants.CLUSTER_ID).getValue();
-        }
-        return null;
-    }
-
-    private static String getDatabase(BMap<BString, Object> bCluster) {
-        if (bCluster.containsKey(Constants.CLUSTER_DATABASE)) {
-            return bCluster.getStringValue(Constants.CLUSTER_DATABASE).getValue();
-        }
-        return null;
-    }
-
-    private static String getDbUser(BMap<BString, Object> bCluster) {
-        if (bCluster.containsKey(Constants.CLUSTER_DB_USER)) {
-            return bCluster.getStringValue(Constants.CLUSTER_DB_USER).getValue();
-        }
-        return null;
-    }
-
-    private static String getSecretArn(BMap<BString, Object> bCluster) {
-        if (bCluster.containsKey(Constants.CLUSTER_SECRET_ARN)) {
-            return bCluster.getStringValue(Constants.CLUSTER_SECRET_ARN).getValue();
-        }
-        return null;
-    }
-
-    private static Integer getSessionKeepAliveSeconds(BMap<BString, Object> bCluster) {
-        if (bCluster.containsKey(Constants.CLUSTER_SESSION_KEEP_ALIVE_SECONDS)) {
-            return bCluster.getIntValue(Constants.CLUSTER_SESSION_KEEP_ALIVE_SECONDS).intValue();
-        }
-        return null;
     }
 }
