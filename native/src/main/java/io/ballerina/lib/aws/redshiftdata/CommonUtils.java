@@ -51,11 +51,6 @@ public final class CommonUtils {
     private CommonUtils() {
     }
 
-    public static BError createError(String message) {
-        return ErrorCreator.createError(
-                ModuleUtils.getModule(), Constants.ERROR, StringUtils.fromString(message), null, null);
-    }
-
     public static BError createError(String message, Throwable exception) {
         BError cause = ErrorCreator.createError(exception);
         BMap<BString, Object> errorDetails = ValueCreator.createRecordValue(
@@ -82,7 +77,7 @@ public final class CommonUtils {
 
     @SuppressWarnings("unchecked")
     public static ExecuteStatementRequest getNativeExecuteStatementRequest(
-            BObject bSqlStatement, BMap<BString, Object> bConfig, Object dbAccessConfig) throws BError {
+            BObject bSqlStatement, BMap<BString, Object> bConfig, Object initLevelDbAccessConfig) throws Exception {
         ExecuteStatementRequest.Builder builder = ExecuteStatementRequest.builder();
 
         // Set the SQL statement
@@ -93,20 +88,7 @@ public final class CommonUtils {
         }
 
         // if dbAccessConfig set in the ExecuteStatementConfig, it will override the init level dbAccessConfig
-        if (bConfig.containsKey(Constants.CONNECTION_CONFIG_DB_ACCESS_CONFIG)) {
-            Object bDbAccessConfigObj = bConfig.get(Constants.CONNECTION_CONFIG_DB_ACCESS_CONFIG);
-
-            if (bDbAccessConfigObj instanceof BString bSessionId) {
-                dbAccessConfig = bSessionId.getValue();
-            } else {
-                BMap<BString, Object> bDbAccessConfig = (BMap<BString, Object>) bDbAccessConfigObj;
-                if (bDbAccessConfig.containsKey(Constants.CLUSTER_ID)) {
-                    dbAccessConfig = new Cluster(bDbAccessConfig);
-                } else if (bDbAccessConfig.containsKey(Constants.WORK_GROUP_NAME)) {
-                    dbAccessConfig = new WorkGroup(bDbAccessConfig);
-                }
-            }
-        }
+        Object dbAccessConfig = validateAndGetDbAccessConfig(bConfig, initLevelDbAccessConfig);
 
         // Set the database access configurations
         if (dbAccessConfig instanceof Cluster cluster) {
@@ -127,11 +109,8 @@ public final class CommonUtils {
             if (workGroup.sessionKeepAliveSeconds() != null) {
                 builder.sessionKeepAliveSeconds(workGroup.sessionKeepAliveSeconds());
             }
-        } else if (dbAccessConfig instanceof String sessionId) {
-            builder.sessionId(sessionId);
         } else {
-            throw createError("No database access configuration provided in the initialization" +
-                    "of the client or in the execute statement config");
+            builder.sessionId((String) dbAccessConfig);
         }
 
         // Set other configurations
@@ -169,7 +148,7 @@ public final class CommonUtils {
 
     @SuppressWarnings("unchecked")
     public static BatchExecuteStatementRequest getNativeBatchExecuteStatementRequest(
-            BArray bSqlStatements, BMap<BString, Object> bConfig, Object dbAccessConfig) throws BError {
+            BArray bSqlStatements, BMap<BString, Object> bConfig, Object initLevelDbAccessConfig) throws Exception {
         BatchExecuteStatementRequest.Builder builder = BatchExecuteStatementRequest.builder();
 
         // Set the SQL statements
@@ -180,20 +159,7 @@ public final class CommonUtils {
         builder.sqls(sqlStatements);
 
         // if dbAccessConfig set in the ExecuteStatementConfig, it will override the init level dbAccessConfig
-        if (bConfig.containsKey(Constants.CONNECTION_CONFIG_DB_ACCESS_CONFIG)) {
-            Object bDbAccessConfigObj = bConfig.get(Constants.CONNECTION_CONFIG_DB_ACCESS_CONFIG);
-
-            if (bDbAccessConfigObj instanceof BString bSessionId) {
-                dbAccessConfig = bSessionId.getValue();
-            } else {
-                BMap<BString, Object> bDbAccessConfig = (BMap<BString, Object>) bDbAccessConfigObj;
-                if (bDbAccessConfig.containsKey(Constants.CLUSTER_ID)) {
-                    dbAccessConfig = new Cluster(bDbAccessConfig);
-                } else if (bDbAccessConfig.containsKey(Constants.WORK_GROUP_NAME)) {
-                    dbAccessConfig = new WorkGroup(bDbAccessConfig);
-                }
-            }
-        }
+        Object dbAccessConfig = validateAndGetDbAccessConfig(bConfig, initLevelDbAccessConfig);
 
         // Set the database access configurations
         if (dbAccessConfig instanceof Cluster cluster) {
@@ -214,11 +180,8 @@ public final class CommonUtils {
             if (workGroup.sessionKeepAliveSeconds() != null) {
                 builder.sessionKeepAliveSeconds(workGroup.sessionKeepAliveSeconds());
             }
-        } else if (dbAccessConfig instanceof String sessionId) {
-            builder.sessionId(sessionId);
         } else {
-            throw createError("No database access configuration provided in the initialization" +
-                    "of the client or in the execute statement config");
+            builder.sessionId((String) dbAccessConfig);
         }
 
         // Set other configurations
@@ -233,6 +196,31 @@ public final class CommonUtils {
             builder.withEvent(bConfig.getBooleanValue(Constants.EXECUTE_STATEMENT_CONFIG_WITH_EVENT));
         }
         return builder.build();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Object validateAndGetDbAccessConfig(BMap<BString, Object> bConfig, Object initLevelDbAccessConfig)
+            throws Exception {
+        Object dbAccessConfig = initLevelDbAccessConfig;
+        if (bConfig.containsKey(Constants.CONNECTION_CONFIG_DB_ACCESS_CONFIG)) {
+            Object bDbAccessConfigObj = bConfig.get(Constants.CONNECTION_CONFIG_DB_ACCESS_CONFIG);
+
+            if (bDbAccessConfigObj instanceof BString bSessionId) {
+                dbAccessConfig = bSessionId.getValue();
+            } else {
+                BMap<BString, Object> bDbAccessConfig = (BMap<BString, Object>) bDbAccessConfigObj;
+                if (bDbAccessConfig.containsKey(Constants.CLUSTER_ID)) {
+                    dbAccessConfig = new Cluster(bDbAccessConfig);
+                } else if (bDbAccessConfig.containsKey(Constants.WORK_GROUP_NAME)) {
+                    dbAccessConfig = new WorkGroup(bDbAccessConfig);
+                }
+            }
+        }
+        if (Objects.isNull(dbAccessConfig)) {
+            throw new Exception("No database access configuration provided in the initialization " +
+                    "of the client or in the execute statement config");
+        }
+        return dbAccessConfig;
     }
 
     public static BMap<BString, Object> getBatchExecuteStatementResponse(

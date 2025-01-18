@@ -163,8 +163,7 @@ isolated function testNoDbAccessConfig() returns error? {
     ExecuteStatementResponse|Error res = redshift->executeStatement(`SELECT * FROM Users`);
     test:assertTrue(res is Error, "Invalid error message");
     if (res is Error) {
-        test:assertEquals(res.message(), "No database access configuration provided in the initialization" +
-                    "of the client or in the execute statement config",
-                "Invalid error message");
+        test:assertEquals(res.message(), "Error occurred while executing the executeStatement: No database access " +
+                "configuration provided in the initialization of the client or in the execute statement config");
     }
 }
