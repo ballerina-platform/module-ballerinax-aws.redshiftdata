@@ -165,7 +165,7 @@ public isolated client class Client {
     # ```
     #
     # + return - A `redshiftdata:Error` if there is an error while closing the client resources or else nil.
-    remote function close() returns Error? = @java:Method {
+    remote isolated function close() returns Error? = @java:Method {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
 }

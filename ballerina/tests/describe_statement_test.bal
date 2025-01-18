@@ -40,6 +40,7 @@ isolated function testBasicDescribeStatement() returns error? {
     test:assertEquals(describeStatementResponse.queryString, query.strings[0], "Invalid query string");
     test:assertEquals(describeStatementResponse.statementId, executeStatementResponse.statementId,
             "Statement ID mismatch");
+    check redshift->close();
 }
 
 @test:Config {
@@ -84,6 +85,7 @@ isolated function testBatchDescribeStatement() returns error? {
     test:assertEquals(subStatement1.hasResultSet, true, "SubStatement: Invalid hasResultSet value");
     test:assertEquals(subStatement1.status, FINISHED, "SubStatement: Invalid status");
     test:assertEquals(subStatement1.queryString, "SELECT * FROM Users", "SubStatement: Invalid query string");
+    check redshift->close();
 }
 
 @test:Config {
@@ -99,6 +101,7 @@ isolated function testIncorrectStatementDescribeStatement() returns error? {
     test:assertEquals(describeStatementResponse.status, FAILED, "Invalid status");
     test:assertTrue(describeStatementResponse.'error is string, "Error message is nil");
     test:assertTrue(describeStatementResponse.'error != "", "Error message is empty");
+    check redshift->close();
 }
 
 @test:Config {
@@ -124,6 +127,7 @@ isolated function testIncorrectBatchStatementDescribeStatement() returns error? 
     test:assertEquals(subStatements[1].status, FAILED, "SubStatement 2: Invalid status");
     test:assertTrue(subStatements[1].'error is string, "SubStatement 2: Error message is nil");
     test:assertTrue(subStatements[1].'error != "", "SubStatement 2: Error message is empty");
+    check redshift->close();
 }
 
 @test:Config {
@@ -139,6 +143,7 @@ isolated function testDescribeStatementWithInvalidStatementId() returns error? {
         test:assertEquals(res.message(), "Statement ID validation failed: Validation failed for " +
                 "'$:pattern' constraint(s).", "Invalid Error Message");
     }
+    check redshift->close();
 }
 
 // Helper function

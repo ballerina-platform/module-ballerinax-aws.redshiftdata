@@ -28,6 +28,7 @@ isolated function testBasicStatement() returns error? {
     test:assertTrue(res.statementId != "", "Statement ID is empty");
     test:assertTrue(res.createdAt[0] > 0, "Invalid createdAt time");
     test:assertTrue(res.sessionId is (), "Session ID is not nil"); // Since we are not using sessionKeepAliveSeconds
+    check redshift->close();
 }
 
 @test:Config {
@@ -53,6 +54,7 @@ isolated function testSessionId() returns error? {
     ExecuteStatementResponse res2 = check redshift->executeStatement(`SELECT * FROM Users`,
         {dbAccessConfig: res1.sessionId});
     test:assertTrue(res2.sessionId == res1.sessionId, "Session ID is not equal");
+    check redshift->close();
 }
 
 @test:Config {
@@ -69,6 +71,7 @@ isolated function testExecuteStatementConfig() returns error? {
     };
     ExecuteStatementResponse res = check redshift->executeStatement(`SELECT * FROM Users`, config);
     test:assertTrue(res.statementId != "", "Statement ID is empty");
+    check redshift->close();
 }
 
 @test:Config {
@@ -80,6 +83,7 @@ isolated function testParameterizedStatement() returns error? {
     string tableName = "Users";
     ExecuteStatementResponse res = check redshift->executeStatement(`SELECT * FROM ${tableName}`);
     test:assertTrue(res.statementId != "", "Statement ID is empty");
+    check redshift->close();
 }
 
 @test:Config {
@@ -92,6 +96,7 @@ isolated function testNilParameterizedStatement() returns error? {
     ExecuteStatementResponse|Error res = redshift->executeStatement(`SELECT * FROM ${tableName}`);
     test:assertTrue(res is Error && res.message() == "SQL statement cannot have nil parameters.",
             "Invalid error message");
+    check redshift->close();
 }
 
 @test:Config {
@@ -102,6 +107,7 @@ isolated function testEmptyStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     ExecuteStatementResponse|Error res = redshift->executeStatement(``);
     test:assertTrue(res is Error && (res.message() == "SQL statement cannot be empty."), "Invalid error message");
+    check redshift->close();
 }
 
 @test:Config {
@@ -122,6 +128,7 @@ isolated function testWithDbConfigs() returns error? {
     ExecuteStatementResponse res = check redshift->executeStatement(`SELECT * FROM Users`,
         {dbAccessConfig: testDbAccessConfig});
     test:assertTrue(res.statementId != "", "Statement ID is empty");
+    check redshift->close();
 }
 
 @test:Config {
@@ -147,6 +154,7 @@ isolated function testWithInvalidDbConfigs() returns error? {
         test:assertEquals(errorDetails.errorMessage, "Redshift endpoint doesn't exist in this region.",
                 "Invalid Error message");
     }
+    check redshift->close();
 }
 
 @test:Config {
@@ -166,4 +174,5 @@ isolated function testNoDbAccessConfig() returns error? {
         test:assertEquals(res.message(), "Error occurred while executing the executeStatement: No database access " +
                 "configuration provided in the initialization of the client or in the execute statement config");
     }
+    check redshift->close();
 }

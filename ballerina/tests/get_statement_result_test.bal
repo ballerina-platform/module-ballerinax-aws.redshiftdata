@@ -57,6 +57,7 @@ isolated function testBasicQueryResult() returns error? {
     test:assertEquals(resultArray[0], expectedUsers[0], "Invalid user");
     test:assertEquals(resultArray[1], expectedUsers[1], "Invalid user");
     test:assertEquals(resultArray[2], expectedUsers[2], "Invalid user");
+    check redshift->close();
 }
 
 @test:Config {
@@ -76,6 +77,7 @@ isolated function testParameterizedQueryResult() returns error? {
 
     test:assertEquals(resultArray.length(), 1, "Invalid result count");
     test:assertEquals(resultArray[0].username, "JohnDoe", "Invalid user");
+    check redshift->close();
 }
 
 @test:Config {
@@ -111,6 +113,7 @@ isolated function testSupportedTypes() returns error? {
 
     test:assertEquals(resultArray.length(), 1, "Invalid result count");
     test:assertEquals(resultArray[0], data, "Invalid data");
+    check redshift->close();
 }
 
 @test:Config {
@@ -132,6 +135,7 @@ isolated function testNoQueryResult() returns error? {
                 "DescribeStatement.",
                 "Invalid Error message");
     }
+    check redshift->close();
 }
 
 @test:Config {
@@ -148,6 +152,7 @@ isolated function testNoResultRows() returns error? {
         select user;
 
     test:assertEquals(resultArray.length(), 0, "Invalid result count");
+    check redshift->close();
 }
 
 @test:Config {
@@ -165,6 +170,7 @@ isolated function testInvalidStatementId() returns error? {
         string errorMessage = errorDetails.errorMessage ?: "";
         test:assertTrue(errorMessage.startsWith("id must satisfy regex pattern:"), "Invalid Error message");
     }
+    check redshift->close();
 }
 
 @test:Config {
@@ -181,6 +187,7 @@ isolated function testIncorrectStatementId() returns error? {
         test:assertEquals(errorDetails.errorMessage, "Query does not exist.",
                 "Invalid Error message");
     }
+    check redshift->close();
 }
 
 @test:Config {
@@ -214,4 +221,5 @@ isolated function testResultPagination() returns error? {
         select item;
 
     test:assertEquals(resultArray.length(), totalRows, "Invalid result count");
+    check redshift->close();
 }
