@@ -24,6 +24,15 @@ type User record {|
     int age;
 |};
 
+type UserWithoutEmailField record {|
+    int user_id;
+    string username;
+    int age;
+|};
+
+type UserOpenRecord record {
+};
+
 type SupportedTypes record {|
     int int_type;
     int bigint_type;
@@ -192,6 +201,41 @@ isolated function testIncorrectStatementId() returns error? {
 
 @test:Config {
     enable: IS_TESTS_ENABLED,
+    groups: ["getStatementResult"]
+}
+isolated function testMissingFieldInUserType() returns error? {
+    sql:ParameterizedQuery query = `SELECT * FROM Users;`;
+    Client redshift = check new Client(testConnectionConfig);
+    ExecuteStatementResponse res = check redshift->executeStatement(query);
+    _ = check waitForDescribeStatementCompletion(redshift, res.statementId);
+    stream<UserWithoutEmailField, Error?>|Error resultStream = redshift->getStatementResult(res.statementId);
+    test:assertTrue(resultStream is Error, "Query result is not an error");
+    if (resultStream is Error) {
+        test:assertEquals(resultStream.message(), "Error occurred while executing the getQueryResult: " +
+                "Error occurred while creating the Record Stream: Field 'email' not found in the record type.");
+    }
+    check redshift->close();
+}
+
+@test:Config {
+    enable: IS_TESTS_ENABLED,
+    groups: ["getStatementResult"]
+}
+isolated function testUserWithOpenRecord() returns error? {
+    sql:ParameterizedQuery query = `SELECT * FROM Users;`;
+    Client redshift = check new Client(testConnectionConfig);
+    ExecuteStatementResponse res = check redshift->executeStatement(query);
+    _ = check waitForDescribeStatementCompletion(redshift, res.statementId);
+    stream<UserOpenRecord, Error?> resultStream = check redshift->getStatementResult(res.statementId);
+    UserOpenRecord[] resultArray = check from UserOpenRecord user in resultStream
+        select user;
+    test:assertEquals(resultArray[0],
+            {"user_id": 1, "email": "john.doe@example.com", "age": 25, "username": "JohnDoe"});
+    check redshift->close();
+}
+
+@test:Config {
+    enable: IS_TESTS_ENABLED,
     groups: ["queryResult"]
 }
 isolated function testResultPagination() returns error? {
@@ -216,8 +260,8 @@ isolated function testResultPagination() returns error? {
     int totalRows = describeStatementResponse.resultRows;
     test:assertTrue(resultSize >= 150, "Result size is less than 150 MB");
 
-    stream<record {|int num;|}, Error?> resultStream = check redshift->getStatementResult(res.statementId);
-    record {|int num;|}[] resultArray = check from var item in resultStream
+    stream<record {int num;}, Error?> resultStream = check redshift->getStatementResult(res.statementId);
+    record {int num;}[] resultArray = check from var item in resultStream
         select item;
 
     test:assertEquals(resultArray.length(), totalRows, "Invalid result count");

@@ -48,7 +48,8 @@ public class QueryResultProcessor {
     }
 
     public static BStream getRecordStream(RedshiftDataClient nativeClient, String statementId,
-                                          GetStatementResultResponse nativeResultResponse, BTypedesc recordType) {
+                                          GetStatementResultResponse nativeResultResponse, BTypedesc recordType)
+            throws Exception {
         try {
             List<ColumnMetadata> columnMetadata = nativeResultResponse.columnMetadata();
             RecordType streamConstraint = (RecordType) TypeUtils.getReferredType(
@@ -63,9 +64,25 @@ public class QueryResultProcessor {
             for (String ballerinaField : ballerinaFields) {
                 columnIndex = resultFields.indexOf(ballerinaField);
                 if (columnIndex == -1) {
-                    throw new RuntimeException("Field '" + ballerinaField + "' not found in the result set.");
+                    throw new Exception("Field '" + ballerinaField + "' not found in the result set.");
                 }
                 columnIndexMap.put(ballerinaField, columnIndex);
+            }
+            boolean isClosedRecord = streamConstraint.isSealed();
+            if (isClosedRecord) {
+                // Ensure no extra fields are present in result set
+                for (String resultField : resultFields) {
+                    if (!columnIndexMap.containsKey(resultField)) {
+                        throw new Exception("Field '" + resultField + "' not found in the record type.");
+                    }
+                }
+            } else {
+                // Add all the fields from the result set to the record type
+                for (int i = 0; i < resultFields.size(); i++) {
+                    if (!columnIndexMap.containsKey(resultFields.get(i))) {
+                        columnIndexMap.put(resultFields.get(i), i);
+                    }
+                }
             }
 
             BObject resultIterator = ValueCreator.createObjectValue(ModuleUtils.getModule(),
@@ -81,7 +98,7 @@ public class QueryResultProcessor {
             return ValueCreator.createStreamValue(TypeCreator.createStreamType(streamConstraint,
                     PredefinedTypes.TYPE_NULL), resultIterator);
         } catch (Exception e) {
-            throw new RuntimeException("Error occurred while creating the Record Stream: "
+            throw new Exception("Error occurred while creating the Record Stream: "
                     + Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
         }
     }
