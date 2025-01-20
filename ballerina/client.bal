@@ -42,9 +42,11 @@ public isolated client class Client {
     # It can be overridden using the `dbAccessConfig` at the API level.
     # + return - The `redshiftdata:Client` or a `redshiftdata:Error` if the initialization fails.
     public isolated function init(*ConnectionConfig connectionConfig) returns Error? {
-        ConnectionConfig|constraint:Error validationResult = constraint:validate(connectionConfig);
-        if validationResult is constraint:Error {
-            return error Error(string `Connection configuration validation failed: ${validationResult.message()}`);
+        if connectionConfig.dbAccessConfig != () {
+            Cluster|WorkGroup|constraint:Error validationResult = constraint:validate(connectionConfig.dbAccessConfig);
+            if validationResult is constraint:Error {
+                return error Error(string `Connection configuration validation failed: ${validationResult.message()}`);
+            }
         }
         return self.externInit(connectionConfig);
     }
@@ -63,13 +65,9 @@ public isolated client class Client {
     # + statement - The SQL statement to be executed.
     # + executionConfig - The configurations related to the execution of the statement.
     # + return - The `redshiftdata:ExecutionResponse` or a `redshiftdata:Error` if the execution fails.
-    remote isolated function executeStatement(sql:ParameterizedQuery statement,
-            *ExecutionConfig executionConfig)
+    remote isolated function executeStatement(sql:ParameterizedQuery statement, *ExecutionConfig executionConfig)
     returns ExecutionResponse|Error {
-        ExecutionConfig|constraint:Error validationResult = constraint:validate(executionConfig);
-        if validationResult is constraint:Error {
-            return error Error(string `Execute statement configuration validation failed: ${validationResult.message()}`);
-        }
+        _ = check self.validateExecutionConfig(executionConfig);
         if statement.strings.length() == 0 {
             return error Error("SQL statement cannot be empty.");
         }
@@ -98,10 +96,7 @@ public isolated client class Client {
     remote isolated function batchExecuteStatement(sql:ParameterizedQuery[] statements,
             *ExecutionConfig executionConfig)
     returns ExecutionResponse|Error {
-        ExecutionConfig|constraint:Error validationResult = constraint:validate(executionConfig);
-        if validationResult is constraint:Error {
-            return error Error(string `Execute statement configuration validation failed: ${validationResult.message()}`);
-        }
+        _ = check self.validateExecutionConfig(executionConfig);
         if statements.length() == 0 {
             return error Error("SQL statements cannot be empty.");
         }
@@ -168,4 +163,22 @@ public isolated client class Client {
     remote isolated function close() returns Error? = @java:Method {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
+
+    // Helper methods
+    private isolated function validateExecutionConfig(ExecutionConfig executionConfig)
+    returns Error? {
+        ExecutionConfig|constraint:Error validationResult = constraint:validate(executionConfig);
+        if validationResult is constraint:Error {
+            return error Error("Execution configuration validation failed: " +
+                validationResult.message());
+        }
+        if (executionConfig.dbAccessConfig != ()) {
+            Cluster|WorkGroup|SessionId|constraint:Error dbValidationResult =
+                constraint:validate(executionConfig.dbAccessConfig);
+            if dbValidationResult is constraint:Error {
+                return error Error("Database Access Config validation failed: " +
+                    dbValidationResult.message());
+            }
+        }
+    }
 }

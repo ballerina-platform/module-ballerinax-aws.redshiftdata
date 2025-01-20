@@ -119,7 +119,7 @@ isolated function testWithDbConfigs() returns error? {
         region: testRegion,
         authConfig: testAuthConfig,
         dbAccessConfig: {
-            id: "",
+            id: "CLUSTER_ID",
             database: "",
             dbUser: ""
         }
