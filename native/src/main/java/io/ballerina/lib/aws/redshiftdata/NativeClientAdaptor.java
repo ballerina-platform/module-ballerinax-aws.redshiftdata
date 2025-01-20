@@ -94,17 +94,17 @@ public class NativeClientAdaptor {
 
     @SuppressWarnings("unchecked")
     public static Object executeStatement(Environment env, BObject bClient, BObject bSqlStatement,
-                                          BMap<BString, Object> bExecuteStatementConfig) {
+                                          BMap<BString, Object> bExecutionConfig) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
         Object initLevelDbAccessConfig = bClient.getNativeData(Constants.NATIVE_DB_ACCESS_CONFIG);
         Future future = env.markAsync();
         EXECUTOR_SERVICE.execute(() -> {
             try {
                 ExecuteStatementRequest executeStatementRequest = CommonUtils.getNativeExecuteStatementRequest(
-                        bSqlStatement, bExecuteStatementConfig, initLevelDbAccessConfig);
-                ExecuteStatementResponse executeStatementResponse = nativeClient
+                        bSqlStatement, bExecutionConfig, initLevelDbAccessConfig);
+                ExecuteStatementResponse executionResponse = nativeClient
                         .executeStatement(executeStatementRequest);
-                BMap<BString, Object> bResponse = CommonUtils.getExecuteStatementResponse(executeStatementResponse);
+                BMap<BString, Object> bResponse = CommonUtils.getExecutionResponse(executionResponse);
                 future.complete(bResponse);
             } catch (Exception e) {
                 String errorMsg = String.format("Error occurred while executing the executeStatement: %s",
@@ -118,7 +118,7 @@ public class NativeClientAdaptor {
 
     @SuppressWarnings("unchecked")
     public static Object batchExecuteStatement(Environment env, BObject bClient, BArray bSqlStatements,
-                                               BMap<BString, Object> bExecuteStatementConfig) {
+                                               BMap<BString, Object> bExecutionConfig) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
         Object initLevelDbAccessConfig = bClient.getNativeData(Constants.NATIVE_DB_ACCESS_CONFIG);
         Future future = env.markAsync();
@@ -126,11 +126,11 @@ public class NativeClientAdaptor {
             try {
                 BatchExecuteStatementRequest batchExecuteStatementRequest = CommonUtils
                         .getNativeBatchExecuteStatementRequest(
-                                bSqlStatements, bExecuteStatementConfig, initLevelDbAccessConfig);
-                BatchExecuteStatementResponse batchExecuteStatementResponse = nativeClient
+                                bSqlStatements, bExecutionConfig, initLevelDbAccessConfig);
+                BatchExecuteStatementResponse batchExecutionResponse = nativeClient
                         .batchExecuteStatement(batchExecuteStatementRequest);
                 BMap<BString, Object> bResponse = CommonUtils
-                        .getBatchExecuteStatementResponse(batchExecuteStatementResponse);
+                        .getBatchExecutionResponse(batchExecutionResponse);
                 future.complete(bResponse);
             } catch (Exception e) {
                 String errorMsg = String.format("Error occurred while executing the batchExecuteStatement: %s",

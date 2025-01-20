@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BString;
 
 /**
  * {@code StaticAuthConfig} represents static authentication configurations
- * for the ballerina Redshift Data Client.
+ * for the ballerina Redshift Data API Client.
  *
  * @param accessKeyId     The AWS access key, used to identify the user
  *                        interacting with AWS.

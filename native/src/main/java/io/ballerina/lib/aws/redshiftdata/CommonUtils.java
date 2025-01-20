@@ -44,7 +44,7 @@ import java.util.Objects;
 
 /**
  * {@code CommonUtils} contains the common utility functions for the Ballerina
- * AWS Redshift Data Client.
+ * AWS Redshift Data API Client.
  */
 public final class CommonUtils {
 
@@ -87,7 +87,7 @@ public final class CommonUtils {
             builder.parameters(parameterizedQuery.getParameters());
         }
 
-        // if dbAccessConfig set in the ExecuteStatementConfig, it will override the init level dbAccessConfig
+        // If a `dbAccessConfig` is provided in the ExecutionConfig , it will override the init level dbAccessConfig.
         Object dbAccessConfig = validateAndGetDbAccessConfig(bConfig, initLevelDbAccessConfig);
 
         // Set the database access configurations
@@ -127,7 +127,7 @@ public final class CommonUtils {
         return builder.build();
     }
 
-    public static BMap<BString, Object> getExecuteStatementResponse(ExecuteStatementResponse nativeResponse) {
+    public static BMap<BString, Object> getExecutionResponse(ExecuteStatementResponse nativeResponse) {
         BMap<BString, Object> response = ValueCreator.createRecordValue(
                 ModuleUtils.getModule(), Constants.EXECUTE_STATEMENT_RES_RECORD);
 
@@ -158,7 +158,7 @@ public final class CommonUtils {
         }
         builder.sqls(sqlStatements);
 
-        // if dbAccessConfig set in the ExecuteStatementConfig, it will override the init level dbAccessConfig
+        // If a `dbAccessConfig` is provided in the ExecutionConfig , it will override the init level dbAccessConfig.
         Object dbAccessConfig = validateAndGetDbAccessConfig(bConfig, initLevelDbAccessConfig);
 
         // Set the database access configurations
@@ -223,8 +223,7 @@ public final class CommonUtils {
         return dbAccessConfig;
     }
 
-    public static BMap<BString, Object> getBatchExecuteStatementResponse(
-            BatchExecuteStatementResponse nativeResponse) {
+    public static BMap<BString, Object> getBatchExecutionResponse(BatchExecuteStatementResponse nativeResponse) {
         BMap<BString, Object> response = ValueCreator.createRecordValue(
                 ModuleUtils.getModule(), Constants.EXECUTE_STATEMENT_RES_RECORD);
 

@@ -21,7 +21,7 @@ package io.ballerina.lib.aws.redshiftdata;
 import java.util.concurrent.ThreadFactory;
 
 /**
- * A {@link ThreadFactory} object that creates new threads on demand for Redshift Data client network operations.
+ * A {@link ThreadFactory} object that creates new threads on demand for Redshift Data API client network operations.
  */
 public class RedshiftDataThreadFactory implements ThreadFactory {
     @Override

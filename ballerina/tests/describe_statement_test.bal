@@ -26,9 +26,9 @@ isolated function testBasicDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
 
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
-    ExecuteStatementResponse executeStatementResponse = check redshift->executeStatement(query);
+    ExecutionResponse executionResponse = check redshift->executeStatement(query);
     DescribeStatementResponse describeStatementResponse =
-        check waitForDescribeStatementCompletion(redshift, executeStatementResponse.statementId);
+        check waitForDescribeStatementCompletion(redshift, executionResponse.statementId);
 
     test:assertTrue(describeStatementResponse.statementId != "", "Statement ID is empty");
     test:assertTrue(describeStatementResponse.createdAt[0] > 0, "Invalid createdAt time");
@@ -38,7 +38,7 @@ isolated function testBasicDescribeStatement() returns error? {
     test:assertTrue(describeStatementResponse.subStatements == (), "Invalid subStatements count");
     test:assertEquals(describeStatementResponse.hasResultSet, true, "Invalid hasResultSet value");
     test:assertEquals(describeStatementResponse.queryString, query.strings[0], "Invalid query string");
-    test:assertEquals(describeStatementResponse.statementId, executeStatementResponse.statementId,
+    test:assertEquals(describeStatementResponse.statementId, executionResponse.statementId,
             "Statement ID mismatch");
     check redshift->close();
 }
@@ -51,7 +51,7 @@ isolated function testBatchDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
 
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM Users;`];
-    ExecuteStatementResponse res = check redshift->batchExecuteStatement(queries);
+    ExecutionResponse res = check redshift->batchExecuteStatement(queries);
     DescribeStatementResponse describeStatementResponse =
         check waitForDescribeStatementCompletion(redshift, res.statementId);
 
@@ -94,9 +94,9 @@ isolated function testBatchDescribeStatement() returns error? {
 }
 isolated function testIncorrectStatementDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
-    ExecuteStatementResponse executeStatementResponse = check redshift->executeStatement(`SELECT * FROM non_existent_table;`);
+    ExecutionResponse executionResponse = check redshift->executeStatement(`SELECT * FROM non_existent_table;`);
     DescribeStatementResponse describeStatementResponse =
-        check waitForDescribeStatementCompletion(redshift, executeStatementResponse.statementId);
+        check waitForDescribeStatementCompletion(redshift, executionResponse.statementId);
 
     test:assertEquals(describeStatementResponse.status, FAILED, "Invalid status");
     test:assertTrue(describeStatementResponse.'error is string, "Error message is nil");
@@ -111,7 +111,7 @@ isolated function testIncorrectStatementDescribeStatement() returns error? {
 isolated function testIncorrectBatchStatementDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM non_existent_table;`];
-    ExecuteStatementResponse res = check redshift->batchExecuteStatement(queries);
+    ExecutionResponse res = check redshift->batchExecuteStatement(queries);
     DescribeStatementResponse describeStatementResponse =
         check waitForDescribeStatementCompletion(redshift, res.statementId);
 

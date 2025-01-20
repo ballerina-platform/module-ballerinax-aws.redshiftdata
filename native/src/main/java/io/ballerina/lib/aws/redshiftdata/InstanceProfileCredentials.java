@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BString;
 
 /**
  * {@code InstanceProfileCredentials} represents EC2 IAM role based authentication configurations
- * for the ballerina Redshift Data Client.
+ * for the ballerina Redshift Data API Client.
  *
  * @param profileName Configure the profile name used for loading IMDS-related configuration,
  *                    like the endpoint mode (IPv4 vs IPv6).

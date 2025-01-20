@@ -23,7 +23,7 @@ import ballerina/test;
 }
 isolated function testBasicStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
-    ExecuteStatementResponse res = check redshift->executeStatement(`SELECT * FROM Users`);
+    ExecutionResponse res = check redshift->executeStatement(`SELECT * FROM Users`);
 
     test:assertTrue(res.statementId != "", "Statement ID is empty");
     test:assertTrue(res.createdAt[0] > 0, "Invalid createdAt time");
@@ -47,11 +47,11 @@ isolated function testSessionId() returns error? {
         }
     };
     Client redshift = check new Client(connectionConfig);
-    ExecuteStatementResponse res1 = check redshift->executeStatement(`SELECT * FROM Users`);
+    ExecutionResponse res1 = check redshift->executeStatement(`SELECT * FROM Users`);
     test:assertTrue(res1.sessionId is string && res1.sessionId != "", "Session ID is empty");
 
     runtime:sleep(2); // wait for session to establish
-    ExecuteStatementResponse res2 = check redshift->executeStatement(`SELECT * FROM Users`,
+    ExecutionResponse res2 = check redshift->executeStatement(`SELECT * FROM Users`,
         {dbAccessConfig: res1.sessionId});
     test:assertTrue(res2.sessionId == res1.sessionId, "Session ID is not equal");
     check redshift->close();
@@ -61,15 +61,15 @@ isolated function testSessionId() returns error? {
     enable: IS_TESTS_ENABLED,
     groups: ["execute"]
 }
-isolated function testExecuteStatementConfig() returns error? {
+isolated function testExecutionConfig() returns error? {
     Client redshift = check new Client(testConnectionConfig);
-    ExecuteStatementConfig config = {
+    ExecutionConfig config = {
         dbAccessConfig: testDbAccessConfig,
         clientToken: "testToken",
         statementName: "testStatement",
         withEvent: true
     };
-    ExecuteStatementResponse res = check redshift->executeStatement(`SELECT * FROM Users`, config);
+    ExecutionResponse res = check redshift->executeStatement(`SELECT * FROM Users`, config);
     test:assertTrue(res.statementId != "", "Statement ID is empty");
     check redshift->close();
 }
@@ -81,7 +81,7 @@ isolated function testExecuteStatementConfig() returns error? {
 isolated function testParameterizedStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     string tableName = "Users";
-    ExecuteStatementResponse res = check redshift->executeStatement(`SELECT * FROM ${tableName}`);
+    ExecutionResponse res = check redshift->executeStatement(`SELECT * FROM ${tableName}`);
     test:assertTrue(res.statementId != "", "Statement ID is empty");
     check redshift->close();
 }
@@ -93,7 +93,7 @@ isolated function testParameterizedStatement() returns error? {
 isolated function testNilParameterizedStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     string? tableName = ();
-    ExecuteStatementResponse|Error res = redshift->executeStatement(`SELECT * FROM ${tableName}`);
+    ExecutionResponse|Error res = redshift->executeStatement(`SELECT * FROM ${tableName}`);
     test:assertTrue(res is Error && res.message() == "SQL statement cannot have nil parameters.",
             "Invalid error message");
     check redshift->close();
@@ -105,7 +105,7 @@ isolated function testNilParameterizedStatement() returns error? {
 }
 isolated function testEmptyStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
-    ExecuteStatementResponse|Error res = redshift->executeStatement(``);
+    ExecutionResponse|Error res = redshift->executeStatement(``);
     test:assertTrue(res is Error && (res.message() == "SQL statement cannot be empty."), "Invalid error message");
     check redshift->close();
 }
@@ -125,7 +125,7 @@ isolated function testWithDbConfigs() returns error? {
         }
     };
     Client redshift = check new Client(mockConnectionConfig);
-    ExecuteStatementResponse res = check redshift->executeStatement(`SELECT * FROM Users`,
+    ExecutionResponse res = check redshift->executeStatement(`SELECT * FROM Users`,
         {dbAccessConfig: testDbAccessConfig});
     test:assertTrue(res.statementId != "", "Statement ID is empty");
     check redshift->close();
@@ -146,7 +146,7 @@ isolated function testWithInvalidDbConfigs() returns error? {
         }
     };
     Client redshift = check new Client(mockConnectionConfig);
-    ExecuteStatementResponse|Error res = redshift->executeStatement(`SELECT * FROM Users`);
+    ExecutionResponse|Error res = redshift->executeStatement(`SELECT * FROM Users`);
     test:assertTrue(res is Error);
     if (res is Error) {
         ErrorDetails errorDetails = res.detail();
@@ -168,7 +168,7 @@ isolated function testNoDbAccessConfig() returns error? {
         dbAccessConfig: ()
     };
     Client redshift = check new Client(connectionConfig);
-    ExecuteStatementResponse|Error res = redshift->executeStatement(`SELECT * FROM Users`);
+    ExecutionResponse|Error res = redshift->executeStatement(`SELECT * FROM Users`);
     test:assertTrue(res is Error, "Invalid error message");
     if (res is Error) {
         test:assertEquals(res.message(), "Error occurred while executing the executeStatement: No database access " +

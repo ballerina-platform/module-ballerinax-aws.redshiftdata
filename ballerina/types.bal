@@ -175,12 +175,12 @@ public type RetrieveResultConfig record {|
 # Represents the configuration details required for `executeStatement` method.
 #
 # + dbAccessConfig - The database access configurations for the Redshift Data.
-# If dbAccessConfig set in the ExecuteStatementConfig, it will override the init level dbAccessConfig.
+# If a `dbAccessConfig` is provided in the ExecutionConfig , it will override the init level dbAccessConfig.
 # + clientToken - A unique, case-sensitive identifier that you provide to ensure the idempotency of the request. 
 # + statementName - The name of the SQL statement.
 # + withEvent - A value that indicates whether to send an event to the Amazon EventBridge event bus after the SQL 
 # statement runs.
-public type ExecuteStatementConfig record {|
+public type ExecutionConfig record {|
     Cluster|WorkGroup|SessionId dbAccessConfig?;
     string clientToken?;
     @constraint:String {
@@ -203,7 +203,7 @@ public type ExecuteStatementConfig record {|
 # + dbGroups - A list of colon (:) separated names of database groups.
 # + statementId - The identifier of the SQL statement whose results are to be fetched.
 # + sessionId - The session identifier of the query.
-public type ExecuteStatementResponse record {|
+public type ExecutionResponse record {|
     time:Utc createdAt;
     string[] dbGroups?;
     StatementId statementId;
@@ -256,7 +256,7 @@ public type StatementData record {|
 |};
 
 # The status of the SQL statement being described. 
-# 
+#
 # + SUBMITTED - The query was submitted, but not yet processed.
 # + PICKED - The query has been chosen to be run.
 # + STARTED - The query run has started.

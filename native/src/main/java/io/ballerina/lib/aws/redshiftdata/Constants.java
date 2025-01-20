@@ -94,13 +94,13 @@ public interface Constants {
     String RESULT_ITERATOR_NATIVE_CLIENT = "nativeClient";
     String RESULT_ITERATOR_STATEMENT_ID = "statementId";
 
-    // Constants related to `ExecuteStatementConfig`
+    // Constants related to `ExecutionConfig`
     BString EXECUTE_STATEMENT_CONFIG_CLIENT_TOKEN = StringUtils.fromString("clientToken");
     BString EXECUTE_STATEMENT_CONFIG_STATEMENT_NAME = StringUtils.fromString("statementName");
     BString EXECUTE_STATEMENT_CONFIG_WITH_EVENT = StringUtils.fromString("withEvent");
 
-    // Constants related to `ExecuteStatementResponse`
-    String EXECUTE_STATEMENT_RES_RECORD = "ExecuteStatementResponse";
+    // Constants related to `ExecutionResponse`
+    String EXECUTE_STATEMENT_RES_RECORD = "ExecutionResponse";
     BString EXECUTE_STATEMENT_RES_CREATE_AT = StringUtils.fromString("createdAt");
     BString EXECUTE_STATEMENT_RES_DB_GROUPS = StringUtils.fromString("dbGroups");
     BString EXECUTE_STATEMENT_RES_STATEMENT_ID = StringUtils.fromString("statementId");

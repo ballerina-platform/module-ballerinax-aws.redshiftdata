@@ -19,10 +19,10 @@ import ballerina/constraint;
 import ballerina/jballerina.java;
 import ballerina/sql;
 
-# The AWS Redshift Data client.
+# The AWS Redshift Data API client.
 public isolated client class Client {
 
-    # Initialize AWS Redshift Data client.
+    # Initialize AWS Redshift Data API client.
     # ```ballerina
     # redshiftdata:Client redshift = check new (region = "us-east-2",
     #    authConfig = {
@@ -37,14 +37,14 @@ public isolated client class Client {
     # );
     # ```
     #
-    # + connectionConfig - The Redshift Data client configurations.
-    # If you provide a `dbAccessConfig` this configuration will be used
-    # when executing statements. You can also override this `dbAccessConfig` at the API level.
+    # + connectionConfig - The Redshift Data API client configurations.
+    # If a `dbAccessConfig` is provided, it will be used for the statement executions.
+    # It can be overridden using the `dbAccessConfig` at the API level.
     # + return - The `redshiftdata:Client` or a `redshiftdata:Error` if the initialization fails.
     public isolated function init(*ConnectionConfig connectionConfig) returns Error? {
-        ConnectionConfig|constraint:Error validated = constraint:validate(connectionConfig);
-        if validated is constraint:Error {
-            return error Error(string `Connection configuration validation failed: ${validated.message()}`);
+        ConnectionConfig|constraint:Error validationResult = constraint:validate(connectionConfig);
+        if validationResult is constraint:Error {
+            return error Error(string `Connection configuration validation failed: ${validationResult.message()}`);
         }
         return self.externInit(connectionConfig);
     }
@@ -57,69 +57,69 @@ public isolated client class Client {
 
     # Runs an SQL statement, which can be data manipulation language (DML) or data definition language (DDL).
     # ```ballerina
-    # redshiftdata:ExecuteStatementResponse response = check redshift->executeStatement(`SELECT * FROM Users`);
+    # redshiftdata:ExecutionResponse response = check redshift->executeStatement(`SELECT * FROM Users`);
     # ```
     #
-    # + sqlStatement - The SQL statement to be executed.
-    # + executeStatementConfig - The configurations related to the execution of the statement.
-    # + return - The `redshiftdata:ExecuteStatementResponse` or a `redshiftdata:Error` if the execution fails.
-    remote isolated function executeStatement(sql:ParameterizedQuery sqlStatement,
-            *ExecuteStatementConfig executeStatementConfig)
-    returns ExecuteStatementResponse|Error {
-        ExecuteStatementConfig|constraint:Error validated = constraint:validate(executeStatementConfig);
-        if validated is constraint:Error {
-            return error Error(string `Execute statement configuration validation failed: ${validated.message()}`);
+    # + statement - The SQL statement to be executed.
+    # + executionConfig - The configurations related to the execution of the statement.
+    # + return - The `redshiftdata:ExecutionResponse` or a `redshiftdata:Error` if the execution fails.
+    remote isolated function executeStatement(sql:ParameterizedQuery statement,
+            *ExecutionConfig executionConfig)
+    returns ExecutionResponse|Error {
+        ExecutionConfig|constraint:Error validationResult = constraint:validate(executionConfig);
+        if validationResult is constraint:Error {
+            return error Error(string `Execute statement configuration validation failed: ${validationResult.message()}`);
         }
-        if sqlStatement.strings.length() == 0 {
+        if statement.strings.length() == 0 {
             return error Error("SQL statement cannot be empty.");
         }
-        if sqlStatement.insertions.some(insertion => insertion is ()) {
+        if statement.insertions.some(insertion => insertion is ()) {
             return error Error("SQL statement cannot have nil parameters.");
         }
-        return self.externExecuteStatement(sqlStatement, executeStatementConfig);
+        return self.externExecuteStatement(statement, executionConfig);
     }
 
-    isolated function externExecuteStatement(sql:ParameterizedQuery sqlStatement,
-            ExecuteStatementConfig executeStatementConfig)
-    returns ExecuteStatementResponse|Error = @java:Method {
+    isolated function externExecuteStatement(sql:ParameterizedQuery statement,
+            ExecutionConfig executionConfig)
+    returns ExecutionResponse|Error = @java:Method {
         name: "executeStatement",
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
 
     # Runs one or more SQL statements, which can be data manipulation language (DML) or data definition language (DDL). The batch size should not exceed 40.
     # ```ballerina
-    # redshiftdata:ExecuteStatementResponse response = check redshift->batchExecuteStatement([`<statement>`,
+    # redshiftdata:ExecutionResponse response = check redshift->batchExecuteStatement([`<statement>`,
     #    `<statement>`]);
     # ```
     #
-    # + sqlStatements - The SQL statements to be executed.
-    # + executeStatementConfig - The configurations related to the execution of the statements.
-    # + return - The `redshiftdata:ExecuteStatementResponse` or a `redshiftdata:Error` if the execution fails
-    remote isolated function batchExecuteStatement(sql:ParameterizedQuery[] sqlStatements,
-            *ExecuteStatementConfig executeStatementConfig)
-    returns ExecuteStatementResponse|Error {
-        ExecuteStatementConfig|constraint:Error validated = constraint:validate(executeStatementConfig);
-        if validated is constraint:Error {
-            return error Error(string `Execute statement configuration validation failed: ${validated.message()}`);
+    # + statements - The SQL statements to be executed.
+    # + executionConfig - The configurations related to the execution of the statements.
+    # + return - The `redshiftdata:ExecutionResponse` or a `redshiftdata:Error` if the execution fails
+    remote isolated function batchExecuteStatement(sql:ParameterizedQuery[] statements,
+            *ExecutionConfig executionConfig)
+    returns ExecutionResponse|Error {
+        ExecutionConfig|constraint:Error validationResult = constraint:validate(executionConfig);
+        if validationResult is constraint:Error {
+            return error Error(string `Execute statement configuration validation failed: ${validationResult.message()}`);
         }
-        if sqlStatements.length() == 0 {
+        if statements.length() == 0 {
             return error Error("SQL statements cannot be empty.");
         }
-        if sqlStatements.length() > 40 {
+        if statements.length() > 40 {
             return error Error("Number of SQL statements cannot exceed 40.");
         }
-        if sqlStatements.some(sqlStatement => sqlStatement.strings.length() == 0) {
+        if statements.some(statement => statement.strings.length() == 0) {
             return error Error("SQL statements cannot have empty strings.");
         }
-        if sqlStatements.some(sqlStatement => sqlStatement.insertions.some(insertion => insertion is ())) {
+        if statements.some(statement => statement.insertions.some(insertion => insertion is ())) {
             return error Error("SQL statements cannot have nil parameters.");
         }
-        return self.externBatchExecuteStatement(sqlStatements, executeStatementConfig);
+        return self.externBatchExecuteStatement(statements, executionConfig);
     }
 
-    isolated function externBatchExecuteStatement(sql:ParameterizedQuery[] sqlStatements,
-            *ExecuteStatementConfig executeStatementConfig)
-    returns ExecuteStatementResponse|Error = @java:Method {
+    isolated function externBatchExecuteStatement(sql:ParameterizedQuery[] statements,
+            *ExecutionConfig executionConfig)
+    returns ExecutionResponse|Error = @java:Method {
         name: "batchExecuteStatement",
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
@@ -146,9 +146,9 @@ public isolated client class Client {
     # + return - The `redshiftdata:DescribeStatementResponse` or a `redshiftdata:Error` if the execution fails.
     remote isolated function describeStatement(StatementId statementId)
     returns DescribeStatementResponse|Error {
-        StatementId|constraint:Error validated = constraint:validate(statementId);
-        if validated is constraint:Error {
-            return error Error(string `Statement ID validation failed: ${validated.message()}`);
+        StatementId|constraint:Error validationResult = constraint:validate(statementId);
+        if validationResult is constraint:Error {
+            return error Error(string `Statement ID validation failed: ${validationResult.message()}`);
         }
         return self.externDescribeStatement(statementId);
     };

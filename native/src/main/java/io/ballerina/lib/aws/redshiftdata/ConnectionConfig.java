@@ -24,11 +24,11 @@ import software.amazon.awssdk.regions.Region;
 
 /**
  * {@code ConnectionConfig} represents the connection configuration required for
- * ballerina Redshift Data Client.
+ * ballerina Redshift Data API Client.
  *
  * @param region         The AWS region where the Redshift cluster is located.
  * @param authConfig     The authentication configuration required for the
- *                       Redshift Data Client.
+ *                       Redshift Data API Client.
  * @param dbAccessConfig The database access configurations for the Redshift Data API.
  */
 public record ConnectionConfig(Region region, Object authConfig, Object dbAccessConfig) {

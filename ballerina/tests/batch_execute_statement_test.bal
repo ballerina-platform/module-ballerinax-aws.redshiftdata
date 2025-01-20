@@ -25,7 +25,7 @@ import ballerina/test;
 isolated function testBasicBatchExecuteStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM Users`];
-    ExecuteStatementResponse res = check redshift->batchExecuteStatement(queries);
+    ExecutionResponse res = check redshift->batchExecuteStatement(queries);
 
     test:assertTrue(res.statementId != "", "Statement ID is empty");
     test:assertTrue(res.createdAt[0] > 0, "Invalid createdAt time");
@@ -50,13 +50,13 @@ isolated function testBatchExecuteSessionId() returns error? {
     };
     Client redshift = check new Client(connectionConfig);
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM Users`];
-    ExecuteStatementResponse res1 = check redshift->batchExecuteStatement(queries);
+    ExecutionResponse res1 = check redshift->batchExecuteStatement(queries);
 
     test:assertTrue(res1.statementId != "", "Statement ID is empty");
     test:assertTrue(res1.sessionId is string && res1.sessionId != "", "Session ID is empty");
 
     runtime:sleep(2); // wait for session to establish
-    ExecuteStatementResponse res2 = check redshift->batchExecuteStatement(queries,
+    ExecutionResponse res2 = check redshift->batchExecuteStatement(queries,
         {dbAccessConfig: res1.sessionId});
     test:assertTrue(res2.sessionId == res1.sessionId, "Session ID is not equal");
     check redshift->close();
