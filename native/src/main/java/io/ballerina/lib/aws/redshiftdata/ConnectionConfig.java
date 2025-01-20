@@ -31,7 +31,7 @@ import software.amazon.awssdk.regions.Region;
  *                       Redshift Data Client.
  * @param dbAccessConfig The database access configurations for the Redshift Data API.
  */
-public record ConnectionConfig(Region region, AuthConfig authConfig, Object dbAccessConfig) {
+public record ConnectionConfig(Region region, Object authConfig, Object dbAccessConfig) {
 
     public ConnectionConfig(BMap<BString, Object> bConnectionConfig) {
         this(
@@ -47,10 +47,13 @@ public record ConnectionConfig(Region region, AuthConfig authConfig, Object dbAc
     }
 
     @SuppressWarnings("unchecked")
-    private static AuthConfig getAuthConfig(BMap<BString, Object> bConnectionConfig) {
+    private static Object getAuthConfig(BMap<BString, Object> bConnectionConfig) {
         BMap<BString, Object> bAuthConfig = (BMap<BString, Object>) bConnectionConfig
                 .getMapValue(Constants.CONNECTION_CONFIG_AUTH_CONFIG);
-        return new AuthConfig(bAuthConfig);
+        if (bAuthConfig.containsKey(Constants.AWS_ACCESS_KEY_ID)) {
+            return new StaticAuthConfig(bAuthConfig);
+        }
+        return new InstanceProfileCredentials(bAuthConfig);
     }
 
     @SuppressWarnings("unchecked")

@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
 /**
- * {@code ConnectionConfig} represents the authentication configuration required
+ * {@code StaticAuthConfig} represents static authentication configurations
  * for the ballerina Redshift Data Client.
  *
  * @param accessKeyId     The AWS access key, used to identify the user
@@ -34,9 +34,9 @@ import io.ballerina.runtime.api.values.BString;
  *                        * this user has received temporary permission to
  *                        access some resource.
  */
-public record AuthConfig(String accessKeyId, String secretAccessKey, String sessionToken) {
+public record StaticAuthConfig(String accessKeyId, String secretAccessKey, String sessionToken) {
 
-    public AuthConfig(BMap<BString, Object> bAuthConfig) {
+    public StaticAuthConfig(BMap<BString, Object> bAuthConfig) {
         this(
                 bAuthConfig.getStringValue(Constants.AWS_ACCESS_KEY_ID).getValue(),
                 bAuthConfig.getStringValue(Constants.AWS_SECRET_ACCESS_KEY).getValue(),

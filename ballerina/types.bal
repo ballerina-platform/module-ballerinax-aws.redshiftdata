@@ -25,7 +25,7 @@ import ballerina/time;
 # This can be overridden in the individual `executeStatement` and `batchExecuteStatement` requests.
 public type ConnectionConfig record {|
     Region region;
-    AuthConfig authConfig;
+    StaticAuthConfig|EC2_IAM_ROLE authConfig;
     Cluster|WorkGroup dbAccessConfig?;
 |};
 
@@ -80,10 +80,18 @@ public enum Region {
 # + accessKeyId - The AWS access key ID, used to identify the user interacting with AWS.
 # + secretAccessKey - The AWS secret access key, used to authenticate the user interacting with AWS.
 # + sessionToken - The AWS session token, used for authenticating a user with temporary permission to a resource.
-public type AuthConfig record {|
+public type StaticAuthConfig record {|
     string accessKeyId;
     string secretAccessKey;
     string sessionToken?;
+|};
+
+# Represents the EC2 IAM role based authentication for the Redshift Data API.
+#
+# + profileName - Configure the profile name used for loading IMDS-related configuration,
+# like the endpoint mode (IPv4 vs IPv6).
+public type EC2_IAM_ROLE record {|
+    string profileName?;
 |};
 
 # Represents the configuration details required for connecting to an Amazon Redshift cluster.

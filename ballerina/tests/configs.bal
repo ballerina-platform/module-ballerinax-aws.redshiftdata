@@ -27,7 +27,7 @@ configurable string TEST_DB_USER = os:getEnv("REDSHIFT_DB_USER");
 
 final Region & readonly testRegion = "us-east-2";
 
-final AuthConfig & readonly testAuthConfig = {
+final StaticAuthConfig & readonly testAuthConfig = {
     accessKeyId: TEST_AWS_ACCESS_KEY_ID,
     secretAccessKey: TEST_AWS_SECRET_ACCESS_KEY
 };

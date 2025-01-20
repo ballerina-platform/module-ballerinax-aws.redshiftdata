@@ -31,6 +31,7 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
+import software.amazon.awssdk.auth.credentials.InstanceProfileCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.services.redshiftdata.RedshiftDataClient;
 import software.amazon.awssdk.services.redshiftdata.model.BatchExecuteStatementRequest;
@@ -60,8 +61,7 @@ public class NativeClientAdaptor {
     public static Object init(BObject bClient, BMap<BString, Object> bConnectionConfig) {
         try {
             ConnectionConfig connectionConfig = new ConnectionConfig(bConnectionConfig);
-            AwsCredentials credentials = getCredentials(connectionConfig.authConfig());
-            AwsCredentialsProvider credentialsProvider = StaticCredentialsProvider.create(credentials);
+            AwsCredentialsProvider credentialsProvider = getCredentialsProvider(connectionConfig.authConfig());
             RedshiftDataClient nativeClient = RedshiftDataClient.builder()
                     .region(connectionConfig.region())
                     .credentialsProvider(credentialsProvider)
@@ -76,13 +76,20 @@ public class NativeClientAdaptor {
         return null;
     }
 
-    private static AwsCredentials getCredentials(AuthConfig authConfig) {
-        if (Objects.nonNull(authConfig.sessionToken())) {
-            return AwsSessionCredentials.create(authConfig.accessKeyId(), authConfig.secretAccessKey(),
-                    authConfig.sessionToken());
-        } else {
-            return AwsBasicCredentials.create(authConfig.accessKeyId(), authConfig.secretAccessKey());
+    private static AwsCredentialsProvider getCredentialsProvider(Object authConfig) {
+        if (authConfig instanceof StaticAuthConfig staticAuth) {
+            AwsCredentials credentials = Objects.nonNull(staticAuth.sessionToken()) ?
+                    AwsSessionCredentials.create(
+                            staticAuth.accessKeyId(), staticAuth.secretAccessKey(), staticAuth.sessionToken()) :
+                    AwsBasicCredentials.create(staticAuth.accessKeyId(), staticAuth.secretAccessKey());
+            return StaticCredentialsProvider.create(credentials);
         }
+        InstanceProfileCredentials instanceProfileCredentials = (InstanceProfileCredentials) authConfig;
+        if (Objects.nonNull(instanceProfileCredentials.profileName())) {
+            return InstanceProfileCredentialsProvider.builder()
+                    .profileName(instanceProfileCredentials.profileName()).build();
+        }
+        return InstanceProfileCredentialsProvider.create();
     }
 
     @SuppressWarnings("unchecked")
