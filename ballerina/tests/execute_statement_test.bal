@@ -161,6 +161,37 @@ isolated function testWithInvalidDbConfigs() returns error? {
     enable: IS_TESTS_ENABLED,
     groups: ["execute"]
 }
+isolated function testWithInvalidStatementName() returns error? {
+    Client redshift = check new Client(testConnectionConfig);
+    ExecutionResponse|Error res = redshift->executeStatement(`SELECT * FROM Users`, statementName = "");
+    test:assertTrue(res is Error);
+    if (res is Error) {
+        test:assertEquals(res.message(), "The statement name should be at least 1 character long.");
+    }
+    check redshift->close();
+}
+
+@test:Config {
+    enable: IS_TESTS_ENABLED,
+    groups: ["execute"]
+}
+isolated function testWithInvalidClusterId() returns error? {
+    Client redshift = check new Client(testConnectionConfig);
+    ExecutionResponse|Error res = redshift->executeStatement(`SELECT * FROM Users`, dbAccessConfig = {
+        id: "",
+        database: TEST_DATABASE_NAME
+    });
+    test:assertTrue(res is Error);
+    if (res is Error) {
+        test:assertEquals(res.message(), "The cluster ID should be at least 1 character long.");
+    }
+    check redshift->close();
+}
+
+@test:Config {
+    enable: IS_TESTS_ENABLED,
+    groups: ["execute"]
+}
 isolated function testNoDbAccessConfig() returns error? {
     ConnectionConfig connectionConfig = {
         region: testRegion,

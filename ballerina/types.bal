@@ -212,7 +212,10 @@ public type ExecutionResponse record {|
 
 # The identifier of the SQL statement
 @constraint:String {
-    pattern: re `^[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}(:\d+)?$`
+    pattern: {
+        message: "Invalid statement ID format",
+        value: re `^[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}(:\d+)?$`
+    }
 }
 public type StatementId string;
 

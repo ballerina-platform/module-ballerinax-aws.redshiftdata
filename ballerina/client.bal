@@ -45,8 +45,7 @@ public isolated client class Client {
         if connectionConfig.dbAccessConfig !is () {
             Cluster|WorkGroup|constraint:Error validationResult = constraint:validate(connectionConfig.dbAccessConfig);
             if validationResult is constraint:Error {
-                return error Error(string `Connection configuration validation failed: ${validationResult.message()}`,
-                    validationResult);
+                return error Error(validationResult.message(), validationResult.cause());
             }
         }
         return self.externInit(connectionConfig);
@@ -138,8 +137,7 @@ public isolated client class Client {
     returns DescribeStatementResponse|Error {
         StatementId|constraint:Error validationResult = constraint:validate(statementId);
         if validationResult is constraint:Error {
-            return error Error(string `Statement ID validation failed: ${validationResult.message()}`,
-                validationResult);
+            return error Error(validationResult.message(), validationResult.cause());
         }
         return self.externDescribeStatement(statementId);
     };
@@ -162,17 +160,15 @@ public isolated client class Client {
 
     private isolated function validateExecutionConfig(ExecutionConfig executionConfig)
     returns Error? {
-        ExecutionConfig|constraint:Error validationResult = constraint:validate(executionConfig);
-        if validationResult is constraint:Error {
-            return error Error("Execution configuration validation failed: " +
-                validationResult.message(), validationResult);
+        ExecutionConfig|constraint:Error configValidationResult = constraint:validate(executionConfig);
+        if configValidationResult is constraint:Error {
+            return error Error(configValidationResult.message(), configValidationResult.cause());
         }
         if (executionConfig.dbAccessConfig !is ()) {
             Cluster|WorkGroup|SessionId|constraint:Error dbValidationResult =
                 constraint:validate(executionConfig.dbAccessConfig);
             if dbValidationResult is constraint:Error {
-                return error Error("Database Access Config validation failed: " +
-                    dbValidationResult.message(), dbValidationResult);
+                return error Error(dbValidationResult.message(), dbValidationResult.cause());
             }
         }
     }

@@ -140,8 +140,7 @@ isolated function testDescribeStatementWithInvalidStatementId() returns error? {
     DescribeStatementResponse|Error res = redshift->describeStatement(invalidStatementId);
     test:assertTrue(res is Error, "Query result is not an error");
     if (res is Error) {
-        test:assertEquals(res.message(), "Statement ID validation failed: Validation failed for " +
-                "'$:pattern' constraint(s).", "Invalid Error Message");
+        test:assertEquals(res.message(), "Invalid statement ID format.", "Invalid Error Message");
     }
     check redshift->close();
 }
