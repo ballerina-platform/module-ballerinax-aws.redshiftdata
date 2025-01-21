@@ -35,7 +35,7 @@ isolated function testBasicDescribeStatement() returns error? {
     test:assertTrue(describeStatementResponse.duration > 0d, "Invalid duration");
     test:assertTrue(describeStatementResponse.redshiftPid > 0, "Invalid redshiftPid");
     test:assertTrue(describeStatementResponse.sessionId is (), "Session ID is not nil");
-    test:assertTrue(describeStatementResponse.subStatements == (), "Invalid subStatements count");
+    test:assertTrue(describeStatementResponse.subStatements is (), "Invalid subStatements count");
     test:assertEquals(describeStatementResponse.hasResultSet, true, "Invalid hasResultSet value");
     test:assertEquals(describeStatementResponse.queryString, query.strings[0], "Invalid query string");
     test:assertEquals(describeStatementResponse.statementId, executionResponse.statementId,
@@ -57,14 +57,14 @@ isolated function testBatchDescribeStatement() returns error? {
 
     test:assertTrue(describeStatementResponse.redshiftPid > 0, "Invalid redshiftPid");
     test:assertTrue(describeStatementResponse.sessionId is (), "Session ID is not nil");
-    test:assertTrue(describeStatementResponse.subStatements != (), "Invalid subStatements count");
+    test:assertTrue(describeStatementResponse.subStatements !is (), "Invalid subStatements count");
     StatementData[] subStatements = describeStatementResponse.subStatements ?: [];
     test:assertEquals(subStatements.length(), 2, "Invalid subStatements count");
 
     test:assertTrue(describeStatementResponse.statementId != "", "Statement ID is empty");
     test:assertTrue(describeStatementResponse.createdAt[0] > 0, "Invalid createdAt time");
     test:assertTrue(describeStatementResponse.duration > 0d, "Invalid duration");
-    test:assertTrue(describeStatementResponse.queryString == (), "Invalid query string");
+    test:assertTrue(describeStatementResponse.queryString is (), "Invalid query string");
     test:assertTrue(describeStatementResponse.'error is (), "Error is not nil");
     test:assertTrue(describeStatementResponse.redshiftPid > 0, "Invalid redshiftPid");
     test:assertTrue(describeStatementResponse.updatedAt[0] > 0, "Invalid updatedAt time");

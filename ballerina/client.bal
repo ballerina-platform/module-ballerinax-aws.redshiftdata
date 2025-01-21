@@ -42,10 +42,11 @@ public isolated client class Client {
     # It can be overridden using the `dbAccessConfig` at the API level.
     # + return - The `redshiftdata:Client` or a `redshiftdata:Error` if the initialization fails.
     public isolated function init(*ConnectionConfig connectionConfig) returns Error? {
-        if connectionConfig.dbAccessConfig != () {
+        if connectionConfig.dbAccessConfig !is () {
             Cluster|WorkGroup|constraint:Error validationResult = constraint:validate(connectionConfig.dbAccessConfig);
             if validationResult is constraint:Error {
-                return error Error(string `Connection configuration validation failed: ${validationResult.message()}`);
+                return error Error(string `Connection configuration validation failed: ${validationResult.message()}`,
+                    validationResult);
             }
         }
         return self.externInit(connectionConfig);
@@ -137,7 +138,8 @@ public isolated client class Client {
     returns DescribeStatementResponse|Error {
         StatementId|constraint:Error validationResult = constraint:validate(statementId);
         if validationResult is constraint:Error {
-            return error Error(string `Statement ID validation failed: ${validationResult.message()}`);
+            return error Error(string `Statement ID validation failed: ${validationResult.message()}`,
+                validationResult);
         }
         return self.externDescribeStatement(statementId);
     };
@@ -158,20 +160,19 @@ public isolated client class Client {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
 
-    // Helper methods
     private isolated function validateExecutionConfig(ExecutionConfig executionConfig)
     returns Error? {
         ExecutionConfig|constraint:Error validationResult = constraint:validate(executionConfig);
         if validationResult is constraint:Error {
             return error Error("Execution configuration validation failed: " +
-                validationResult.message());
+                validationResult.message(), validationResult);
         }
-        if (executionConfig.dbAccessConfig != ()) {
+        if (executionConfig.dbAccessConfig !is ()) {
             Cluster|WorkGroup|SessionId|constraint:Error dbValidationResult =
                 constraint:validate(executionConfig.dbAccessConfig);
             if dbValidationResult is constraint:Error {
                 return error Error("Database Access Config validation failed: " +
-                    dbValidationResult.message());
+                    dbValidationResult.message(), dbValidationResult);
             }
         }
     }
