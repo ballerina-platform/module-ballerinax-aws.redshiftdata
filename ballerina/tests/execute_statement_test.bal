@@ -94,7 +94,7 @@ isolated function testNilParameterizedStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     string? username = ();
     ExecutionResponse res = check redshift->executeStatement(`SELECT * FROM User WHERE username = ${username}`);
-    DescribeStatementResponse descRes = check redshift->describeStatement(res.statementId);
+    DescriptionResponse descRes = check redshift->describeStatement(res.statementId);
     test:assertTrue(descRes.queryString == "SELECT * FROM User WHERE username = NULL", "Invalid query string");
     check redshift->close();
 }

@@ -151,7 +151,7 @@ public class NativeClientAdaptor {
             try {
                 DescribeStatementResponse describeStatementResponse = nativeClient.describeStatement(
                         DescribeStatementRequest.builder().id(statementId).build());
-                BMap<BString, Object> bResponse = CommonUtils.getDescribeStatementResponse(describeStatementResponse);
+                BMap<BString, Object> bResponse = CommonUtils.getDescriptionResponse(describeStatementResponse);
                 future.complete(bResponse);
             } catch (Exception e) {
                 String errorMsg = String.format("Error occurred while executing the describeStatement: %s",

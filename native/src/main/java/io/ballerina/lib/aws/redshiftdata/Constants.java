@@ -65,11 +65,11 @@ public interface Constants {
     BString QUERY_STRINGS = StringUtils.fromString("strings");
     BString QUERY_INSERTIONS = StringUtils.fromString("insertions");
 
-    // Constants related to `DescribeStatementResponse`
-    String DESCRIBE_STATEMENT_RES_RECORD = "DescribeStatementResponse";
-    BString DESCRIBE_STATEMENT_RES_SUB_STATEMENTS = StringUtils.fromString("subStatements");
-    BString DESCRIBE_STATEMENT_RES_REDSHIFT_PID = StringUtils.fromString("redshiftPid");
-    BString DESCRIBE_STATEMENT_RES_SESSION_ID = StringUtils.fromString("sessionId");
+    // Constants related to `DescriptionResponse`
+    String DESCRIPTION_RES_RECORD = "DescriptionResponse";
+    BString DESCRIPTION_RES_SUB_STATEMENTS = StringUtils.fromString("subStatements");
+    BString DESCRIPTION_RES_REDSHIFT_PID = StringUtils.fromString("redshiftPid");
+    BString DESCRIPTION_RES_SESSION_ID = StringUtils.fromString("sessionId");
 
     // Constants related to `StatementData`
     String STATEMENT_DATA_RECORD = "StatementData";

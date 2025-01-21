@@ -253,11 +253,11 @@ isolated function testResultPagination() returns error? {
 
     Client redshift = check new Client(testConnectionConfig);
     ExecutionResponse res = check redshift->executeStatement(query);
-    DescribeStatementResponse describeStatementResponse =
+    DescriptionResponse descriptionResponse =
         check waitForDescribeStatementCompletion(redshift, res.statementId);
 
-    int resultSize = describeStatementResponse.resultSize / 1024 / 1024; // Convert bytes to MB
-    int totalRows = describeStatementResponse.resultRows;
+    int resultSize = descriptionResponse.resultSize / 1024 / 1024; // Convert bytes to MB
+    int totalRows = descriptionResponse.resultRows;
     test:assertTrue(resultSize >= 150, "Result size is less than 150 MB");
 
     stream<record {int num;}, Error?> resultStream = check redshift->getStatementResult(res.statementId);

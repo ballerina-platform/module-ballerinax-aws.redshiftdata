@@ -224,7 +224,7 @@ public type StatementId string;
 # + subStatements - The SQL statements from a multiple statement run.
 # + redshiftPid - The process identifier from Amazon Redshift.
 # + sessionId - The session identifier of the query.
-public type DescribeStatementResponse record {|
+public type DescriptionResponse record {|
     *StatementData;
     StatementData[] subStatements?;
     int redshiftPid;

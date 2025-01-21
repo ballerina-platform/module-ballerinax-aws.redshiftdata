@@ -242,9 +242,9 @@ public final class CommonUtils {
         return response;
     }
 
-    public static BMap<BString, Object> getDescribeStatementResponse(DescribeStatementResponse nativeResponse) {
+    public static BMap<BString, Object> getDescriptionResponse(DescribeStatementResponse nativeResponse) {
         BMap<BString, Object> response = ValueCreator.createRecordValue(
-                ModuleUtils.getModule(), Constants.DESCRIBE_STATEMENT_RES_RECORD);
+                ModuleUtils.getModule(), Constants.DESCRIPTION_RES_RECORD);
 
         if (nativeResponse.hasSubStatements()) {
             ArrayType subStatementDataArrayType = TypeCreator.createArrayType(ValueCreator.createRecordValue(
@@ -253,11 +253,11 @@ public final class CommonUtils {
             for (SubStatementData subStatementData : nativeResponse.subStatements()) {
                 subStatementsArray.append(getSubStatementData(subStatementData));
             }
-            response.put(Constants.DESCRIBE_STATEMENT_RES_SUB_STATEMENTS, subStatementsArray);
+            response.put(Constants.DESCRIPTION_RES_SUB_STATEMENTS, subStatementsArray);
         }
-        response.put(Constants.DESCRIBE_STATEMENT_RES_REDSHIFT_PID, nativeResponse.redshiftPid());
+        response.put(Constants.DESCRIPTION_RES_REDSHIFT_PID, nativeResponse.redshiftPid());
         if (Objects.nonNull(nativeResponse.sessionId())) {
-            response.put(Constants.DESCRIBE_STATEMENT_RES_SESSION_ID,
+            response.put(Constants.DESCRIPTION_RES_SESSION_ID,
                     StringUtils.fromString(nativeResponse.sessionId()));
         }
 

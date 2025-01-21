@@ -27,18 +27,18 @@ isolated function testBasicDescribeStatement() returns error? {
 
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
     ExecutionResponse executionResponse = check redshift->executeStatement(query);
-    DescribeStatementResponse describeStatementResponse =
+    DescriptionResponse descriptionResponse =
         check waitForDescribeStatementCompletion(redshift, executionResponse.statementId);
 
-    test:assertTrue(describeStatementResponse.statementId != "", "Statement ID is empty");
-    test:assertTrue(describeStatementResponse.createdAt[0] > 0, "Invalid createdAt time");
-    test:assertTrue(describeStatementResponse.duration > 0d, "Invalid duration");
-    test:assertTrue(describeStatementResponse.redshiftPid > 0, "Invalid redshiftPid");
-    test:assertTrue(describeStatementResponse.sessionId is (), "Session ID is not nil");
-    test:assertTrue(describeStatementResponse.subStatements is (), "Invalid subStatements count");
-    test:assertEquals(describeStatementResponse.hasResultSet, true, "Invalid hasResultSet value");
-    test:assertEquals(describeStatementResponse.queryString, query.strings[0], "Invalid query string");
-    test:assertEquals(describeStatementResponse.statementId, executionResponse.statementId,
+    test:assertTrue(descriptionResponse.statementId != "", "Statement ID is empty");
+    test:assertTrue(descriptionResponse.createdAt[0] > 0, "Invalid createdAt time");
+    test:assertTrue(descriptionResponse.duration > 0d, "Invalid duration");
+    test:assertTrue(descriptionResponse.redshiftPid > 0, "Invalid redshiftPid");
+    test:assertTrue(descriptionResponse.sessionId is (), "Session ID is not nil");
+    test:assertTrue(descriptionResponse.subStatements is (), "Invalid subStatements count");
+    test:assertEquals(descriptionResponse.hasResultSet, true, "Invalid hasResultSet value");
+    test:assertEquals(descriptionResponse.queryString, query.strings[0], "Invalid query string");
+    test:assertEquals(descriptionResponse.statementId, executionResponse.statementId,
             "Statement ID mismatch");
     check redshift->close();
 }
@@ -52,27 +52,27 @@ isolated function testBatchDescribeStatement() returns error? {
 
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM Users;`];
     ExecutionResponse res = check redshift->batchExecuteStatement(queries);
-    DescribeStatementResponse describeStatementResponse =
+    DescriptionResponse descriptionResponse =
         check waitForDescribeStatementCompletion(redshift, res.statementId);
 
-    test:assertTrue(describeStatementResponse.redshiftPid > 0, "Invalid redshiftPid");
-    test:assertTrue(describeStatementResponse.sessionId is (), "Session ID is not nil");
-    test:assertTrue(describeStatementResponse.subStatements !is (), "Invalid subStatements count");
-    StatementData[] subStatements = describeStatementResponse.subStatements ?: [];
+    test:assertTrue(descriptionResponse.redshiftPid > 0, "Invalid redshiftPid");
+    test:assertTrue(descriptionResponse.sessionId is (), "Session ID is not nil");
+    test:assertTrue(descriptionResponse.subStatements !is (), "Invalid subStatements count");
+    StatementData[] subStatements = descriptionResponse.subStatements ?: [];
     test:assertEquals(subStatements.length(), 2, "Invalid subStatements count");
 
-    test:assertTrue(describeStatementResponse.statementId != "", "Statement ID is empty");
-    test:assertTrue(describeStatementResponse.createdAt[0] > 0, "Invalid createdAt time");
-    test:assertTrue(describeStatementResponse.duration > 0d, "Invalid duration");
-    test:assertTrue(describeStatementResponse.queryString is (), "Invalid query string");
-    test:assertTrue(describeStatementResponse.'error is (), "Error is not nil");
-    test:assertTrue(describeStatementResponse.redshiftPid > 0, "Invalid redshiftPid");
-    test:assertTrue(describeStatementResponse.updatedAt[0] > 0, "Invalid updatedAt time");
-    test:assertEquals(describeStatementResponse.status, FINISHED, "Invalid status");
-    test:assertEquals(describeStatementResponse.hasResultSet, true, "Invalid hasResultSet value");
-    test:assertEquals(describeStatementResponse.redshiftQueryId, 0, "Invalid redshiftQueryId");
-    test:assertEquals(describeStatementResponse.resultRows, -1, "Invalid resultRows");
-    test:assertEquals(describeStatementResponse.resultSize, -1, "Invalid resultSize");
+    test:assertTrue(descriptionResponse.statementId != "", "Statement ID is empty");
+    test:assertTrue(descriptionResponse.createdAt[0] > 0, "Invalid createdAt time");
+    test:assertTrue(descriptionResponse.duration > 0d, "Invalid duration");
+    test:assertTrue(descriptionResponse.queryString is (), "Invalid query string");
+    test:assertTrue(descriptionResponse.'error is (), "Error is not nil");
+    test:assertTrue(descriptionResponse.redshiftPid > 0, "Invalid redshiftPid");
+    test:assertTrue(descriptionResponse.updatedAt[0] > 0, "Invalid updatedAt time");
+    test:assertEquals(descriptionResponse.status, FINISHED, "Invalid status");
+    test:assertEquals(descriptionResponse.hasResultSet, true, "Invalid hasResultSet value");
+    test:assertEquals(descriptionResponse.redshiftQueryId, 0, "Invalid redshiftQueryId");
+    test:assertEquals(descriptionResponse.resultRows, -1, "Invalid resultRows");
+    test:assertEquals(descriptionResponse.resultSize, -1, "Invalid resultSize");
 
     StatementData subStatement1 = subStatements[0];
     test:assertTrue(subStatement1.statementId != "", "SubStatement: Statement ID is empty");
@@ -95,12 +95,12 @@ isolated function testBatchDescribeStatement() returns error? {
 isolated function testIncorrectStatementDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     ExecutionResponse executionResponse = check redshift->executeStatement(`SELECT * FROM non_existent_table;`);
-    DescribeStatementResponse describeStatementResponse =
+    DescriptionResponse descriptionResponse =
         check waitForDescribeStatementCompletion(redshift, executionResponse.statementId);
 
-    test:assertEquals(describeStatementResponse.status, FAILED, "Invalid status");
-    test:assertTrue(describeStatementResponse.'error is string, "Error message is nil");
-    test:assertTrue(describeStatementResponse.'error != "", "Error message is empty");
+    test:assertEquals(descriptionResponse.status, FAILED, "Invalid status");
+    test:assertTrue(descriptionResponse.'error is string, "Error message is nil");
+    test:assertTrue(descriptionResponse.'error != "", "Error message is empty");
     check redshift->close();
 }
 
@@ -112,14 +112,14 @@ isolated function testIncorrectBatchStatementDescribeStatement() returns error? 
     Client redshift = check new Client(testConnectionConfig);
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM non_existent_table;`];
     ExecutionResponse res = check redshift->batchExecuteStatement(queries);
-    DescribeStatementResponse describeStatementResponse =
+    DescriptionResponse descriptionResponse =
         check waitForDescribeStatementCompletion(redshift, res.statementId);
 
-    test:assertEquals(describeStatementResponse.status, FAILED, "Invalid status");
-    test:assertTrue(describeStatementResponse.'error is string, "Error message is nil");
-    test:assertTrue(describeStatementResponse.'error != "", "Error message is empty");
+    test:assertEquals(descriptionResponse.status, FAILED, "Invalid status");
+    test:assertTrue(descriptionResponse.'error is string, "Error message is nil");
+    test:assertTrue(descriptionResponse.'error != "", "Error message is empty");
 
-    StatementData[] subStatements = describeStatementResponse.subStatements ?: [];
+    StatementData[] subStatements = descriptionResponse.subStatements ?: [];
     test:assertEquals(subStatements.length(), 2, "Invalid subStatements count");
     test:assertEquals(subStatements[0].status, FINISHED, "SubStatement 1: Invalid status");
     test:assertTrue(subStatements[0].'error is (), "SubStatement 1: Error is not nil");
@@ -137,7 +137,7 @@ isolated function testIncorrectBatchStatementDescribeStatement() returns error? 
 isolated function testDescribeStatementWithInvalidStatementId() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     StatementId invalidStatementId = "InvalidStatementId";
-    DescribeStatementResponse|Error res = redshift->describeStatement(invalidStatementId);
+    DescriptionResponse|Error res = redshift->describeStatement(invalidStatementId);
     test:assertTrue(res is Error, "Query result is not an error");
     if (res is Error) {
         test:assertEquals(res.message(), "Invalid statement ID format.", "Invalid Error Message");
@@ -146,16 +146,16 @@ isolated function testDescribeStatementWithInvalidStatementId() returns error? {
 }
 
 // Helper function
-isolated function waitForDescribeStatementCompletion(Client redshift, string statementId) returns DescribeStatementResponse|Error {
+isolated function waitForDescribeStatementCompletion(Client redshift, string statementId) returns DescriptionResponse|Error {
     int i = 0;
     while (i < 10) {
-        DescribeStatementResponse|Error describeStatementResponse = redshift->describeStatement(statementId);
-        if (describeStatementResponse is Error) {
-            return describeStatementResponse;
+        DescriptionResponse|Error descriptionResponse = redshift->describeStatement(statementId);
+        if (descriptionResponse is Error) {
+            return descriptionResponse;
         }
-        match describeStatementResponse.status {
+        match descriptionResponse.status {
             "FINISHED"|"FAILED"|"ABORTED" => {
-                return describeStatementResponse;
+                return descriptionResponse;
             }
         }
         i = i + 1;
