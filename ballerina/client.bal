@@ -71,9 +71,6 @@ public isolated client class Client {
         if statement.strings.length() == 0 {
             return error Error("SQL statement cannot be empty.");
         }
-        if statement.insertions.some(insertion => insertion is ()) {
-            return error Error("SQL statement cannot have nil parameters.");
-        }
         return self.externExecuteStatement(statement, executionConfig);
     }
 
@@ -105,9 +102,6 @@ public isolated client class Client {
         }
         if statements.some(statement => statement.strings.length() == 0) {
             return error Error("SQL statements cannot have empty strings.");
-        }
-        if statements.some(statement => statement.insertions.some(insertion => insertion is ())) {
-            return error Error("SQL statements cannot have nil parameters.");
         }
         return self.externBatchExecuteStatement(statements, executionConfig);
     }

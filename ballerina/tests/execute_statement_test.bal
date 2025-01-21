@@ -92,10 +92,10 @@ isolated function testParameterizedStatement() returns error? {
 }
 isolated function testNilParameterizedStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
-    string? tableName = ();
-    ExecutionResponse|Error res = redshift->executeStatement(`SELECT * FROM ${tableName}`);
-    test:assertTrue(res is Error && res.message() == "SQL statement cannot have nil parameters.",
-            "Invalid error message");
+    string? username = ();
+    ExecutionResponse res = check redshift->executeStatement(`SELECT * FROM User WHERE username = ${username}`);
+    DescribeStatementResponse descRes = check redshift->describeStatement(res.statementId);
+    test:assertTrue(descRes.queryString == "SELECT * FROM User WHERE username = NULL", "Invalid query string");
     check redshift->close();
 }
 

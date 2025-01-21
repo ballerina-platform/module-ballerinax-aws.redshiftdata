@@ -106,9 +106,9 @@ isolated function testSupportedTypes() returns error? {
     Client redshift = check new Client(testConnectionConfig);
 
     sql:ParameterizedQuery insertQuery = `INSERT INTO SupportedTypes (
-        int_type, bigint_type, double_type, boolean_type, string_type) VALUES 
-        (${data.int_type}, ${data.bigint_type}, ${data.double_type}, ${data.boolean_type ? "TRUE" : "FALSE"},
-         ${data.string_type}
+        int_type, bigint_type, double_type, boolean_type, string_type, nil_type) VALUES 
+        (${data.int_type}, ${data.bigint_type}, ${data.double_type}, ${data.boolean_type},
+         ${data.string_type},  ${data.nil_type}
         );`;
     _ = check redshift->executeStatement(insertQuery);
 

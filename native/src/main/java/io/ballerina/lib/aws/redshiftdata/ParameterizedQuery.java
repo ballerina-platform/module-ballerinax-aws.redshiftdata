@@ -22,6 +22,10 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BObject;
 import software.amazon.awssdk.services.redshiftdata.model.SqlParameter;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 /**
  * Represents a parameterized SQL query for use with AWS Redshift Data API.
  * <p>
@@ -68,13 +72,19 @@ public class ParameterizedQuery {
      */
     public ParameterizedQuery(BObject bSqlStatement) {
         String[] strings = bSqlStatement.getArrayValue(Constants.QUERY_STRINGS).getStringArray();
-        BArray bInsertionsArray = bSqlStatement.getArrayValue(Constants.QUERY_INSERTIONS);
-        String[] insertions = new String[bInsertionsArray.size()];
-        for (int i = 0; i < bInsertionsArray.size(); i++) {
-            insertions[i] = bInsertionsArray.get(i).toString();
+        BArray bInsertions = bSqlStatement.getArrayValue(Constants.QUERY_INSERTIONS);
+        List<String> insertions = new ArrayList<>();
+        for (int i = 0; i < bInsertions.size(); i++) {
+            Object value = bInsertions.get(i);
+            // If the value is null, insert "NULL" to the query string
+            if (Objects.isNull(value)) {
+                strings[i] += "NULL";
+            } else {
+                insertions.add(value.toString());
+            }
         }
         this.strings = strings;
-        this.insertions = insertions;
+        this.insertions = insertions.toArray(new String[0]);
     }
 
     /**
