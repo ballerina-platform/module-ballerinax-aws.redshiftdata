@@ -18,7 +18,7 @@ import ballerina/lang.runtime;
 import ballerina/test;
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["execute"]
 }
 isolated function testBasicStatement() returns error? {
@@ -32,7 +32,7 @@ isolated function testBasicStatement() returns error? {
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["execute"]
 }
 isolated function testSessionId() returns error? {
@@ -40,9 +40,9 @@ isolated function testSessionId() returns error? {
         region: testRegion,
         authConfig: testAuthConfig,
         dbAccessConfig: {
-            id: TEST_CLUSTER_ID,
-            database: TEST_DATABASE_NAME,
-            dbUser: TEST_DB_USER,
+            id: testClusterId,
+            database: testDatabaseName,
+            dbUser: testDbUser,
             sessionKeepAliveSeconds: 3600
         }
     };
@@ -58,7 +58,7 @@ isolated function testSessionId() returns error? {
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["execute"]
 }
 isolated function testExecutionConfig() returns error? {
@@ -75,7 +75,7 @@ isolated function testExecutionConfig() returns error? {
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["execute"]
 }
 isolated function testParameterizedStatement() returns error? {
@@ -87,7 +87,7 @@ isolated function testParameterizedStatement() returns error? {
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["execute"]
 }
 isolated function testNilParameterizedStatement() returns error? {
@@ -100,7 +100,7 @@ isolated function testNilParameterizedStatement() returns error? {
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["execute"]
 }
 isolated function testEmptyStatement() returns error? {
@@ -111,7 +111,7 @@ isolated function testEmptyStatement() returns error? {
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["execute"]
 }
 isolated function testWithDbConfigs() returns error? {
@@ -132,7 +132,7 @@ isolated function testWithDbConfigs() returns error? {
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["execute"]
 }
 isolated function testWithInvalidDbConfigs() returns error? {
@@ -148,7 +148,7 @@ isolated function testWithInvalidDbConfigs() returns error? {
     Client redshift = check new Client(mockConnectionConfig);
     ExecutionResponse|Error res = redshift->executeStatement(`SELECT * FROM Users`);
     test:assertTrue(res is Error);
-    if (res is Error) {
+    if res is Error {
         ErrorDetails errorDetails = res.detail();
         test:assertEquals(errorDetails.httpStatusCode, 400, "Invalid Status Code");
         test:assertEquals(errorDetails.errorMessage, "Redshift endpoint doesn't exist in this region.",
@@ -158,38 +158,38 @@ isolated function testWithInvalidDbConfigs() returns error? {
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["execute"]
 }
 isolated function testWithInvalidStatementName() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     ExecutionResponse|Error res = redshift->executeStatement(`SELECT * FROM Users`, statementName = "");
     test:assertTrue(res is Error);
-    if (res is Error) {
+    if res is Error {
         test:assertEquals(res.message(), "The statement name should be at least 1 character long.");
     }
     check redshift->close();
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["execute"]
 }
 isolated function testWithInvalidClusterId() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     ExecutionResponse|Error res = redshift->executeStatement(`SELECT * FROM Users`, dbAccessConfig = {
         id: "",
-        database: TEST_DATABASE_NAME
+        database: testDatabaseName
     });
     test:assertTrue(res is Error);
-    if (res is Error) {
+    if res is Error {
         test:assertEquals(res.message(), "The cluster ID should be at least 1 character long.");
     }
     check redshift->close();
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["execute"]
 }
 isolated function testNoDbAccessConfig() returns error? {
@@ -201,7 +201,7 @@ isolated function testNoDbAccessConfig() returns error? {
     Client redshift = check new Client(connectionConfig);
     ExecutionResponse|Error res = redshift->executeStatement(`SELECT * FROM Users`);
     test:assertTrue(res is Error, "Invalid error message");
-    if (res is Error) {
+    if res is Error {
         test:assertEquals(res.message(), "Error occurred while executing the executeStatement: No database access " +
                 "configuration provided in the initialization of the client or in the execute statement config");
     }

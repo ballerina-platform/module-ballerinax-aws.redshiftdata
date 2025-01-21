@@ -164,7 +164,7 @@ public isolated client class Client {
         if configValidationResult is constraint:Error {
             return error Error(configValidationResult.message(), configValidationResult.cause());
         }
-        if (executionConfig.dbAccessConfig !is ()) {
+        if executionConfig.dbAccessConfig !is () {
             Cluster|WorkGroup|SessionId|constraint:Error dbValidationResult =
                 constraint:validate(executionConfig.dbAccessConfig);
             if dbValidationResult is constraint:Error {

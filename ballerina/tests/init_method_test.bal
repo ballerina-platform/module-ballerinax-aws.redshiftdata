@@ -17,19 +17,19 @@
 import ballerina/test;
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["init"]
 }
 isolated function testInit() returns error? {
     Client|Error redshift = new Client(testConnectionConfig);
     test:assertTrue(redshift is Client, "Client is not an instance of Client");
-    if (redshift is Client) {
+    if redshift is Client {
         check redshift->close();
     }
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["init"]
 }
 isolated function testNilDbAccessConfig() returns error? {
@@ -40,7 +40,7 @@ isolated function testNilDbAccessConfig() returns error? {
     };
     Client|Error redshift = new Client(connectionConfig);
     test:assertTrue(redshift is Client, "Client is not an instance of Client");
-    if (redshift is Client) {
+    if redshift is Client {
         check redshift->close();
     }
 }

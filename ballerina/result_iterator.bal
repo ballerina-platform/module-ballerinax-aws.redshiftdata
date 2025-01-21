@@ -29,22 +29,13 @@ isolated class ResultIterator {
             return error Error("Stream is closed. Therefore, no operations are allowed further on the stream.");
         }
         record {}|Error? result = self.externNextResult(self);
-        if result is record {} {
-            record {|
-                record {} value;
-            |} streamRecord = {value: result};
-            return streamRecord;
-        } else if result is Error {
-            lock {
-                self.isClosed = true;
-            }
-            return result;
-        } else {
+        if result is Error? {
             lock {
                 self.isClosed = true;
             }
             return result;
         }
+        return {value: result};
     }
 
     isolated function externNextResult(ResultIterator iterator) returns record {}|Error? = @java:Method {

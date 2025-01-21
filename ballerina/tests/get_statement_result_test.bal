@@ -43,7 +43,7 @@ type SupportedTypes record {|
 |};
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["getStatementResult"]
 }
 isolated function testBasicQueryResult() returns error? {
@@ -70,7 +70,7 @@ isolated function testBasicQueryResult() returns error? {
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["getStatementResult"]
 }
 isolated function testParameterizedQueryResult() returns error? {
@@ -90,7 +90,7 @@ isolated function testParameterizedQueryResult() returns error? {
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["getStatementResult"]
 }
 isolated function testSupportedTypes() returns error? {
@@ -126,7 +126,7 @@ isolated function testSupportedTypes() returns error? {
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["getStatementResult"]
 }
 isolated function testNoQueryResult() returns error? {
@@ -137,7 +137,7 @@ isolated function testNoQueryResult() returns error? {
     _ = check waitForDescribeStatementCompletion(redshift, res.statementId);
     stream<User, Error?>|Error queryResult = redshift->getStatementResult(res.statementId);
     test:assertTrue(queryResult is Error, "Query result is not an error");
-    if (queryResult is Error) {
+    if queryResult is Error {
         ErrorDetails errorDetails = queryResult.detail();
         test:assertEquals(errorDetails.httpStatusCode, 400, "Invalid Status Code");
         test:assertEquals(errorDetails.errorMessage, "Query does not have result. Please check query status with " +
@@ -148,7 +148,7 @@ isolated function testNoQueryResult() returns error? {
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["getStatementResult"]
 }
 isolated function testNoResultRows() returns error? {
@@ -165,7 +165,7 @@ isolated function testNoResultRows() returns error? {
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["getStatementResult"]
 }
 isolated function testInvalidStatementId() returns error? {
@@ -173,7 +173,7 @@ isolated function testInvalidStatementId() returns error? {
     StatementId invalidStatementId = "InvalidStatementId";
     stream<User, Error?>|Error queryResult = redshift->getStatementResult(invalidStatementId);
     test:assertTrue(queryResult is Error, "Query result is not an error");
-    if (queryResult is Error) {
+    if queryResult is Error {
         ErrorDetails errorDetails = queryResult.detail();
         test:assertEquals(errorDetails.httpStatusCode, 400, "Invalid Status Code");
         string errorMessage = errorDetails.errorMessage ?: "";
@@ -183,14 +183,14 @@ isolated function testInvalidStatementId() returns error? {
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["getStatementResult"]
 }
 isolated function testIncorrectStatementId() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     stream<User, Error?>|Error queryResult = redshift->getStatementResult("70662acc-f334-46f8-b953-3a9546796d7k");
     test:assertTrue(queryResult is Error, "Query result is not an error");
-    if (queryResult is Error) {
+    if queryResult is Error {
         ErrorDetails errorDetails = queryResult.detail();
         test:assertEquals(errorDetails.httpStatusCode, 400, "Invalid Status Code");
         test:assertEquals(errorDetails.errorMessage, "Query does not exist.",
@@ -200,7 +200,7 @@ isolated function testIncorrectStatementId() returns error? {
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["getStatementResult"]
 }
 isolated function testMissingFieldInUserType() returns error? {
@@ -210,7 +210,7 @@ isolated function testMissingFieldInUserType() returns error? {
     _ = check waitForDescribeStatementCompletion(redshift, res.statementId);
     stream<UserWithoutEmailField, Error?>|Error resultStream = redshift->getStatementResult(res.statementId);
     test:assertTrue(resultStream is Error, "Query result is not an error");
-    if (resultStream is Error) {
+    if resultStream is Error {
         test:assertEquals(resultStream.message(), "Error occurred while executing the getQueryResult: " +
                 "Error occurred while creating the Record Stream: Field 'email' not found in the record type.");
     }
@@ -218,7 +218,7 @@ isolated function testMissingFieldInUserType() returns error? {
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["getStatementResult"]
 }
 isolated function testUserWithOpenRecord() returns error? {
@@ -235,7 +235,7 @@ isolated function testUserWithOpenRecord() returns error? {
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["queryResult"]
 }
 isolated function testResultPagination() returns error? {

@@ -19,7 +19,7 @@ import ballerina/sql;
 import ballerina/test;
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["describeStatement"]
 }
 isolated function testBasicDescribeStatement() returns error? {
@@ -44,7 +44,7 @@ isolated function testBasicDescribeStatement() returns error? {
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["describeStatement"]
 }
 isolated function testBatchDescribeStatement() returns error? {
@@ -89,7 +89,7 @@ isolated function testBatchDescribeStatement() returns error? {
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["describeStatement"]
 }
 isolated function testIncorrectStatementDescribeStatement() returns error? {
@@ -105,7 +105,7 @@ isolated function testIncorrectStatementDescribeStatement() returns error? {
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["describeStatement"]
 }
 isolated function testIncorrectBatchStatementDescribeStatement() returns error? {
@@ -131,7 +131,7 @@ isolated function testIncorrectBatchStatementDescribeStatement() returns error? 
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["describeStatement"]
 }
 isolated function testDescribeStatementWithInvalidStatementId() returns error? {
@@ -139,7 +139,7 @@ isolated function testDescribeStatementWithInvalidStatementId() returns error? {
     StatementId invalidStatementId = "InvalidStatementId";
     DescriptionResponse|Error res = redshift->describeStatement(invalidStatementId);
     test:assertTrue(res is Error, "Query result is not an error");
-    if (res is Error) {
+    if res is Error {
         test:assertEquals(res.message(), "Invalid statement ID format.", "Invalid Error Message");
     }
     check redshift->close();
@@ -148,9 +148,9 @@ isolated function testDescribeStatementWithInvalidStatementId() returns error? {
 // Helper function
 isolated function waitForDescribeStatementCompletion(Client redshift, string statementId) returns DescriptionResponse|Error {
     int i = 0;
-    while (i < 10) {
+    while i < 10 {
         DescriptionResponse|Error descriptionResponse = redshift->describeStatement(statementId);
-        if (descriptionResponse is Error) {
+        if descriptionResponse is Error {
             return descriptionResponse;
         }
         match descriptionResponse.status {

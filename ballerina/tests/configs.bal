@@ -16,26 +16,25 @@
 
 import ballerina/os;
 
-configurable boolean IS_TESTS_ENABLED = os:getEnv("IS_TESTS_ENABLED") is "true";
-configurable string TEST_AWS_ACCESS_KEY_ID = os:getEnv("REDSHIFT_AWS_ACCESS_KEY_ID");
-configurable string TEST_AWS_SECRET_ACCESS_KEY = os:getEnv("REDSHIFT_AWS_SECRET_ACCESS_KEY");
-configurable string TEST_AWS_REGION = os:getEnv("REDSHIFT_AWS_REGION");
+configurable boolean isTestsEnabled = os:getEnv("IS_TESTS_ENABLED") is "true";
+configurable string testAccessKeyId = os:getEnv("REDSHIFT_AWS_ACCESS_KEY_ID");
+configurable string testSecretAccessKey = os:getEnv("REDSHIFT_AWS_SECRET_ACCESS_KEY");
 
-configurable string TEST_DATABASE_NAME = os:getEnv("REDSHIFT_DATABASE_NAME");
-configurable string TEST_CLUSTER_ID = os:getEnv("REDSHIFT_CLUSTER_ID");
-configurable string TEST_DB_USER = os:getEnv("REDSHIFT_DB_USER");
+configurable string testDatabaseName = os:getEnv("REDSHIFT_DATABASE_NAME");
+configurable string testClusterId = os:getEnv("REDSHIFT_CLUSTER_ID");
+configurable string testDbUser = os:getEnv("REDSHIFT_DB_USER");
 
 final Region & readonly testRegion = "us-east-2";
 
 final StaticAuthConfig & readonly testAuthConfig = {
-    accessKeyId: TEST_AWS_ACCESS_KEY_ID,
-    secretAccessKey: TEST_AWS_SECRET_ACCESS_KEY
+    accessKeyId: testAccessKeyId,
+    secretAccessKey: testSecretAccessKey
 };
 
 final Cluster & readonly testDbAccessConfig = {
-    id: TEST_CLUSTER_ID,
-    database: TEST_DATABASE_NAME,
-    dbUser: TEST_DB_USER
+    id: testClusterId,
+    database: testDatabaseName,
+    dbUser: testDbUser
 };
 
 final ConnectionConfig & readonly testConnectionConfig = {

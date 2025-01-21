@@ -19,7 +19,7 @@ import ballerina/sql;
 import ballerina/test;
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["batchExecute"]
 }
 isolated function testBasicBatchExecuteStatement() returns error? {
@@ -34,7 +34,7 @@ isolated function testBasicBatchExecuteStatement() returns error? {
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
+    enable: isTestsEnabled,
     groups: ["batchExecute"]
 }
 isolated function testBatchExecuteSessionId() returns error? {
@@ -42,9 +42,9 @@ isolated function testBatchExecuteSessionId() returns error? {
         region: testRegion,
         authConfig: testAuthConfig,
         dbAccessConfig: {
-            id: TEST_CLUSTER_ID,
-            database: TEST_DATABASE_NAME,
-            dbUser: TEST_DB_USER,
+            id: testClusterId,
+            database: testDatabaseName,
+            dbUser: testDbUser,
             sessionKeepAliveSeconds: 3600
         }
     };

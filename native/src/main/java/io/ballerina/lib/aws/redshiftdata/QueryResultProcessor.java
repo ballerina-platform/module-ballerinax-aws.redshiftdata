@@ -154,15 +154,16 @@ public class QueryResultProcessor {
     }
 
     private static Object getFieldValue(Field field) {
-        if (field.isNull() != null && field.isNull()) {
-            return null;
-        } else if (field.stringValue() != null) {
+        if (field.stringValue() != null) {
             return StringUtils.fromString(field.stringValue());
-        } else if (field.booleanValue() != null) {
+        }
+        if (field.booleanValue() != null) {
             return field.booleanValue();
-        } else if (field.longValue() != null) {
+        }
+        if (field.longValue() != null) {
             return field.longValue();
-        } else if (field.doubleValue() != null) {
+        }
+        if (field.doubleValue() != null) {
             return field.doubleValue();
         }
         return null;
