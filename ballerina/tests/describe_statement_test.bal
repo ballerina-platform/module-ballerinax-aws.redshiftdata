@@ -19,7 +19,6 @@ import ballerina/sql;
 import ballerina/test;
 
 @test:Config {
-    enable: isTestsEnabled,
     groups: ["describeStatement"]
 }
 isolated function testBasicDescribeStatement() returns error? {
@@ -44,7 +43,6 @@ isolated function testBasicDescribeStatement() returns error? {
 }
 
 @test:Config {
-    enable: isTestsEnabled,
     groups: ["describeStatement"]
 }
 isolated function testBatchDescribeStatement() returns error? {
@@ -89,7 +87,6 @@ isolated function testBatchDescribeStatement() returns error? {
 }
 
 @test:Config {
-    enable: isTestsEnabled,
     groups: ["describeStatement"]
 }
 isolated function testIncorrectStatementDescribeStatement() returns error? {
@@ -105,7 +102,6 @@ isolated function testIncorrectStatementDescribeStatement() returns error? {
 }
 
 @test:Config {
-    enable: isTestsEnabled,
     groups: ["describeStatement"]
 }
 isolated function testIncorrectBatchStatementDescribeStatement() returns error? {
@@ -131,7 +127,6 @@ isolated function testIncorrectBatchStatementDescribeStatement() returns error? 
 }
 
 @test:Config {
-    enable: isTestsEnabled,
     groups: ["describeStatement"]
 }
 isolated function testDescribeStatementWithInvalidStatementId() returns error? {

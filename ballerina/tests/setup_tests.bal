@@ -19,9 +19,6 @@ import ballerina/test;
 
 @test:BeforeSuite
 function beforeFunction() returns error? {
-    if !isTestsEnabled {
-        return;
-    }
     log:printInfo("Setting up tables");
     Client redshift = check new Client(testConnectionConfig);
 
@@ -57,9 +54,6 @@ function beforeFunction() returns error? {
 
 @test:AfterSuite
 function afterFunction() returns error? {
-    if !isTestsEnabled {
-        return;
-    }
     log:printInfo("Cleaning up resources");
     Client redshift = check new Client(testConnectionConfig);
 

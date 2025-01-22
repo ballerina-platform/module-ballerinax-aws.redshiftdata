@@ -17,7 +17,6 @@
 import ballerina/test;
 
 @test:Config {
-    enable: isTestsEnabled,
     groups: ["init"]
 }
 isolated function testInit() returns error? {
@@ -29,7 +28,6 @@ isolated function testInit() returns error? {
 }
 
 @test:Config {
-    enable: isTestsEnabled,
     groups: ["init"]
 }
 isolated function testNilDbAccessConfig() returns error? {
