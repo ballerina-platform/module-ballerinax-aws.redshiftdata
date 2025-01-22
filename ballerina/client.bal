@@ -37,10 +37,10 @@ public isolated client class Client {
     # );
     # ```
     #
-    # + connectionConfig - The Redshift Data API client configurations.
-    # If a `dbAccessConfig` is provided, it will be used for the statement executions.
-    # It can be overridden using the `dbAccessConfig` at the API level.
-    # + return - The `redshiftdata:Client` or a `redshiftdata:Error` if the initialization fails.
+    # + connectionConfig - The Redshift Data API client configurations
+    # If a `dbAccessConfig` is provided, it will be used for the statement executions
+    # It can be overridden using the `dbAccessConfig` at the API level
+    # + return - The `redshiftdata:Client` or a `redshiftdata:Error` if the initialization fails
     public isolated function init(*ConnectionConfig connectionConfig) returns Error? {
         if connectionConfig.dbAccessConfig !is () {
             Cluster|WorkGroup|constraint:Error validationResult = constraint:validate(connectionConfig.dbAccessConfig);
@@ -62,9 +62,9 @@ public isolated client class Client {
     # redshiftdata:ExecutionResponse response = check redshift->executeStatement(`SELECT * FROM Users`);
     # ```
     #
-    # + statement - The SQL statement to be executed.
-    # + executionConfig - The configurations related to the execution of the statement.
-    # + return - The `redshiftdata:ExecutionResponse` or a `redshiftdata:Error` if the execution fails.
+    # + statement - The SQL statement to be executed
+    # + executionConfig - The configurations related to the execution of the statement
+    # + return - The `redshiftdata:ExecutionResponse` or a `redshiftdata:Error` if the execution fails
     remote isolated function executeStatement(sql:ParameterizedQuery statement, *ExecutionConfig executionConfig)
     returns ExecutionResponse|Error {
         _ = check self.validateExecutionConfig(executionConfig);
@@ -81,14 +81,15 @@ public isolated client class Client {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
 
-    # Runs one or more SQL statements, which can be data manipulation language (DML) or data definition language (DDL). The batch size should not exceed 40.
+    # Runs one or more SQL statements, which can be data manipulation language (DML) or data definition language (DDL).
+    #  The batch size should not exceed 40.
     # ```ballerina
     # redshiftdata:ExecutionResponse response = check redshift->batchExecuteStatement([`<statement>`,
     #    `<statement>`]);
     # ```
     #
-    # + statements - The SQL statements to be executed.
-    # + executionConfig - The configurations related to the execution of the statements.
+    # + statements - The SQL statements to be executed
+    # + executionConfig - The configurations related to the execution of the statements
     # + return - The `redshiftdata:ExecutionResponse` or a `redshiftdata:Error` if the execution fails
     remote isolated function batchExecuteStatement(sql:ParameterizedQuery[] statements,
             *ExecutionConfig executionConfig)
@@ -118,9 +119,9 @@ public isolated client class Client {
     # stream<User, Error?> response = check redshift->getStatementResult("<statement-id>");
     # ```
     #
-    # + statementId - The identifier of the SQL statement.
-    # + rowTypes - The typedesc of the record to which the result needs to be returned.
-    # + return - Stream of records in the type of rowTypes or a `redshiftdata:Error` if the retrieval fails.
+    # + statementId - The identifier of the SQL statement
+    # + rowTypes - The typedesc of the record to which the result needs to be returned
+    # + return - Stream of records in the type of rowTypes or a `redshiftdata:Error` if the retrieval fails
     remote isolated function getStatementResult(StatementId statementId, typedesc<record {}> rowTypes = <>)
     returns stream<rowTypes, Error?>|Error = @java:Method {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
@@ -131,8 +132,8 @@ public isolated client class Client {
     # redshiftdata:DescriptionResponse response = check redshift->describeStatement("<statement-id>");
     # ```
     #
-    # + statementId - The identifier of the SQL statement.
-    # + return - The `redshiftdata:DescriptionResponse` or a `redshiftdata:Error` if the execution fails.
+    # + statementId - The identifier of the SQL statement
+    # + return - The `redshiftdata:DescriptionResponse` or a `redshiftdata:Error` if the execution fails
     remote isolated function describeStatement(StatementId statementId)
     returns DescriptionResponse|Error {
         StatementId|constraint:Error validationResult = constraint:validate(statementId);
@@ -153,7 +154,7 @@ public isolated client class Client {
     # check redshift->close();
     # ```
     #
-    # + return - A `redshiftdata:Error` if there is an error while closing the client resources or else nil.
+    # + return - A `redshiftdata:Error` if there is an error while closing the client resources or else nil
     remote isolated function close() returns Error? = @java:Method {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
