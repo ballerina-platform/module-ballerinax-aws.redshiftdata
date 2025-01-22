@@ -24,6 +24,7 @@ module io.ballerina.stdlib.java.aws.redshiftdata {
     requires software.amazon.awssdk.awscore;
     requires io.ballerina.stdlib.time;
     requires io.ballerina.runtime;
+    requires software.amazon.awssdk.profiles;
 
     exports io.ballerina.lib.aws.redshiftdata;
 }

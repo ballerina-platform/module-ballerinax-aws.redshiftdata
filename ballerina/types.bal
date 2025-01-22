@@ -90,8 +90,10 @@ public type StaticAuthConfig record {|
 #
 # + profileName - Configure the profile name used for loading IMDS-related configuration,
 # like the endpoint mode (IPv4 vs IPv6).
+# + profileFile - The path to the file containing the profile configuration
 public type EC2_IAM_ROLE record {|
     string profileName?;
+    string profileFile?;
 |};
 
 # Represents the configuration details required for connecting to an Amazon Redshift cluster.

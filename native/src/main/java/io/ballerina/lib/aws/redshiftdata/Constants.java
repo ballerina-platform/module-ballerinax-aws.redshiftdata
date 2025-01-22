@@ -47,6 +47,7 @@ public interface Constants {
     BString AWS_SECRET_ACCESS_KEY = StringUtils.fromString("secretAccessKey");
     BString AWS_SESSION_TOKEN = StringUtils.fromString("sessionToken");
     BString EC2_INSTANCE_PROFILE_NAME = StringUtils.fromString("profileName");
+    BString EC2_INSTANCE_PROFILE_FILE = StringUtils.fromString("profileFile");
 
     // Constants related to `Cluster`
     BString CLUSTER_ID = StringUtils.fromString("id");

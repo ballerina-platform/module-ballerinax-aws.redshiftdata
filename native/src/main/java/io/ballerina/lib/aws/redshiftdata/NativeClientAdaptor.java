@@ -33,6 +33,7 @@ import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.InstanceProfileCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.profiles.ProfileFile;
 import software.amazon.awssdk.services.redshiftdata.RedshiftDataClient;
 import software.amazon.awssdk.services.redshiftdata.model.BatchExecuteStatementRequest;
 import software.amazon.awssdk.services.redshiftdata.model.BatchExecuteStatementResponse;
@@ -43,6 +44,7 @@ import software.amazon.awssdk.services.redshiftdata.model.ExecuteStatementRespon
 import software.amazon.awssdk.services.redshiftdata.model.GetStatementResultRequest;
 import software.amazon.awssdk.services.redshiftdata.model.GetStatementResultResponse;
 
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -85,11 +87,18 @@ public class NativeClientAdaptor {
             return StaticCredentialsProvider.create(credentials);
         }
         InstanceProfileCredentials instanceProfileCredentials = (InstanceProfileCredentials) authConfig;
+        InstanceProfileCredentialsProvider.Builder instanceCredentialBuilder =
+                InstanceProfileCredentialsProvider.builder();
         if (Objects.nonNull(instanceProfileCredentials.profileName())) {
-            return InstanceProfileCredentialsProvider.builder()
-                    .profileName(instanceProfileCredentials.profileName()).build();
+            instanceCredentialBuilder.profileName(instanceProfileCredentials.profileName());
         }
-        return InstanceProfileCredentialsProvider.create();
+        if (Objects.nonNull(instanceProfileCredentials.profileFile())) {
+            instanceCredentialBuilder.profileFile(ProfileFile.builder()
+                    .content(Path.of(instanceProfileCredentials.profileFile()))
+                    .type(ProfileFile.Type.CONFIGURATION)
+                    .build());
+        }
+        return instanceCredentialBuilder.build();
     }
 
     @SuppressWarnings("unchecked")
