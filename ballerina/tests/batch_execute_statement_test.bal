@@ -26,9 +26,9 @@ isolated function testBasicBatchExecuteStatement() returns error? {
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM Users`];
     ExecutionResponse res = check redshift->batchExecuteStatement(queries);
 
-    test:assertTrue(res.statementId != "", "Statement ID is empty");
-    test:assertTrue(res.createdAt[0] > 0, "Invalid createdAt time");
-    test:assertTrue(res.sessionId is (), "Session ID is not nil"); // Since we are not using sessionKeepAliveSeconds
+    test:assertTrue(res.statementId != "");
+    test:assertTrue(res.createdAt[0] > 0);
+    test:assertTrue(res.sessionId is ()); // Since we are not using sessionKeepAliveSeconds
     check redshift->close();
 }
 
@@ -50,12 +50,12 @@ isolated function testBatchExecuteSessionId() returns error? {
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM Users`];
     ExecutionResponse res1 = check redshift->batchExecuteStatement(queries);
 
-    test:assertTrue(res1.statementId != "", "Statement ID is empty");
-    test:assertTrue(res1.sessionId is string && res1.sessionId != "", "Session ID is empty");
+    test:assertTrue(res1.statementId != "");
+    test:assertTrue(res1.sessionId is string && res1.sessionId != "");
 
     runtime:sleep(2); // wait for session to establish
     ExecutionResponse res2 = check redshift->batchExecuteStatement(queries,
         {dbAccessConfig: res1.sessionId});
-    test:assertTrue(res2.sessionId == res1.sessionId, "Session ID is not equal");
+    test:assertTrue(res2.sessionId == res1.sessionId);
     check redshift->close();
 }

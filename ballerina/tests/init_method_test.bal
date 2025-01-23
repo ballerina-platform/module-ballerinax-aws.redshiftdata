@@ -21,10 +21,9 @@ import ballerina/test;
 }
 isolated function testInit() returns error? {
     Client|Error redshift = new Client(testConnectionConfig);
-    test:assertTrue(redshift is Client, "Client is not an instance of Client");
-    if redshift is Client {
-        check redshift->close();
-    }
+    test:assertTrue(redshift is Client);
+    Client redshiftClient = check redshift.ensureType();
+    check redshiftClient->close();
 }
 
 @test:Config {
@@ -37,8 +36,7 @@ isolated function testNilDbAccessConfig() returns error? {
         dbAccessConfig: ()
     };
     Client|Error redshift = new Client(connectionConfig);
-    test:assertTrue(redshift is Client, "Client is not an instance of Client");
-    if redshift is Client {
-        check redshift->close();
-    }
+    test:assertTrue(redshift is Client);
+    Client redshiftClient = check redshift.ensureType();
+    check redshiftClient->close();
 }
