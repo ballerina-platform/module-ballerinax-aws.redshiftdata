@@ -35,9 +35,7 @@ dependencies {
     checkstyle "com.puppycrawl.tools:checkstyle:${checkstylePluginVersion}"
 
     implementation group: 'org.ballerinalang', name: 'ballerina-runtime', version: "${ballerinaLangVersion}"
-    implementation group: 'io.ballerina.stdlib', name: 'sql-native', version: "${stdlibSqlVersion}"
     implementation group: 'io.ballerina.stdlib', name: 'time-native', version: "${stdlibTimeVersion}"
-    implementation group: 'org.ballerinalang', name: 'ballerina-runtime', version: "${ballerinaLangVersion}"
     implementation group: 'software.amazon.awssdk', name: 'redshiftdata', version: "${awsJavaSdkVersion}"
 
     dist (group: 'software.amazon.awssdk', name: 'redshiftdata', version: "${awsJavaSdkVersion}") {

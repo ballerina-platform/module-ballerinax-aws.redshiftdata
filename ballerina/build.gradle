@@ -51,23 +51,10 @@ ballerina {
     platform = "java17"
 }
 
-configurations {
-    externalJars
-}
-
-dependencies {
-   externalJars(group: 'io.ballerina.stdlib', name: 'sql-native', version: "${stdlibSqlVersion}")
-
-   externalJars(group: 'software.amazon.awssdk', name: 'redshift', version: "${awsJavaSdkVersion}")
-   externalJars(group: 'software.amazon.awssdk', name: 'redshiftdata', version: "${awsJavaSdkVersion}")
-   externalJars(group: 'software.amazon.awssdk', name: 'bom', version: "${awsJavaSdkVersion}")
-}
-
 task updateTomlFiles {
     doLast {
         def newConfig = ballerinaTomlFilePlaceHolder.text.replace('@project.version@', project.version.toString())
         newConfig = newConfig.replace('@toml.version@', tomlVersion)
-        newConfig = newConfig.replace('@sql.native.version@', project.stdlibSqlVersion)
         ballerinaTomlFile.text = newConfig
     }
 }
