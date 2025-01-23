@@ -18,6 +18,7 @@
 
 package io.ballerina.lib.aws.redshiftdata;
 
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
@@ -35,13 +36,16 @@ import io.ballerina.runtime.api.values.BString;
  *                        access some resource.
  */
 public record StaticAuthConfig(String accessKeyId, String secretAccessKey, String sessionToken) {
+    static final BString AWS_ACCESS_KEY_ID = StringUtils.fromString("accessKeyId");
+    static final BString AWS_SECRET_ACCESS_KEY = StringUtils.fromString("secretAccessKey");
+    static final BString AWS_SESSION_TOKEN = StringUtils.fromString("sessionToken");
 
     public StaticAuthConfig(BMap<BString, Object> bAuthConfig) {
         this(
-                bAuthConfig.getStringValue(Constants.AWS_ACCESS_KEY_ID).getValue(),
-                bAuthConfig.getStringValue(Constants.AWS_SECRET_ACCESS_KEY).getValue(),
-                bAuthConfig.containsKey(Constants.AWS_SESSION_TOKEN) ?
-                        bAuthConfig.getStringValue(Constants.AWS_SESSION_TOKEN).getValue() : null
+                bAuthConfig.getStringValue(AWS_ACCESS_KEY_ID).getValue(),
+                bAuthConfig.getStringValue(AWS_SECRET_ACCESS_KEY).getValue(),
+                bAuthConfig.containsKey(AWS_SESSION_TOKEN) ?
+                        bAuthConfig.getStringValue(AWS_SESSION_TOKEN).getValue() : null
         );
     }
 }

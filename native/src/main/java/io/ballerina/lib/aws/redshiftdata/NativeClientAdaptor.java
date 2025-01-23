@@ -54,6 +54,8 @@ import java.util.concurrent.Executors;
  * utility methods to invoke as inter-op functions.
  */
 public class NativeClientAdaptor {
+    static final String NATIVE_CLIENT = "nativeClient";
+    static final String NATIVE_DB_ACCESS_CONFIG = "nativeDbAccessConfig";
     private static final ExecutorService EXECUTOR_SERVICE = Executors
             .newCachedThreadPool(new RedshiftDataThreadFactory());
 
@@ -68,8 +70,8 @@ public class NativeClientAdaptor {
                     .region(connectionConfig.region())
                     .credentialsProvider(credentialsProvider)
                     .build();
-            bClient.addNativeData(Constants.NATIVE_CLIENT, nativeClient);
-            bClient.addNativeData(Constants.NATIVE_DB_ACCESS_CONFIG, connectionConfig.dbAccessConfig());
+            bClient.addNativeData(NATIVE_CLIENT, nativeClient);
+            bClient.addNativeData(NATIVE_DB_ACCESS_CONFIG, connectionConfig.dbAccessConfig());
         } catch (Exception e) {
             String errorMsg = String.format("Error occurred while initializing the Redshift client: %s",
                     e.getMessage());
@@ -104,8 +106,8 @@ public class NativeClientAdaptor {
     @SuppressWarnings("unchecked")
     public static Object executeStatement(Environment env, BObject bClient, BObject bSqlStatement,
                                           BMap<BString, Object> bExecutionConfig) {
-        RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
-        Object initLevelDbAccessConfig = bClient.getNativeData(Constants.NATIVE_DB_ACCESS_CONFIG);
+        RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(NATIVE_CLIENT);
+        Object initLevelDbAccessConfig = bClient.getNativeData(NATIVE_DB_ACCESS_CONFIG);
         Future future = env.markAsync();
         EXECUTOR_SERVICE.execute(() -> {
             try {
@@ -128,8 +130,8 @@ public class NativeClientAdaptor {
     @SuppressWarnings("unchecked")
     public static Object batchExecuteStatement(Environment env, BObject bClient, BArray bSqlStatements,
                                                BMap<BString, Object> bExecutionConfig) {
-        RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
-        Object initLevelDbAccessConfig = bClient.getNativeData(Constants.NATIVE_DB_ACCESS_CONFIG);
+        RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(NATIVE_CLIENT);
+        Object initLevelDbAccessConfig = bClient.getNativeData(NATIVE_DB_ACCESS_CONFIG);
         Future future = env.markAsync();
         EXECUTOR_SERVICE.execute(() -> {
             try {
@@ -153,7 +155,7 @@ public class NativeClientAdaptor {
 
     @SuppressWarnings("unchecked")
     public static Object describeStatement(Environment env, BObject bClient, BString bStatementId) {
-        RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
+        RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(NATIVE_CLIENT);
         String statementId = bStatementId.getValue();
         Future future = env.markAsync();
         EXECUTOR_SERVICE.execute(() -> {
@@ -174,7 +176,7 @@ public class NativeClientAdaptor {
 
     public static Object getStatementResult(Environment env, BObject bClient, BString bStatementId,
                                             BTypedesc recordType) {
-        RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
+        RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(NATIVE_CLIENT);
         String statementId = bStatementId.getValue();
         Future future = env.markAsync();
         EXECUTOR_SERVICE.execute(() -> {
@@ -195,7 +197,7 @@ public class NativeClientAdaptor {
     }
 
     public static Object close(BObject bClient) {
-        RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(Constants.NATIVE_CLIENT);
+        RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(NATIVE_CLIENT);
         try {
             nativeClient.close();
         } catch (Exception e) {

@@ -18,6 +18,7 @@
 
 package io.ballerina.lib.aws.redshiftdata;
 
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
@@ -31,17 +32,22 @@ import io.ballerina.runtime.api.values.BString;
  * @param sessionKeepAliveSeconds The number of seconds to keep the session alive after the query finishes.
  */
 public record Cluster(String id, String database, String dbUser, String secretArn, Integer sessionKeepAliveSeconds) {
+    static final BString CLUSTER_ID = StringUtils.fromString("id");
+    static final BString CLUSTER_DATABASE = StringUtils.fromString("database");
+    static final BString CLUSTER_DB_USER = StringUtils.fromString("dbUser");
+    static final BString CLUSTER_SECRET_ARN = StringUtils.fromString("secretArn");
+    static final BString CLUSTER_SESSION_KEEP_ALIVE_SECONDS = StringUtils.fromString("sessionKeepAliveSeconds");
 
     public Cluster(BMap<BString, Object> bCluster) {
         this(
-                bCluster.getStringValue(Constants.CLUSTER_ID).getValue(),
-                bCluster.getStringValue(Constants.CLUSTER_DATABASE).getValue(),
-                bCluster.containsKey(Constants.CLUSTER_DB_USER) ?
-                        bCluster.getStringValue(Constants.CLUSTER_DB_USER).getValue() : null,
-                bCluster.containsKey(Constants.CLUSTER_SECRET_ARN) ?
-                        bCluster.getStringValue(Constants.CLUSTER_SECRET_ARN).getValue() : null,
-                bCluster.containsKey(Constants.CLUSTER_SESSION_KEEP_ALIVE_SECONDS) ?
-                        bCluster.getIntValue(Constants.CLUSTER_SESSION_KEEP_ALIVE_SECONDS).intValue() : null
+                bCluster.getStringValue(CLUSTER_ID).getValue(),
+                bCluster.getStringValue(CLUSTER_DATABASE).getValue(),
+                bCluster.containsKey(CLUSTER_DB_USER) ?
+                        bCluster.getStringValue(CLUSTER_DB_USER).getValue() : null,
+                bCluster.containsKey(CLUSTER_SECRET_ARN) ?
+                        bCluster.getStringValue(CLUSTER_SECRET_ARN).getValue() : null,
+                bCluster.containsKey(CLUSTER_SESSION_KEEP_ALIVE_SECONDS) ?
+                        bCluster.getIntValue(CLUSTER_SESSION_KEEP_ALIVE_SECONDS).intValue() : null
         );
     }
 }

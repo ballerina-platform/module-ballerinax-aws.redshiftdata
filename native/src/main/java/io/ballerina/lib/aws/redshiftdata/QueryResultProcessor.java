@@ -40,10 +40,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor.NATIVE_CLIENT;
+
 /**
  * Represents the utility functions for processing query results.
  */
 public class QueryResultProcessor {
+    static final String RESULT_ITERATOR_OBJECT = "ResultIterator";
+    static final String RESULT_ITERATOR_RESULT_RESPONSE = "ResultResponse";
+    static final String RESULT_ITERATOR_RECORD_TYPE = "RecordType";
+    static final String RESULT_ITERATOR_CURRENT_RESULT_INDEX = "Index";
+    static final String RESULT_ITERATOR_COLUMN_INDEX_MAP = "IndexMap"; // field name -> result column index
+    static final String RESULT_ITERATOR_NATIVE_CLIENT = "nativeClient";
+    static final String RESULT_ITERATOR_STATEMENT_ID = "statementId";
+
     private QueryResultProcessor() {
     }
 
@@ -85,15 +95,14 @@ public class QueryResultProcessor {
                 }
             }
 
-            BObject resultIterator = ValueCreator.createObjectValue(ModuleUtils.getModule(),
-                    Constants.RESULT_ITERATOR_OBJECT);
-            resultIterator.addNativeData(Constants.RESULT_ITERATOR_RESULT_RESPONSE, nativeResultResponse);
-            resultIterator.addNativeData(Constants.RESULT_ITERATOR_CURRENT_RESULT_INDEX, 0L);
-            resultIterator.addNativeData(Constants.RESULT_ITERATOR_COLUMN_INDEX_MAP, columnIndexMap);
-            resultIterator.addNativeData(Constants.RESULT_ITERATOR_RECORD_TYPE, streamConstraint);
+            BObject resultIterator = ValueCreator.createObjectValue(ModuleUtils.getModule(), RESULT_ITERATOR_OBJECT);
+            resultIterator.addNativeData(RESULT_ITERATOR_RESULT_RESPONSE, nativeResultResponse);
+            resultIterator.addNativeData(RESULT_ITERATOR_CURRENT_RESULT_INDEX, 0L);
+            resultIterator.addNativeData(RESULT_ITERATOR_COLUMN_INDEX_MAP, columnIndexMap);
+            resultIterator.addNativeData(RESULT_ITERATOR_RECORD_TYPE, streamConstraint);
             // Add additional data for fetching the next result set
-            resultIterator.addNativeData(Constants.RESULT_ITERATOR_STATEMENT_ID, statementId);
-            resultIterator.addNativeData(Constants.NATIVE_CLIENT, nativeClient);
+            resultIterator.addNativeData(RESULT_ITERATOR_STATEMENT_ID, statementId);
+            resultIterator.addNativeData(NATIVE_CLIENT, nativeClient);
 
             return ValueCreator.createStreamValue(TypeCreator.createStreamType(streamConstraint,
                     PredefinedTypes.TYPE_NULL), resultIterator);
@@ -105,29 +114,28 @@ public class QueryResultProcessor {
 
     @SuppressWarnings("unchecked")
     public static Object nextResult(BObject bResultIterator) {
-        RecordType recordType = (RecordType) bResultIterator.getNativeData(Constants.RESULT_ITERATOR_RECORD_TYPE);
-        long index = (long) bResultIterator.getNativeData(Constants.RESULT_ITERATOR_CURRENT_RESULT_INDEX);
+        RecordType recordType = (RecordType) bResultIterator.getNativeData(RESULT_ITERATOR_RECORD_TYPE);
+        long index = (long) bResultIterator.getNativeData(RESULT_ITERATOR_CURRENT_RESULT_INDEX);
         Map<String, Integer> columnIndexMap = (Map<String, Integer>) bResultIterator
-                .getNativeData(Constants.RESULT_ITERATOR_COLUMN_INDEX_MAP);
+                .getNativeData(RESULT_ITERATOR_COLUMN_INDEX_MAP);
         GetStatementResultResponse resultResponse = (GetStatementResultResponse) bResultIterator
-                .getNativeData(Constants.RESULT_ITERATOR_RESULT_RESPONSE);
+                .getNativeData(RESULT_ITERATOR_RESULT_RESPONSE);
 
         List<List<Field>> rows = resultResponse.records();
         try {
             // Fetch the next record when the current result set is processed
             if (index >= rows.size() && Objects.nonNull(resultResponse.nextToken())) {
                 RedshiftDataClient nativeClient = (RedshiftDataClient) bResultIterator
-                        .getNativeData(Constants.RESULT_ITERATOR_NATIVE_CLIENT);
-                String statementId = (String) bResultIterator
-                        .getNativeData(Constants.RESULT_ITERATOR_STATEMENT_ID);
+                        .getNativeData(RESULT_ITERATOR_NATIVE_CLIENT);
+                String statementId = (String) bResultIterator.getNativeData(RESULT_ITERATOR_STATEMENT_ID);
 
                 resultResponse = nativeClient.getStatementResult(
                         GetStatementResultRequest.builder()
                                 .id(statementId).nextToken(resultResponse.nextToken()).build());
                 rows = resultResponse.records();
                 index = 0;
-                bResultIterator.addNativeData(Constants.RESULT_ITERATOR_CURRENT_RESULT_INDEX, index);
-                bResultIterator.addNativeData(Constants.RESULT_ITERATOR_RESULT_RESPONSE, resultResponse);
+                bResultIterator.addNativeData(RESULT_ITERATOR_CURRENT_RESULT_INDEX, index);
+                bResultIterator.addNativeData(RESULT_ITERATOR_RESULT_RESPONSE, resultResponse);
             }
 
             if (index < rows.size()) {
@@ -140,7 +148,7 @@ public class QueryResultProcessor {
                     Field field = row.get(columnIndex);
                     record.put(StringUtils.fromString(fieldName), getFieldValue(field));
                 }
-                bResultIterator.addNativeData(Constants.RESULT_ITERATOR_CURRENT_RESULT_INDEX, index + 1);
+                bResultIterator.addNativeData(RESULT_ITERATOR_CURRENT_RESULT_INDEX, index + 1);
                 return record;
             }
             closeResult(bResultIterator);
@@ -171,12 +179,12 @@ public class QueryResultProcessor {
 
     public static void closeResult(BObject recordIterator) {
         try {
-            recordIterator.addNativeData(Constants.RESULT_ITERATOR_RESULT_RESPONSE, null);
-            recordIterator.addNativeData(Constants.RESULT_ITERATOR_RECORD_TYPE, null);
-            recordIterator.addNativeData(Constants.RESULT_ITERATOR_CURRENT_RESULT_INDEX, null);
-            recordIterator.addNativeData(Constants.RESULT_ITERATOR_COLUMN_INDEX_MAP, null);
-            recordIterator.addNativeData(Constants.RESULT_ITERATOR_NATIVE_CLIENT, null);
-            recordIterator.addNativeData(Constants.RESULT_ITERATOR_STATEMENT_ID, null);
+            recordIterator.addNativeData(RESULT_ITERATOR_RESULT_RESPONSE, null);
+            recordIterator.addNativeData(RESULT_ITERATOR_RECORD_TYPE, null);
+            recordIterator.addNativeData(RESULT_ITERATOR_CURRENT_RESULT_INDEX, null);
+            recordIterator.addNativeData(RESULT_ITERATOR_COLUMN_INDEX_MAP, null);
+            recordIterator.addNativeData(RESULT_ITERATOR_NATIVE_CLIENT, null);
+            recordIterator.addNativeData(RESULT_ITERATOR_STATEMENT_ID, null);
         } catch (Exception e) {
             throw new RuntimeException("Error occurred while closing the Query result: " + e.getMessage());
         }

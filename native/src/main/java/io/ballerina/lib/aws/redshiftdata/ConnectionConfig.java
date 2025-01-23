@@ -18,9 +18,13 @@
 
 package io.ballerina.lib.aws.redshiftdata;
 
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import software.amazon.awssdk.regions.Region;
+
+import static io.ballerina.lib.aws.redshiftdata.Cluster.CLUSTER_ID;
+import static io.ballerina.lib.aws.redshiftdata.StaticAuthConfig.AWS_ACCESS_KEY_ID;
 
 /**
  * {@code ConnectionConfig} represents the connection configuration required for
@@ -32,6 +36,9 @@ import software.amazon.awssdk.regions.Region;
  * @param dbAccessConfig The database access configurations for the Redshift Data API.
  */
 public record ConnectionConfig(Region region, Object authConfig, Object dbAccessConfig) {
+    static final BString CONNECTION_CONFIG_REGION = StringUtils.fromString("region");
+    static final BString CONNECTION_CONFIG_AUTH_CONFIG = StringUtils.fromString("authConfig");
+    static final BString CONNECTION_CONFIG_DB_ACCESS_CONFIG = StringUtils.fromString("dbAccessConfig");
 
     public ConnectionConfig(BMap<BString, Object> bConnectionConfig) {
         this(
@@ -42,15 +49,14 @@ public record ConnectionConfig(Region region, Object authConfig, Object dbAccess
     }
 
     private static Region getRegion(BMap<BString, Object> bConnectionConfig) {
-        String regionStr = bConnectionConfig.getStringValue(Constants.CONNECTION_CONFIG_REGION).getValue();
-        return Region.of(regionStr);
+        return Region.of(bConnectionConfig.getStringValue(CONNECTION_CONFIG_REGION).getValue());
     }
 
     @SuppressWarnings("unchecked")
     private static Object getAuthConfig(BMap<BString, Object> bConnectionConfig) {
         BMap<BString, Object> bAuthConfig = (BMap<BString, Object>) bConnectionConfig
-                .getMapValue(Constants.CONNECTION_CONFIG_AUTH_CONFIG);
-        if (bAuthConfig.containsKey(Constants.AWS_ACCESS_KEY_ID)) {
+                .getMapValue(CONNECTION_CONFIG_AUTH_CONFIG);
+        if (bAuthConfig.containsKey(AWS_ACCESS_KEY_ID)) {
             return new StaticAuthConfig(bAuthConfig);
         }
         return new InstanceProfileCredentials(bAuthConfig);
@@ -58,10 +64,10 @@ public record ConnectionConfig(Region region, Object authConfig, Object dbAccess
 
     @SuppressWarnings("unchecked")
     private static Object getDbAccessConfig(BMap<BString, Object> bConnectionConfig) {
-        if (bConnectionConfig.containsKey(Constants.CONNECTION_CONFIG_DB_ACCESS_CONFIG)) {
+        if (bConnectionConfig.containsKey(CONNECTION_CONFIG_DB_ACCESS_CONFIG)) {
             BMap<BString, Object> bDbAccessConfig = (BMap<BString, Object>) bConnectionConfig
-                    .get(Constants.CONNECTION_CONFIG_DB_ACCESS_CONFIG);
-            if (bDbAccessConfig.containsKey(Constants.CLUSTER_ID)) {
+                    .get(CONNECTION_CONFIG_DB_ACCESS_CONFIG);
+            if (bDbAccessConfig.containsKey(CLUSTER_ID)) {
                 return new Cluster(bDbAccessConfig);
             }
             return new WorkGroup(bDbAccessConfig);

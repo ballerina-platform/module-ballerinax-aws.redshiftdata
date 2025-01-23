@@ -18,8 +18,10 @@
 
 package io.ballerina.lib.aws.redshiftdata;
 
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import software.amazon.awssdk.services.redshiftdata.model.SqlParameter;
 
 import java.util.ArrayList;
@@ -62,6 +64,8 @@ import java.util.Objects;
  * </p>
  */
 public class ParameterizedQuery {
+    static final BString QUERY_STRINGS = StringUtils.fromString("strings");
+    static final BString QUERY_INSERTIONS = StringUtils.fromString("insertions");
     private final String[] strings;
     private final String[] insertions;
 
@@ -71,8 +75,8 @@ public class ParameterizedQuery {
      * @param bSqlStatement the Ballerina object containing query strings and insertions
      */
     public ParameterizedQuery(BObject bSqlStatement) {
-        String[] strings = bSqlStatement.getArrayValue(Constants.QUERY_STRINGS).getStringArray();
-        BArray bInsertions = bSqlStatement.getArrayValue(Constants.QUERY_INSERTIONS);
+        String[] strings = bSqlStatement.getArrayValue(QUERY_STRINGS).getStringArray();
+        BArray bInsertions = bSqlStatement.getArrayValue(QUERY_INSERTIONS);
         List<String> insertions = new ArrayList<>();
         for (int i = 0; i < bInsertions.size(); i++) {
             Object value = bInsertions.get(i);

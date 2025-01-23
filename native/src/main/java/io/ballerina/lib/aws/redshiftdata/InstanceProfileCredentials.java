@@ -18,6 +18,7 @@
 
 package io.ballerina.lib.aws.redshiftdata;
 
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
@@ -30,13 +31,15 @@ import io.ballerina.runtime.api.values.BString;
  * @param profileFile The path to the profile file containing the credentials.
  */
 public record InstanceProfileCredentials(String profileName, String profileFile) {
+    static final BString EC2_INSTANCE_PROFILE_NAME = StringUtils.fromString("profileName");
+    static final BString EC2_INSTANCE_PROFILE_FILE = StringUtils.fromString("profileFile");
 
     public InstanceProfileCredentials(BMap<BString, Object> bAuthConfig) {
         this(
-                bAuthConfig.containsKey(Constants.EC2_INSTANCE_PROFILE_NAME) ?
-                        bAuthConfig.getStringValue(Constants.EC2_INSTANCE_PROFILE_NAME).getValue() : null,
-                bAuthConfig.containsKey(Constants.EC2_INSTANCE_PROFILE_FILE) ?
-                        bAuthConfig.getStringValue(Constants.EC2_INSTANCE_PROFILE_FILE).getValue() : null
+                bAuthConfig.containsKey(EC2_INSTANCE_PROFILE_NAME) ?
+                        bAuthConfig.getStringValue(EC2_INSTANCE_PROFILE_NAME).getValue() : null,
+                bAuthConfig.containsKey(EC2_INSTANCE_PROFILE_FILE) ?
+                        bAuthConfig.getStringValue(EC2_INSTANCE_PROFILE_FILE).getValue() : null
         );
     }
 }
