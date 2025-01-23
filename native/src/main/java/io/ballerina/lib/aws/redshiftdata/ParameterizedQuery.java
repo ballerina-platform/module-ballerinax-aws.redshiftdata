@@ -64,8 +64,8 @@ import java.util.Objects;
  * </p>
  */
 public class ParameterizedQuery {
-    static final BString QUERY_STRINGS = StringUtils.fromString("strings");
-    static final BString QUERY_INSERTIONS = StringUtils.fromString("insertions");
+    private static final BString QUERY_STRINGS = StringUtils.fromString("strings");
+    private static final BString QUERY_INSERTIONS = StringUtils.fromString("insertions");
     private final String[] strings;
     private final String[] insertions;
 

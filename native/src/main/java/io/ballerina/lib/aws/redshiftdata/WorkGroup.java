@@ -32,9 +32,11 @@ import io.ballerina.runtime.api.values.BString;
  */
 public record WorkGroup(String name, String database, String secretArn, Integer sessionKeepAliveSeconds) {
     static final BString WORK_GROUP_NAME = StringUtils.fromString("name");
-    static final BString WORK_GROUP_DATABASE = StringUtils.fromString("database");
-    static final BString WORK_GROUP_SECRET_ARN = StringUtils.fromString("secretArn");
-    static final BString WORK_GROUP_SESSION_KEEP_ALIVE_SECONDS = StringUtils.fromString("sessionKeepAliveSeconds");
+    private static final BString WORK_GROUP_DATABASE = StringUtils.fromString("database");
+    private static final BString WORK_GROUP_SECRET_ARN = StringUtils.fromString("secretArn");
+    private static final BString WORK_GROUP_SESSION_KEEP_ALIVE_SECONDS =
+            StringUtils.fromString("sessionKeepAliveSeconds");
+
     public WorkGroup(BMap<BString, Object> bWorkGroup) {
         this(
                 bWorkGroup.getStringValue(WORK_GROUP_NAME).getValue(),

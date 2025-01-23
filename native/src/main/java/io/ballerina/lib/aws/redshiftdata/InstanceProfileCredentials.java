@@ -31,8 +31,8 @@ import io.ballerina.runtime.api.values.BString;
  * @param profileFile The path to the profile file containing the credentials.
  */
 public record InstanceProfileCredentials(String profileName, String profileFile) {
-    static final BString EC2_INSTANCE_PROFILE_NAME = StringUtils.fromString("profileName");
-    static final BString EC2_INSTANCE_PROFILE_FILE = StringUtils.fromString("profileFile");
+    private static final BString EC2_INSTANCE_PROFILE_NAME = StringUtils.fromString("profileName");
+    private static final BString EC2_INSTANCE_PROFILE_FILE = StringUtils.fromString("profileFile");
 
     public InstanceProfileCredentials(BMap<BString, Object> bAuthConfig) {
         this(

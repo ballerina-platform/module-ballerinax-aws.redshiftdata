@@ -55,7 +55,7 @@ import java.util.concurrent.Executors;
  */
 public class NativeClientAdaptor {
     static final String NATIVE_CLIENT = "nativeClient";
-    static final String NATIVE_DB_ACCESS_CONFIG = "nativeDbAccessConfig";
+    private static final String NATIVE_DB_ACCESS_CONFIG = "nativeDbAccessConfig";
     private static final ExecutorService EXECUTOR_SERVICE = Executors
             .newCachedThreadPool(new RedshiftDataThreadFactory());
 

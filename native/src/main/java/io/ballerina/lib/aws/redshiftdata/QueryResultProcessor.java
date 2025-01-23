@@ -46,13 +46,13 @@ import static io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor.NATIVE_CLIEN
  * Represents the utility functions for processing query results.
  */
 public class QueryResultProcessor {
-    static final String RESULT_ITERATOR_OBJECT = "ResultIterator";
-    static final String RESULT_ITERATOR_RESULT_RESPONSE = "ResultResponse";
-    static final String RESULT_ITERATOR_RECORD_TYPE = "RecordType";
-    static final String RESULT_ITERATOR_CURRENT_RESULT_INDEX = "Index";
-    static final String RESULT_ITERATOR_COLUMN_INDEX_MAP = "IndexMap"; // field name -> result column index
-    static final String RESULT_ITERATOR_NATIVE_CLIENT = "nativeClient";
-    static final String RESULT_ITERATOR_STATEMENT_ID = "statementId";
+    private static final String RESULT_ITERATOR_OBJECT = "ResultIterator";
+    private static final String RESULT_ITERATOR_RESULT_RESPONSE = "ResultResponse";
+    private static final String RESULT_ITERATOR_RECORD_TYPE = "RecordType";
+    private static final String RESULT_ITERATOR_CURRENT_RESULT_INDEX = "Index";
+    private static final String RESULT_ITERATOR_COLUMN_INDEX_MAP = "IndexMap"; // field name -> result column index
+    private static final String RESULT_ITERATOR_NATIVE_CLIENT = "nativeClient";
+    private static final String RESULT_ITERATOR_STATEMENT_ID = "statementId";
 
     private QueryResultProcessor() {
     }

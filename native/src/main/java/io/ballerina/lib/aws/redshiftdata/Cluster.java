@@ -33,10 +33,10 @@ import io.ballerina.runtime.api.values.BString;
  */
 public record Cluster(String id, String database, String dbUser, String secretArn, Integer sessionKeepAliveSeconds) {
     static final BString CLUSTER_ID = StringUtils.fromString("id");
-    static final BString CLUSTER_DATABASE = StringUtils.fromString("database");
-    static final BString CLUSTER_DB_USER = StringUtils.fromString("dbUser");
-    static final BString CLUSTER_SECRET_ARN = StringUtils.fromString("secretArn");
-    static final BString CLUSTER_SESSION_KEEP_ALIVE_SECONDS = StringUtils.fromString("sessionKeepAliveSeconds");
+    private static final BString CLUSTER_DATABASE = StringUtils.fromString("database");
+    private static final BString CLUSTER_DB_USER = StringUtils.fromString("dbUser");
+    private static final BString CLUSTER_SECRET_ARN = StringUtils.fromString("secretArn");
+    private static final BString CLUSTER_SESSION_KEEP_ALIVE_SECONDS = StringUtils.fromString("sessionKeepAliveSeconds");
 
     public Cluster(BMap<BString, Object> bCluster) {
         this(

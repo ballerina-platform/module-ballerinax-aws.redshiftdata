@@ -52,44 +52,44 @@ import static io.ballerina.lib.aws.redshiftdata.WorkGroup.WORK_GROUP_NAME;
  */
 public final class CommonUtils {
     // Constants related to `Error`
-    static final String ERROR = "Error";
-    static final String ERROR_DETAILS = "ErrorDetails";
-    static final BString ERROR_DETAILS_HTTP_STATUS_CODE = StringUtils.fromString("httpStatusCode");
-    static final BString ERROR_DETAILS_HTTP_STATUS_TEXT = StringUtils.fromString("httpStatusText");
-    static final BString ERROR_DETAILS_ERROR_CODE = StringUtils.fromString("errorCode");
-    static final BString ERROR_DETAILS_ERROR_MESSAGE = StringUtils.fromString("errorMessage");
+    private static final String ERROR = "Error";
+    private static final String ERROR_DETAILS = "ErrorDetails";
+    private static final BString ERROR_DETAILS_HTTP_STATUS_CODE = StringUtils.fromString("httpStatusCode");
+    private static final BString ERROR_DETAILS_HTTP_STATUS_TEXT = StringUtils.fromString("httpStatusText");
+    private static final BString ERROR_DETAILS_ERROR_CODE = StringUtils.fromString("errorCode");
+    private static final BString ERROR_DETAILS_ERROR_MESSAGE = StringUtils.fromString("errorMessage");
 
     // Constants related to `DescriptionResponse`
-    static final String DESCRIPTION_RES_RECORD = "DescriptionResponse";
-    static final BString DESCRIPTION_RES_SUB_STATEMENTS = StringUtils.fromString("subStatements");
-    static final BString DESCRIPTION_RES_REDSHIFT_PID = StringUtils.fromString("redshiftPid");
-    static final BString DESCRIPTION_RES_SESSION_ID = StringUtils.fromString("sessionId");
+    private static final String DESCRIPTION_RES_RECORD = "DescriptionResponse";
+    private static final BString DESCRIPTION_RES_SUB_STATEMENTS = StringUtils.fromString("subStatements");
+    private static final BString DESCRIPTION_RES_REDSHIFT_PID = StringUtils.fromString("redshiftPid");
+    private static final BString DESCRIPTION_RES_SESSION_ID = StringUtils.fromString("sessionId");
 
     // Constants related to `StatementData`
-    static final String STATEMENT_DATA_RECORD = "StatementData";
-    static final BString STATEMENT_DATA_STATEMENT_ID = StringUtils.fromString("statementId");
-    static final BString STATEMENT_DATA_CREATED_AT = StringUtils.fromString("createdAt");
-    static final BString STATEMENT_DATA_DURATION = StringUtils.fromString("duration");
-    static final BString STATEMENT_DATA_ERROR = StringUtils.fromString("error");
-    static final BString STATEMENT_DATA_HAS_RESULT_SET = StringUtils.fromString("hasResultSet");
-    static final BString STATEMENT_DATA_QUERY_STRING = StringUtils.fromString("queryString");
-    static final BString STATEMENT_DATA_REDSHIFT_QUERY_ID = StringUtils.fromString("redshiftQueryId");
-    static final BString STATEMENT_DATA_RESULT_ROWS = StringUtils.fromString("resultRows");
-    static final BString STATEMENT_DATA_RESULT_SIZE = StringUtils.fromString("resultSize");
-    static final BString STATEMENT_DATA_STATUS = StringUtils.fromString("status");
-    static final BString STATEMENT_DATA_UPDATED_AT = StringUtils.fromString("updatedAt");
+    private static final String STATEMENT_DATA_RECORD = "StatementData";
+    private static final BString STATEMENT_DATA_STATEMENT_ID = StringUtils.fromString("statementId");
+    private static final BString STATEMENT_DATA_CREATED_AT = StringUtils.fromString("createdAt");
+    private static final BString STATEMENT_DATA_DURATION = StringUtils.fromString("duration");
+    private static final BString STATEMENT_DATA_ERROR = StringUtils.fromString("error");
+    private static final BString STATEMENT_DATA_HAS_RESULT_SET = StringUtils.fromString("hasResultSet");
+    private static final BString STATEMENT_DATA_QUERY_STRING = StringUtils.fromString("queryString");
+    private static final BString STATEMENT_DATA_REDSHIFT_QUERY_ID = StringUtils.fromString("redshiftQueryId");
+    private static final BString STATEMENT_DATA_RESULT_ROWS = StringUtils.fromString("resultRows");
+    private static final BString STATEMENT_DATA_RESULT_SIZE = StringUtils.fromString("resultSize");
+    private static final BString STATEMENT_DATA_STATUS = StringUtils.fromString("status");
+    private static final BString STATEMENT_DATA_UPDATED_AT = StringUtils.fromString("updatedAt");
 
     // Constants related to `ExecutionConfig`
-    static final BString EXECUTE_STATEMENT_CONFIG_CLIENT_TOKEN = StringUtils.fromString("clientToken");
-    static final BString EXECUTE_STATEMENT_CONFIG_STATEMENT_NAME = StringUtils.fromString("statementName");
-    static final BString EXECUTE_STATEMENT_CONFIG_WITH_EVENT = StringUtils.fromString("withEvent");
+    private static final BString EXECUTE_STATEMENT_CONFIG_CLIENT_TOKEN = StringUtils.fromString("clientToken");
+    private static final BString EXECUTE_STATEMENT_CONFIG_STATEMENT_NAME = StringUtils.fromString("statementName");
+    private static final BString EXECUTE_STATEMENT_CONFIG_WITH_EVENT = StringUtils.fromString("withEvent");
 
     // Constants related to `ExecutionResponse`
-    static final String EXECUTE_STATEMENT_RES_RECORD = "ExecutionResponse";
-    static final BString EXECUTE_STATEMENT_RES_CREATE_AT = StringUtils.fromString("createdAt");
-    static final BString EXECUTE_STATEMENT_RES_DB_GROUPS = StringUtils.fromString("dbGroups");
-    static final BString EXECUTE_STATEMENT_RES_STATEMENT_ID = StringUtils.fromString("statementId");
-    static final BString EXECUTE_STATEMENT_RES_SESSION_ID = StringUtils.fromString("sessionId");
+    private static final String EXECUTE_STATEMENT_RES_RECORD = "ExecutionResponse";
+    private static final BString EXECUTE_STATEMENT_RES_CREATE_AT = StringUtils.fromString("createdAt");
+    private static final BString EXECUTE_STATEMENT_RES_DB_GROUPS = StringUtils.fromString("dbGroups");
+    private static final BString EXECUTE_STATEMENT_RES_STATEMENT_ID = StringUtils.fromString("statementId");
+    private static final BString EXECUTE_STATEMENT_RES_SESSION_ID = StringUtils.fromString("sessionId");
 
     private CommonUtils() {
     }

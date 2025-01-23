@@ -37,8 +37,8 @@ import io.ballerina.runtime.api.values.BString;
  */
 public record StaticAuthConfig(String accessKeyId, String secretAccessKey, String sessionToken) {
     static final BString AWS_ACCESS_KEY_ID = StringUtils.fromString("accessKeyId");
-    static final BString AWS_SECRET_ACCESS_KEY = StringUtils.fromString("secretAccessKey");
-    static final BString AWS_SESSION_TOKEN = StringUtils.fromString("sessionToken");
+    private static final BString AWS_SECRET_ACCESS_KEY = StringUtils.fromString("secretAccessKey");
+    private static final BString AWS_SESSION_TOKEN = StringUtils.fromString("sessionToken");
 
     public StaticAuthConfig(BMap<BString, Object> bAuthConfig) {
         this(
