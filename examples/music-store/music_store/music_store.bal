@@ -20,10 +20,7 @@ import ballerinax/aws.redshiftdata;
 
 configurable string accessKeyId = ?;
 configurable string secretAccessKey = ?;
-
-configurable string databaseName = ?;
-configurable string clusterId = ?;
-configurable string dbUser = ?;
+configurable redshiftdata:Cluster dbAccessConfig = ?;
 
 type Album record {|
     string id;
@@ -42,17 +39,12 @@ service / on new http:Listener(8080) {
                 accessKeyId: accessKeyId,
                 secretAccessKey: secretAccessKey
             },
-            dbAccessConfig: {
-                id: clusterId,
-                database: databaseName,
-                dbUser: dbUser
-            }
+            dbAccessConfig: dbAccessConfig
         });
     }
 
     resource function get albums() returns Album[]|error {
-        redshiftdata:ExecuteStatementResponse res =
-            check self.db->executeStatement(`SELECT * FROM Albums`);
+        redshiftdata:ExecutionResponse res = check self.db->executeStatement(`SELECT * FROM Albums`);
         _ = check waitForDescribeStatementCompletion(self.db, res.statementId);
         stream<Album, redshiftdata:Error?> albumStream = check self.db->getStatementResult(res.statementId);
         return from Album album in albumStream
@@ -60,8 +52,7 @@ service / on new http:Listener(8080) {
     }
 
     resource function get albums/[string id]() returns Album|http:NotFound|error {
-        redshiftdata:ExecuteStatementResponse res =
-            check self.db->executeStatement(`SELECT * FROM Albums WHERE id = ${id}`);
+        redshiftdata:ExecutionResponse res = check self.db->executeStatement(`SELECT * FROM Albums WHERE id = ${id}`);
         _ = check waitForDescribeStatementCompletion(self.db, res.statementId);
         stream<Album, redshiftdata:Error?> albumStream = check self.db->getStatementResult(res.statementId);
         Album[] albums = check from Album album in albumStream
@@ -74,11 +65,10 @@ service / on new http:Listener(8080) {
     }
 
     resource function post album(@http:Payload Album album) returns Album|error {
-        redshiftdata:ExecuteStatementResponse res =
-            check self.db->executeStatement(`
+        redshiftdata:ExecutionResponse res = check self.db->executeStatement(`
             INSERT INTO Albums (id, title, artist, price)
             VALUES (${album.id}, ${album.title}, ${album.artist}, ${album.price});`);
-        redshiftdata:DescribeStatementResponse insertQueryDescribeStatement =
+        redshiftdata:DescriptionResponse insertQueryDescribeStatement =
             check waitForDescribeStatementCompletion(self.db, res.statementId);
 
         if (insertQueryDescribeStatement.status == "FINISHED") {
@@ -89,10 +79,10 @@ service / on new http:Listener(8080) {
 }
 
 isolated function waitForDescribeStatementCompletion(redshiftdata:Client redshift, string statementId)
-returns redshiftdata:DescribeStatementResponse|redshiftdata:Error {
+returns redshiftdata:DescriptionResponse|redshiftdata:Error {
     int i = 0;
     while (i < 10) {
-        redshiftdata:DescribeStatementResponse|redshiftdata:Error describeStatementResponse =
+        redshiftdata:DescriptionResponse|redshiftdata:Error describeStatementResponse =
             redshift->describeStatement(statementId);
         if (describeStatementResponse is redshiftdata:Error) {
             return describeStatementResponse;

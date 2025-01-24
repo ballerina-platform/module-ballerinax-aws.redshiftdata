@@ -110,21 +110,15 @@ The `dbAccessConfig` in the `ConnectionConfig` record defines the database acces
 ```ballerina
 configurable string accessKeyId = ?;
 configurable string secretAccessKey = ?;
-configurable string clusterId = ?;
-configurable string databaseName = ?;
-configurable string dbUser = ?;
+configurable redshiftdata:Cluster dbAccessConfig = ?;
 
 redshiftdata:Client redshift = check new (region = "us-east-2",
-  authConfig = {
-      accessKeyId: accessKeyId,
-      secretAccessKey: secretAccessKey
-  },
-  dbAccessConfig = {
-      id: clusterId,
-      database: databaseName,
-      dbUser: dbUser
-  }
-);
+        authConfig = {
+            accessKeyId: accessKeyId,
+            secretAccessKey: secretAccessKey
+        },
+        dbAccessConfig = dbAccessConfig
+    );
 ```
 
 ### Step 3: Invoke the connector operations
@@ -132,7 +126,7 @@ redshiftdata:Client redshift = check new (region = "us-east-2",
 Now, utilize the available connector operations.
 
 ```ballerina
-redshiftdata:ExecuteStatementResponse response = check redshift->executeStatement(`SELECT * FROM Users`);
+redshiftdata:ExecutionResponse response = check redshift->executeStatement(`SELECT * FROM Users`);
 ```
 
 ### Step 4: Run the Ballerina application

@@ -13,9 +13,11 @@ Configure the AWS Redshift API credentials and database information in `Config.t
 ```toml
 accessKeyId="<Your AWS Access Key ID>"
 secretAccessKey="<Your AWS Secret Access Key>"
-databaseName="<Your Redshift Database Name>"
-clusterId="<Your Redshift Cluster ID>"
-dbUser="<Your Redshift Database User>"
+
+[dbAccessConfig]
+id = "<Your Redshift Cluster ID>"
+database = "<Your Redshift Database Name>"
+dbUser = "<Your Redshift Database User>"
 ```
 
 ## Run the Example

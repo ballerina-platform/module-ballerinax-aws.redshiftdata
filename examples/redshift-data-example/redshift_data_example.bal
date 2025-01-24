@@ -21,10 +21,7 @@ import ballerinax/aws.redshiftdata;
 
 configurable string accessKeyId = ?;
 configurable string secretAccessKey = ?;
-
-configurable string databaseName = ?;
-configurable string clusterId = ?;
-configurable string dbUser = ?;
+configurable redshiftdata:Cluster dbAccessConfig = ?;
 
 type User record {|
     int user_id;
@@ -41,11 +38,7 @@ public function main() returns error? {
             accessKeyId: accessKeyId,
             secretAccessKey: secretAccessKey
         },
-        dbAccessConfig: {
-            id: clusterId,
-            database: databaseName,
-            dbUser: dbUser
-        }
+        dbAccessConfig: dbAccessConfig
     });
 
     // Create a table
@@ -55,21 +48,21 @@ public function main() returns error? {
         email VARCHAR(255),
         age INT
     );`;
-    redshiftdata:ExecuteStatementResponse createTableExecutionResponse = check redshift->executeStatement(createTableQuery);
+    redshiftdata:ExecutionResponse createTableExecutionResponse = check redshift->executeStatement(createTableQuery);
     _ = check waitForDescribeStatementCompletion(redshift, createTableExecutionResponse.statementId);
 
     // Insert data into the table
     sql:ParameterizedQuery insertQuery = `INSERT INTO Users (user_id, username, email, age) VALUES
         (1, 'Alice', 'alice@gmail.com', 25),
         (2, 'Bob', 'bob@gmail.com', 30);`;
-    redshiftdata:ExecuteStatementResponse insertExecutionResponse = check redshift->executeStatement(insertQuery);
-    redshiftdata:DescribeStatementResponse insertQueryDescribeStatement =
+    redshiftdata:ExecutionResponse insertExecutionResponse = check redshift->executeStatement(insertQuery);
+    redshiftdata:DescriptionResponse insertDescriptionResponse =
         check waitForDescribeStatementCompletion(redshift, insertExecutionResponse.statementId);
-    io:println("Describe statement response for insert query: ", insertQueryDescribeStatement);
+    io:println("Describe statement response for insert query: ", insertDescriptionResponse);
 
     // Select data from the table
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
-    redshiftdata:ExecuteStatementResponse res = check redshift->executeStatement(query);
+    redshiftdata:ExecutionResponse res = check redshift->executeStatement(query);
     _ = check waitForDescribeStatementCompletion(redshift, res.statementId);
     stream<User, redshiftdata:Error?> resultStream = check redshift->getStatementResult(res.statementId);
     io:println("User details: ");
@@ -80,15 +73,15 @@ public function main() returns error? {
 
     // Drop the table
     sql:ParameterizedQuery dropTableQuery = `DROP TABLE Users;`;
-    redshiftdata:ExecuteStatementResponse dropTableExecutionResponse = check redshift->executeStatement(dropTableQuery);
+    redshiftdata:ExecutionResponse dropTableExecutionResponse = check redshift->executeStatement(dropTableQuery);
     _ = check waitForDescribeStatementCompletion(redshift, dropTableExecutionResponse.statementId);
 }
 
 isolated function waitForDescribeStatementCompletion(redshiftdata:Client redshift, string statementId)
-returns redshiftdata:DescribeStatementResponse|redshiftdata:Error {
+returns redshiftdata:DescriptionResponse|redshiftdata:Error {
     int i = 0;
     while (i < 10) {
-        redshiftdata:DescribeStatementResponse|redshiftdata:Error describeStatementResponse =
+        redshiftdata:DescriptionResponse|redshiftdata:Error describeStatementResponse =
             redshift->describeStatement(statementId);
         if (describeStatementResponse is redshiftdata:Error) {
             return describeStatementResponse;

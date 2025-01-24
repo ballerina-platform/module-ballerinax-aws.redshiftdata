@@ -21,10 +21,7 @@ import ballerinax/aws.redshiftdata;
 
 configurable string accessKeyId = ?;
 configurable string secretAccessKey = ?;
-
-configurable string databaseName = ?;
-configurable string clusterId = ?;
-configurable string dbUser = ?;
+configurable redshiftdata:Cluster dbAccessConfig = ?;
 
 public function main() returns error? {
     io:println("Setting up the Music Store database...");
@@ -35,11 +32,7 @@ public function main() returns error? {
             accessKeyId: accessKeyId,
             secretAccessKey: secretAccessKey
         },
-        dbAccessConfig: {
-            id: clusterId,
-            database: databaseName,
-            dbUser: dbUser
-        }
+        dbAccessConfig: dbAccessConfig
     });
 
     // Creates `albums` table
@@ -49,7 +42,7 @@ public function main() returns error? {
         artist VARCHAR(100),
         price REAL
     );`;
-    redshiftdata:ExecuteStatementResponse createTableExecutionResponse = check redshift->executeStatement(createTableQuery);
+    redshiftdata:ExecutionResponse createTableExecutionResponse = check redshift->executeStatement(createTableQuery);
     _ = check waitForDescribeStatementCompletion(redshift, createTableExecutionResponse.statementId);
 
     // Adds the records to the `albums` table
@@ -57,17 +50,17 @@ public function main() returns error? {
         `INSERT INTO Albums VALUES('A-123', 'Lemonade', 'Beyonce', 18.98);`,
         `INSERT INTO Albums VALUES('A-321', 'Renaissance', 'Beyonce', 24.98);`
     ];
-    redshiftdata:ExecuteStatementResponse insertExecutionResponse =
+    redshiftdata:ExecutionResponse insertExecutionResponse =
         check redshift->batchExecuteStatement(insertQueries);
     _ = check waitForDescribeStatementCompletion(redshift, insertExecutionResponse.statementId);
     io:println("Music Store database setup completed successfully.");
 }
 
 isolated function waitForDescribeStatementCompletion(redshiftdata:Client redshift, string statementId)
-returns redshiftdata:DescribeStatementResponse|redshiftdata:Error {
+returns redshiftdata:DescriptionResponse|redshiftdata:Error {
     int i = 0;
     while (i < 10) {
-        redshiftdata:DescribeStatementResponse|redshiftdata:Error describeStatementResponse =
+        redshiftdata:DescriptionResponse|redshiftdata:Error describeStatementResponse =
             redshift->describeStatement(statementId);
         if (describeStatementResponse is redshiftdata:Error) {
             return describeStatementResponse;
