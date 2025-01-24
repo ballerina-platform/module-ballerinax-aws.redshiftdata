@@ -15,9 +15,9 @@ accessKeyId="<Your AWS Access Key ID>"
 secretAccessKey="<Your AWS Secret Access Key>"
 
 [dbAccessConfig]
-id = "<Your Redshift Cluster ID>"
-database = "<Your Redshift Database Name>"
-dbUser = "<Your Redshift Database User>"
+id="<Your Redshift Cluster ID>"
+database="<Your Redshift Database Name>"
+dbUser="<Your Redshift Database User>"
 ```
 
 ## Run the Example
