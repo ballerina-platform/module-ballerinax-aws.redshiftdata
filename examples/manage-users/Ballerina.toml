@@ -1,6 +1,6 @@
 [package]
 org = "wso2"
-name = "redshift_data_example"
+name = "manage_users"
 version = "0.1.0"
 distribution = "2201.10.2"
 

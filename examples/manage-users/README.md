@@ -1,4 +1,4 @@
-# Redshift Data Example
+# Manage Users with AWS Redshift Data Connector
 
 This example demonstrates how to use the Ballerina Redshift Data connector to perform SQL operations on an AWS Redshift cluster. It includes creating a table, inserting data, querying data, and dropping the table.
 
@@ -6,7 +6,7 @@ This example demonstrates how to use the Ballerina Redshift Data connector to pe
 
 ### 1. Set up
 
-Ensure that you have the necessary AWS credentials and a Redshift cluster. Refer to the set up guide in [ReadMe](../../ballerina/Module.md) for additional details.
+Ensure that you have the necessary AWS credentials and a Redshift cluster. Refer to the set up guide in [ReadMe](https://github.com/ballerina-platform/module-ballerinax-aws.redshiftdata/tree/main/README.md) for additional details.
 
 ### 2. Configuration
 
