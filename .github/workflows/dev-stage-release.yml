@@ -10,9 +10,7 @@ on:
         options:
           - DEV CENTRAL
           - STAGE CENTRAL
-env:
-  CENTRAL_VERBOSE_ENABLED: true
-  
+
 jobs:
   call_workflow:
     name: Run Dev\Stage Central Publish Workflow
