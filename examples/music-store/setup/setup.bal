@@ -59,10 +59,10 @@ public function main() returns error? {
 isolated function waitForCompletion(redshiftdata:Client redshiftdata, string statementId)
 returns redshiftdata:DescriptionResponse|redshiftdata:Error {
     int i = 0;
-    while (i < 10) {
+    while i < 10 {
         redshiftdata:DescriptionResponse|redshiftdata:Error describeStatementResponse =
             redshiftdata->describeStatement(statementId);
-        if (describeStatementResponse is redshiftdata:Error) {
+        if describeStatementResponse is redshiftdata:Error {
             return describeStatementResponse;
         }
         match describeStatementResponse.status {

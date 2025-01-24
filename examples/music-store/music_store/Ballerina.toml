@@ -1,14 +1,8 @@
 [package]
-org = "sample"
+org = "wso2"
 name = "music_store"
 version = "0.1.0"
 distribution = "2201.10.2"
 
 [build-options]
 observabilityIncluded = true
-
-[[dependency]]
-org="ballerinax"
-name="aws.redshiftdata"
-version="0.1.0"
-repository="local"

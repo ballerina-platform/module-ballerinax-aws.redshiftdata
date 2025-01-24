@@ -57,7 +57,7 @@ service / on new http:Listener(8080) {
         stream<Album, redshiftdata:Error?> albumStream = check self.redshiftdata->getStatementResult(res.statementId);
         Album[] albums = check from Album album in albumStream
             select album;
-        if (albums.length() == 0) {
+        if albums.length() == 0 {
             return http:NOT_FOUND;
         } else {
             return albums[0];
@@ -71,7 +71,7 @@ service / on new http:Listener(8080) {
         redshiftdata:DescriptionResponse insertQueryDescribeStatement =
             check waitForCompletion(self.redshiftdata, res.statementId);
 
-        if (insertQueryDescribeStatement.status == "FINISHED") {
+        if insertQueryDescribeStatement.status == "FINISHED" {
             return album;
         }
         return error("Failed to insert the album");
@@ -81,10 +81,10 @@ service / on new http:Listener(8080) {
 isolated function waitForCompletion(redshiftdata:Client redshift, string statementId)
 returns redshiftdata:DescriptionResponse|redshiftdata:Error {
     int i = 0;
-    while (i < 10) {
+    while i < 10 {
         redshiftdata:DescriptionResponse|redshiftdata:Error describeStatementResponse =
             redshift->describeStatement(statementId);
-        if (describeStatementResponse is redshiftdata:Error) {
+        if describeStatementResponse is redshiftdata:Error {
             return describeStatementResponse;
         }
         match describeStatementResponse.status {
