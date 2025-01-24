@@ -110,7 +110,7 @@ configurable string accessKeyId = ?;
 configurable string secretAccessKey = ?;
 configurable redshiftdata:Cluster dbAccessConfig = ?;
 
-redshiftdata:Client redshift = check new (region = "us-east-2",
+redshiftdata:Client redshiftdata = check new (region = redshiftdata:US_EAST_2,
         authConfig = {
             accessKeyId,
             secretAccessKey
@@ -124,7 +124,7 @@ redshiftdata:Client redshift = check new (region = "us-east-2",
 Now, utilize the available connector operations.
 
 ```ballerina
-redshiftdata:ExecutionResponse response = check redshift->executeStatement(`SELECT * FROM Users`);
+redshiftdata:ExecutionResponse response = check redshiftdata->executeStatement(`SELECT * FROM Users`);
 ```
 
 ### Step 4: Run the Ballerina application

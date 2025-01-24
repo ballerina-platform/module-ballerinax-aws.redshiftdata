@@ -24,7 +24,7 @@ public isolated client class Client {
 
     # Initialize AWS Redshift Data API client.
     # ```ballerina
-    # redshiftdata:Client redshift = check new (region = "us-east-2",
+    # redshiftdata:Client redshiftdata = check new (region = redshiftdata:US_EAST_2,
     #    authConfig = {
     #        accessKeyId: "<aws-access-key>",
     #        secretAccessKey: "<aws-secret-key>"
@@ -59,7 +59,7 @@ public isolated client class Client {
 
     # Runs an SQL statement, which can be data manipulation language (DML) or data definition language (DDL).
     # ```ballerina
-    # redshiftdata:ExecutionResponse response = check redshift->executeStatement(`SELECT * FROM Users`);
+    # redshiftdata:ExecutionResponse response = check redshiftdata->executeStatement(`SELECT * FROM Users`);
     # ```
     #
     # + statement - The SQL statement to be executed
@@ -84,7 +84,7 @@ public isolated client class Client {
     # Runs one or more SQL statements, which can be data manipulation language (DML) or data definition language (DDL).
     #  The batch size should not exceed 40.
     # ```ballerina
-    # redshiftdata:ExecutionResponse response = check redshift->batchExecuteStatement([`<statement>`,
+    # redshiftdata:ExecutionResponse response = check redshiftdata->batchExecuteStatement([`<statement>`,
     #    `<statement>`]);
     # ```
     #
@@ -116,7 +116,7 @@ public isolated client class Client {
 
     # Retrieves the results of a previously executed SQL statement.
     # ```ballerina
-    # stream<User, Error?> response = check redshift->getStatementResult("<statement-id>");
+    # stream<User, Error?> response = check redshiftdata->getStatementResult("<statement-id>");
     # ```
     #
     # + statementId - The identifier of the SQL statement
@@ -129,7 +129,7 @@ public isolated client class Client {
 
     # Describes the details about a specific instance when a query was run by the Amazon Redshift Data API.
     # ```ballerina
-    # redshiftdata:DescriptionResponse response = check redshift->describeStatement("<statement-id>");
+    # redshiftdata:DescriptionResponse response = check redshiftdata->describeStatement("<statement-id>");
     # ```
     #
     # + statementId - The identifier of the SQL statement
@@ -151,7 +151,7 @@ public isolated client class Client {
 
     # Closes the AWS Redshift Data API client.
     # ```ballerina
-    # check redshift->close();
+    # check redshiftdata->close();
     # ```
     #
     # + return - A `redshiftdata:Error` if there is an error while closing the client resources or else nil

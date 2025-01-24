@@ -34,7 +34,7 @@ service / on new http:Listener(8080) {
 
     function init() returns error? {
         self.redshiftdata = check new ({
-            region: "us-east-2",
+            region: redshiftdata:US_EAST_2,
             authConfig: {
                 accessKeyId,
                 secretAccessKey
@@ -78,12 +78,12 @@ service / on new http:Listener(8080) {
     }
 }
 
-isolated function waitForCompletion(redshiftdata:Client redshift, string statementId)
+isolated function waitForCompletion(redshiftdata:Client redshiftdata, string statementId)
 returns redshiftdata:DescriptionResponse|redshiftdata:Error {
     int i = 0;
     while i < 10 {
         redshiftdata:DescriptionResponse|redshiftdata:Error describeStatementResponse =
-            redshift->describeStatement(statementId);
+            redshiftdata->describeStatement(statementId);
         if describeStatementResponse is redshiftdata:Error {
             return describeStatementResponse;
         }

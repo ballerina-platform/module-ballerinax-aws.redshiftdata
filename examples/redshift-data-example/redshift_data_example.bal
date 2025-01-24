@@ -33,7 +33,7 @@ type User record {|
 public function main() returns error? {
     // Create a Redshift client
     redshiftdata:Client redshiftdata = check new ({
-        region: "us-east-2",
+        region: redshiftdata:US_EAST_2,
         authConfig: {
             accessKeyId,
             secretAccessKey

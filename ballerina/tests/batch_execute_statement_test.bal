@@ -22,14 +22,14 @@ import ballerina/test;
     groups: ["batchExecute"]
 }
 isolated function testBasicBatchExecuteStatement() returns error? {
-    Client redshift = check new Client(testConnectionConfig);
+    Client redshiftdata = check new Client(testConnectionConfig);
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM Users`];
-    ExecutionResponse res = check redshift->batchExecuteStatement(queries);
+    ExecutionResponse res = check redshiftdata->batchExecuteStatement(queries);
 
     test:assertTrue(res.statementId != "");
     test:assertTrue(res.createdAt[0] > 0);
     test:assertTrue(res.sessionId is ()); // Since we are not using sessionKeepAliveSeconds
-    check redshift->close();
+    check redshiftdata->close();
 }
 
 @test:Config {
@@ -46,16 +46,16 @@ isolated function testBatchExecuteSessionId() returns error? {
             sessionKeepAliveSeconds: 3600
         }
     };
-    Client redshift = check new Client(connectionConfig);
+    Client redshiftdata = check new Client(connectionConfig);
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM Users`];
-    ExecutionResponse res1 = check redshift->batchExecuteStatement(queries);
+    ExecutionResponse res1 = check redshiftdata->batchExecuteStatement(queries);
 
     test:assertTrue(res1.statementId != "");
     test:assertTrue(res1.sessionId is string && res1.sessionId != "");
 
     runtime:sleep(2); // wait for session to establish
-    ExecutionResponse res2 = check redshift->batchExecuteStatement(queries,
+    ExecutionResponse res2 = check redshiftdata->batchExecuteStatement(queries,
         {dbAccessConfig: res1.sessionId});
     test:assertTrue(res2.sessionId == res1.sessionId);
-    check redshift->close();
+    check redshiftdata->close();
 }

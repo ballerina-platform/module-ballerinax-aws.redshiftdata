@@ -20,9 +20,9 @@ import ballerina/test;
     groups: ["init"]
 }
 isolated function testInit() returns error? {
-    Client|Error redshift = new Client(testConnectionConfig);
-    test:assertTrue(redshift is Client);
-    Client redshiftClient = check redshift.ensureType();
+    Client|Error redshiftdata = new (testConnectionConfig);
+    test:assertTrue(redshiftdata is Client);
+    Client redshiftClient = check redshiftdata.ensureType();
     check redshiftClient->close();
 }
 
@@ -35,8 +35,8 @@ isolated function testNilDbAccessConfig() returns error? {
         authConfig: testAuthConfig,
         dbAccessConfig: ()
     };
-    Client|Error redshift = new Client(connectionConfig);
-    test:assertTrue(redshift is Client);
-    Client redshiftClient = check redshift.ensureType();
+    Client|Error redshiftdata = new (connectionConfig);
+    test:assertTrue(redshiftdata is Client);
+    Client redshiftClient = check redshiftdata.ensureType();
     check redshiftClient->close();
 }
