@@ -133,8 +133,9 @@ isolated function testDescribeStatementWithInvalidStatementId() returns error? {
     StatementId invalidStatementId = "InvalidStatementId";
     DescriptionResponse|Error res = redshift->describeStatement(invalidStatementId);
     test:assertTrue(res is Error);
-    Error err = <Error>res;
-    test:assertEquals(err.message(), "Invalid statement ID format.");
+    if res is Error {
+        test:assertEquals(res.message(), "Invalid statement ID format.");
+    }
     check redshift->close();
 }
 

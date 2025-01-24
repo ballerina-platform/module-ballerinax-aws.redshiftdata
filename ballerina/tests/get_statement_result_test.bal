@@ -132,11 +132,12 @@ isolated function testNoQueryResult() returns error? {
     _ = check waitForDescribeStatementCompletion(redshift, res.statementId);
     stream<User, Error?>|Error queryResult = redshift->getStatementResult(res.statementId);
     test:assertTrue(queryResult is Error);
-    Error err = <Error>queryResult;
-    ErrorDetails errorDetails = err.detail();
-    test:assertEquals(errorDetails.httpStatusCode, 400);
-    test:assertEquals(errorDetails.errorMessage, "Query does not have result. Please check query status with " +
+    if queryResult is Error {
+        ErrorDetails errorDetails = queryResult.detail();
+        test:assertEquals(errorDetails.httpStatusCode, 400);
+        test:assertEquals(errorDetails.errorMessage, "Query does not have result. Please check query status with " +
                 "DescribeStatement.");
+    }
     check redshift->close();
 }
 
@@ -164,11 +165,12 @@ isolated function testInvalidStatementId() returns error? {
     StatementId invalidStatementId = "InvalidStatementId";
     stream<User, Error?>|Error queryResult = redshift->getStatementResult(invalidStatementId);
     test:assertTrue(queryResult is Error);
-    Error err = <Error>queryResult;
-    ErrorDetails errorDetails = err.detail();
-    test:assertEquals(errorDetails.httpStatusCode, 400);
-    string errorMessage = errorDetails.errorMessage ?: "";
-    test:assertTrue(errorMessage.startsWith("id must satisfy regex pattern:"));
+    if queryResult is Error {
+        ErrorDetails errorDetails = queryResult.detail();
+        test:assertEquals(errorDetails.httpStatusCode, 400);
+        string errorMessage = errorDetails.errorMessage ?: "";
+        test:assertTrue(errorMessage.startsWith("id must satisfy regex pattern:"));
+    }
     check redshift->close();
 }
 
@@ -179,10 +181,11 @@ isolated function testIncorrectStatementId() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     stream<User, Error?>|Error queryResult = redshift->getStatementResult("70662acc-f334-46f8-b953-3a9546796d7k");
     test:assertTrue(queryResult is Error);
-    Error err = <Error>queryResult;
-    ErrorDetails errorDetails = err.detail();
-    test:assertEquals(errorDetails.httpStatusCode, 400);
-    test:assertEquals(errorDetails.errorMessage, "Query does not exist.");
+    if queryResult is Error {
+        ErrorDetails errorDetails = queryResult.detail();
+        test:assertEquals(errorDetails.httpStatusCode, 400);
+        test:assertEquals(errorDetails.errorMessage, "Query does not exist.");
+    }
     check redshift->close();
 }
 
@@ -196,9 +199,10 @@ isolated function testMissingFieldInUserType() returns error? {
     _ = check waitForDescribeStatementCompletion(redshift, res.statementId);
     stream<UserWithoutEmailField, Error?>|Error resultStream = redshift->getStatementResult(res.statementId);
     test:assertTrue(resultStream is Error);
-    Error err = <Error>resultStream;
-    test:assertEquals(err.message(), "Error occurred while executing the getQueryResult: " +
+    if resultStream is Error {
+        test:assertEquals(resultStream.message(), "Error occurred while executing the getQueryResult: " +
                 "Error occurred while creating the Record Stream: Field 'email' not found in the record type.");
+    }
     check redshift->close();
 }
 

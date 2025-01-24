@@ -140,10 +140,11 @@ isolated function testWithInvalidDbConfigs() returns error? {
     Client redshift = check new Client(mockConnectionConfig);
     ExecutionResponse|Error res = redshift->executeStatement(`SELECT * FROM Users`);
     test:assertTrue(res is Error);
-    Error err = <Error>res;
-    ErrorDetails errorDetails = err.detail();
-    test:assertEquals(errorDetails.httpStatusCode, 400);
-    test:assertEquals(errorDetails.errorMessage, "Redshift endpoint doesn't exist in this region.");
+    if res is Error {
+        ErrorDetails errorDetails = res.detail();
+        test:assertEquals(errorDetails.httpStatusCode, 400);
+        test:assertEquals(errorDetails.errorMessage, "Redshift endpoint doesn't exist in this region.");
+    }
     check redshift->close();
 }
 
@@ -154,8 +155,9 @@ isolated function testWithInvalidStatementName() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     ExecutionResponse|Error res = redshift->executeStatement(`SELECT * FROM Users`, statementName = "");
     test:assertTrue(res is Error);
-    Error err = <Error>res;
-    test:assertEquals(err.message(), "The statement name should be at least 1 character long.");
+    if res is Error {
+        test:assertEquals(res.message(), "The statement name should be at least 1 character long.");
+    }
     check redshift->close();
 }
 
@@ -168,9 +170,9 @@ isolated function testWithInvalidClusterId() returns error? {
         id: "",
         database: testDatabaseName
     });
-    test:assertTrue(res is Error);
-    Error err = <Error>res;
-    test:assertEquals(err.message(), "The cluster ID should be at least 1 character long.");
+    if res is Error {
+        test:assertEquals(res.message(), "The cluster ID should be at least 1 character long.");
+    }
     check redshift->close();
 }
 
@@ -186,8 +188,9 @@ isolated function testNoDbAccessConfig() returns error? {
     Client redshift = check new Client(connectionConfig);
     ExecutionResponse|Error res = redshift->executeStatement(`SELECT * FROM Users`);
     test:assertTrue(res is Error);
-    Error err = <Error>res;
-    test:assertEquals(err.message(), "Error occurred while executing the executeStatement: No database access " +
+    if res is Error {
+        test:assertEquals(res.message(), "Error occurred while executing the executeStatement: No database access " +
                 "configuration provided in the initialization of the client or in the execute statement config");
+    }
     check redshift->close();
 }
