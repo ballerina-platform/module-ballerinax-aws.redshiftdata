@@ -43,7 +43,7 @@ public function main() returns error? {
         price REAL
     );`;
     redshiftdata:ExecutionResponse createTableExecutionResponse = check redshift->executeStatement(createTableQuery);
-    _ = check waitForDescribeStatementCompletion(redshift, createTableExecutionResponse.statementId);
+    _ = check waitForCompletion(redshift, createTableExecutionResponse.statementId);
 
     // Adds the records to the `albums` table
     sql:ParameterizedQuery[] insertQueries = [
@@ -52,11 +52,11 @@ public function main() returns error? {
     ];
     redshiftdata:ExecutionResponse insertExecutionResponse =
         check redshift->batchExecuteStatement(insertQueries);
-    _ = check waitForDescribeStatementCompletion(redshift, insertExecutionResponse.statementId);
+    _ = check waitForCompletion(redshift, insertExecutionResponse.statementId);
     io:println("Music Store database setup completed successfully.");
 }
 
-isolated function waitForDescribeStatementCompletion(redshiftdata:Client redshift, string statementId)
+isolated function waitForCompletion(redshiftdata:Client redshift, string statementId)
 returns redshiftdata:DescriptionResponse|redshiftdata:Error {
     int i = 0;
     while (i < 10) {

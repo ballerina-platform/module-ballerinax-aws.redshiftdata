@@ -26,8 +26,7 @@ isolated function testBasicDescribeStatement() returns error? {
 
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
     ExecutionResponse executionResponse = check redshift->executeStatement(query);
-    DescriptionResponse descriptionResponse =
-        check waitForDescribeStatementCompletion(redshift, executionResponse.statementId);
+    DescriptionResponse descriptionResponse = check waitForCompletion(redshift, executionResponse.statementId);
 
     test:assertTrue(descriptionResponse.statementId != "");
     test:assertTrue(descriptionResponse.createdAt[0] > 0);
@@ -49,8 +48,7 @@ isolated function testBatchDescribeStatement() returns error? {
 
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM Users;`];
     ExecutionResponse res = check redshift->batchExecuteStatement(queries);
-    DescriptionResponse descriptionResponse =
-        check waitForDescribeStatementCompletion(redshift, res.statementId);
+    DescriptionResponse descriptionResponse = check waitForCompletion(redshift, res.statementId);
 
     test:assertTrue(descriptionResponse.redshiftPid > 0);
     test:assertTrue(descriptionResponse.sessionId is ());
@@ -91,8 +89,7 @@ isolated function testBatchDescribeStatement() returns error? {
 isolated function testIncorrectStatementDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     ExecutionResponse executionResponse = check redshift->executeStatement(`SELECT * FROM non_existent_table;`);
-    DescriptionResponse descriptionResponse =
-        check waitForDescribeStatementCompletion(redshift, executionResponse.statementId);
+    DescriptionResponse descriptionResponse = check waitForCompletion(redshift, executionResponse.statementId);
 
     test:assertEquals(descriptionResponse.status, FAILED);
     test:assertTrue(descriptionResponse.'error is string);
@@ -107,8 +104,7 @@ isolated function testIncorrectBatchStatementDescribeStatement() returns error? 
     Client redshift = check new Client(testConnectionConfig);
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM non_existent_table;`];
     ExecutionResponse res = check redshift->batchExecuteStatement(queries);
-    DescriptionResponse descriptionResponse =
-        check waitForDescribeStatementCompletion(redshift, res.statementId);
+    DescriptionResponse descriptionResponse = check waitForCompletion(redshift, res.statementId);
 
     test:assertEquals(descriptionResponse.status, FAILED);
     test:assertTrue(descriptionResponse.'error is string);
@@ -140,7 +136,7 @@ isolated function testDescribeStatementWithInvalidStatementId() returns error? {
 }
 
 // Helper function
-isolated function waitForDescribeStatementCompletion(Client redshift, string statementId) returns DescriptionResponse|Error {
+isolated function waitForCompletion(Client redshift, string statementId) returns DescriptionResponse|Error {
     int i = 0;
     while i < 10 {
         DescriptionResponse|Error descriptionResponse = redshift->describeStatement(statementId);

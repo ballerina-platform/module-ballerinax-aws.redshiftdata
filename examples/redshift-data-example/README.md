@@ -44,4 +44,4 @@ bal run
 
 ## Functions
 
-- **waitForDescribeStatementCompletion**: A utility function that polls the status of a Redshift statement execution until it is finished, failed, or aborted.
+- **waitForCompletion**: A utility function that polls the status of a Redshift statement execution until it is finished, failed, or aborted.

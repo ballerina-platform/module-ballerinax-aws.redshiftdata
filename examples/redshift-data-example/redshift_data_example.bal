@@ -49,7 +49,7 @@ public function main() returns error? {
         age INT
     );`;
     redshiftdata:ExecutionResponse createTableExecutionResponse = check redshift->executeStatement(createTableQuery);
-    _ = check waitForDescribeStatementCompletion(redshift, createTableExecutionResponse.statementId);
+    _ = check waitForCompletion(redshift, createTableExecutionResponse.statementId);
 
     // Insert data into the table
     sql:ParameterizedQuery insertQuery = `INSERT INTO Users (user_id, username, email, age) VALUES
@@ -57,13 +57,13 @@ public function main() returns error? {
         (2, 'Bob', 'bob@gmail.com', 30);`;
     redshiftdata:ExecutionResponse insertExecutionResponse = check redshift->executeStatement(insertQuery);
     redshiftdata:DescriptionResponse insertDescriptionResponse =
-        check waitForDescribeStatementCompletion(redshift, insertExecutionResponse.statementId);
+        check waitForCompletion(redshift, insertExecutionResponse.statementId);
     io:println("Describe statement response for insert query: ", insertDescriptionResponse);
 
     // Select data from the table
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
     redshiftdata:ExecutionResponse res = check redshift->executeStatement(query);
-    _ = check waitForDescribeStatementCompletion(redshift, res.statementId);
+    _ = check waitForCompletion(redshift, res.statementId);
     stream<User, redshiftdata:Error?> resultStream = check redshift->getStatementResult(res.statementId);
     io:println("User details: ");
     check from User user in resultStream
@@ -74,10 +74,10 @@ public function main() returns error? {
     // Drop the table
     sql:ParameterizedQuery dropTableQuery = `DROP TABLE Users;`;
     redshiftdata:ExecutionResponse dropTableExecutionResponse = check redshift->executeStatement(dropTableQuery);
-    _ = check waitForDescribeStatementCompletion(redshift, dropTableExecutionResponse.statementId);
+    _ = check waitForCompletion(redshift, dropTableExecutionResponse.statementId);
 }
 
-isolated function waitForDescribeStatementCompletion(redshiftdata:Client redshift, string statementId)
+isolated function waitForCompletion(redshiftdata:Client redshift, string statementId)
 returns redshiftdata:DescriptionResponse|redshiftdata:Error {
     int i = 0;
     while (i < 10) {
