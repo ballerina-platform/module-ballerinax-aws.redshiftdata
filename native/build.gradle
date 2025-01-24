@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
+ * Copyright (c) 2025, WSO2 LLC. (http://www.wso2.org).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,6 +18,8 @@
 
 plugins {
     id 'java'
+    id 'checkstyle'
+    id 'com.github.spotbugs'
 }
 
 description = 'AWS Redshift Data API connector for Ballerina.'
@@ -29,14 +31,53 @@ configurations {
 }
 
 dependencies {
+    checkstyle project(":checkstyle")
+    checkstyle "com.puppycrawl.tools:checkstyle:${checkstylePluginVersion}"
+
     implementation group: 'org.ballerinalang', name: 'ballerina-runtime', version: "${ballerinaLangVersion}"
-    implementation group: 'io.ballerina.stdlib', name: 'sql-native', version: "${stdlibSqlVersion}"
-    implementation group: 'org.ballerinalang', name: 'ballerina-runtime', version: "${ballerinaLangVersion}"
+    implementation group: 'io.ballerina.stdlib', name: 'time-native', version: "${stdlibTimeVersion}"
+    implementation group: 'software.amazon.awssdk', name: 'redshiftdata', version: "${awsJavaSdkVersion}"
+
+    dist (group: 'software.amazon.awssdk', name: 'redshiftdata', version: "${awsJavaSdkVersion}") {
+        exclude group: "commons-logging", module: "commons-logging"
+        exclude group: "io.netty", module: "netty-buffer"
+        exclude group: "org.slf4j", module: "slf4j-api"
+    }
 }
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
+
+spotbugsMain {
+    ignoreFailures = true
+    effort = "max"
+    reportLevel = "low"
+    reportsDir = file("$project.buildDir/reports/spotbugs")
+    def excludeFile = file("${rootDir}/build-config/spotbugs-exclude.xml")
+    if (excludeFile.exists()) {
+        it.excludeFilter = excludeFile
+    }
+    reports {
+        text.enabled = true
+    }
+}
+
+spotbugsTest {
+    enabled = false
+}
+
+tasks.withType(Checkstyle) {
+    exclude '**/module-info.java'
+}
+
+checkstyle {
+    toolVersion "${checkstylePluginVersion}"
+    configFile file("${rootDir}/build-config/checkstyle/build/checkstyle.xml")
+    configProperties = ["suppressionFile": file("${rootDir}/build-config/checkstyle/build/suppressions.xml")]
+}
+
+checkstyleMain.dependsOn ':checkstyle:downloadCheckstyleRuleFiles'
 
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE

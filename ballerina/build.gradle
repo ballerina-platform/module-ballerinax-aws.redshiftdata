@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
+ * Copyright (c) 2025, WSO2 LLC. (http://www.wso2.org).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -51,19 +51,10 @@ ballerina {
     platform = "java17"
 }
 
-configurations {
-    externalJars
-}
-
-dependencies {
-   externalJars(group: 'io.ballerina.stdlib', name: 'sql-native', version: "${stdlibSqlVersion}")
-}
-
 task updateTomlFiles {
     doLast {
         def newConfig = ballerinaTomlFilePlaceHolder.text.replace('@project.version@', project.version.toString())
         newConfig = newConfig.replace('@toml.version@', tomlVersion)
-        newConfig = newConfig.replace('@sql.native.version@', project.stdlibSqlVersion)
         ballerinaTomlFile.text = newConfig
     }
 }
