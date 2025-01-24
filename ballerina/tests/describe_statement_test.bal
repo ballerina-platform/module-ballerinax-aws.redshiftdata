@@ -1,4 +1,4 @@
-//  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
+//  Copyright (c) 2025, WSO2 LLC. (http://www.wso2.org).
 //
 //  WSO2 LLC. licenses this file to you under the Apache License,
 //  Version 2.0 (the "License"); you may not use this file except
@@ -19,139 +19,137 @@ import ballerina/sql;
 import ballerina/test;
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
     groups: ["describeStatement"]
 }
 isolated function testBasicDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
 
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
-    ExecuteStatementResponse executeStatementResponse = check redshift->executeStatement(query);
-    DescribeStatementResponse describeStatementResponse =
-        check waitForDescribeStatementCompletion(redshift, executeStatementResponse.statementId);
+    ExecutionResponse executionResponse = check redshift->executeStatement(query);
+    DescriptionResponse descriptionResponse =
+        check waitForDescribeStatementCompletion(redshift, executionResponse.statementId);
 
-    test:assertTrue(describeStatementResponse.statementId != "", "Statement ID is empty");
-    test:assertTrue(describeStatementResponse.createdAt[0] > 0, "Invalid createdAt time");
-    test:assertTrue(describeStatementResponse.duration > 0d, "Invalid duration");
-    test:assertTrue(describeStatementResponse.redshiftPid > 0, "Invalid redshiftPid");
-    test:assertTrue(describeStatementResponse.sessionId is (), "Session ID is not nil");
-    test:assertTrue(describeStatementResponse.subStatements == (), "Invalid subStatements count");
-    test:assertEquals(describeStatementResponse.hasResultSet, true, "Invalid hasResultSet value");
-    test:assertEquals(describeStatementResponse.queryString, query.strings[0], "Invalid query string");
-    test:assertEquals(describeStatementResponse.statementId, executeStatementResponse.statementId,
-            "Statement ID mismatch");
+    test:assertTrue(descriptionResponse.statementId != "");
+    test:assertTrue(descriptionResponse.createdAt[0] > 0);
+    test:assertTrue(descriptionResponse.duration > 0d);
+    test:assertTrue(descriptionResponse.redshiftPid > 0);
+    test:assertTrue(descriptionResponse.sessionId is ());
+    test:assertTrue(descriptionResponse.subStatements is ());
+    test:assertEquals(descriptionResponse.hasResultSet, true);
+    test:assertEquals(descriptionResponse.queryString, query.strings[0]);
+    test:assertEquals(descriptionResponse.statementId, executionResponse.statementId);
+    check redshift->close();
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
     groups: ["describeStatement"]
 }
 isolated function testBatchDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
 
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM Users;`];
-    ExecuteStatementResponse res = check redshift->batchExecuteStatement(queries);
-    DescribeStatementResponse describeStatementResponse =
+    ExecutionResponse res = check redshift->batchExecuteStatement(queries);
+    DescriptionResponse descriptionResponse =
         check waitForDescribeStatementCompletion(redshift, res.statementId);
 
-    test:assertTrue(describeStatementResponse.redshiftPid > 0, "Invalid redshiftPid");
-    test:assertTrue(describeStatementResponse.sessionId is (), "Session ID is not nil");
-    test:assertTrue(describeStatementResponse.subStatements != (), "Invalid subStatements count");
-    StatementData[] subStatements = describeStatementResponse.subStatements ?: [];
-    test:assertEquals(subStatements.length(), 2, "Invalid subStatements count");
+    test:assertTrue(descriptionResponse.redshiftPid > 0);
+    test:assertTrue(descriptionResponse.sessionId is ());
+    test:assertTrue(descriptionResponse.subStatements !is ());
+    StatementData[] subStatements = descriptionResponse.subStatements ?: [];
+    test:assertEquals(subStatements.length(), 2);
 
-    test:assertTrue(describeStatementResponse.statementId != "", "Statement ID is empty");
-    test:assertTrue(describeStatementResponse.createdAt[0] > 0, "Invalid createdAt time");
-    test:assertTrue(describeStatementResponse.duration > 0d, "Invalid duration");
-    test:assertTrue(describeStatementResponse.queryString == (), "Invalid query string");
-    test:assertTrue(describeStatementResponse.'error is (), "Error is not nil");
-    test:assertTrue(describeStatementResponse.redshiftPid > 0, "Invalid redshiftPid");
-    test:assertTrue(describeStatementResponse.updatedAt[0] > 0, "Invalid updatedAt time");
-    test:assertEquals(describeStatementResponse.status, FINISHED, "Invalid status");
-    test:assertEquals(describeStatementResponse.hasResultSet, true, "Invalid hasResultSet value");
-    test:assertEquals(describeStatementResponse.redshiftQueryId, 0, "Invalid redshiftQueryId");
-    test:assertEquals(describeStatementResponse.resultRows, -1, "Invalid resultRows");
-    test:assertEquals(describeStatementResponse.resultSize, -1, "Invalid resultSize");
+    test:assertTrue(descriptionResponse.statementId != "");
+    test:assertTrue(descriptionResponse.createdAt[0] > 0);
+    test:assertTrue(descriptionResponse.duration > 0d);
+    test:assertTrue(descriptionResponse.queryString is ());
+    test:assertTrue(descriptionResponse.'error is ());
+    test:assertTrue(descriptionResponse.redshiftPid > 0);
+    test:assertTrue(descriptionResponse.updatedAt[0] > 0);
+    test:assertEquals(descriptionResponse.status, FINISHED);
+    test:assertEquals(descriptionResponse.hasResultSet, true);
+    test:assertEquals(descriptionResponse.redshiftQueryId, 0);
+    test:assertEquals(descriptionResponse.resultRows, -1);
+    test:assertEquals(descriptionResponse.resultSize, -1);
 
     StatementData subStatement1 = subStatements[0];
-    test:assertTrue(subStatement1.statementId != "", "SubStatement: Statement ID is empty");
-    test:assertTrue(subStatement1.createdAt[0] > 0, "SubStatement: Invalid createdAt time");
-    test:assertTrue(subStatement1.duration > 0d, "SubStatement: Invalid duration");
-    test:assertTrue(subStatement1.'error is (), "SubStatement: Error is not nil");
-    test:assertTrue(subStatement1.redshiftQueryId > 0, "SubStatement: Invalid redshiftQueryId");
-    test:assertTrue(subStatement1.resultRows > 0, "SubStatement: Invalid resultRows");
-    test:assertTrue(subStatement1.resultSize > 0, "SubStatement: Invalid resultSize");
-    test:assertEquals(subStatement1.hasResultSet, true, "SubStatement: Invalid hasResultSet value");
-    test:assertEquals(subStatement1.status, FINISHED, "SubStatement: Invalid status");
-    test:assertEquals(subStatement1.queryString, "SELECT * FROM Users", "SubStatement: Invalid query string");
+    test:assertTrue(subStatement1.statementId != "");
+    test:assertTrue(subStatement1.createdAt[0] > 0);
+    test:assertTrue(subStatement1.duration > 0d);
+    test:assertTrue(subStatement1.'error is ());
+    test:assertTrue(subStatement1.redshiftQueryId > 0);
+    test:assertTrue(subStatement1.resultRows > 0);
+    test:assertTrue(subStatement1.resultSize > 0);
+    test:assertEquals(subStatement1.hasResultSet, true);
+    test:assertEquals(subStatement1.status, FINISHED);
+    test:assertEquals(subStatement1.queryString, "SELECT * FROM Users");
+    check redshift->close();
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
     groups: ["describeStatement"]
 }
 isolated function testIncorrectStatementDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
-    ExecuteStatementResponse executeStatementResponse = check redshift->executeStatement(`SELECT * FROM non_existent_table;`);
-    DescribeStatementResponse describeStatementResponse =
-        check waitForDescribeStatementCompletion(redshift, executeStatementResponse.statementId);
+    ExecutionResponse executionResponse = check redshift->executeStatement(`SELECT * FROM non_existent_table;`);
+    DescriptionResponse descriptionResponse =
+        check waitForDescribeStatementCompletion(redshift, executionResponse.statementId);
 
-    test:assertEquals(describeStatementResponse.status, FAILED, "Invalid status");
-    test:assertTrue(describeStatementResponse.'error is string, "Error message is nil");
-    test:assertTrue(describeStatementResponse.'error != "", "Error message is empty");
+    test:assertEquals(descriptionResponse.status, FAILED);
+    test:assertTrue(descriptionResponse.'error is string);
+    test:assertTrue(descriptionResponse.'error != "");
+    check redshift->close();
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
     groups: ["describeStatement"]
 }
 isolated function testIncorrectBatchStatementDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM non_existent_table;`];
-    ExecuteStatementResponse res = check redshift->batchExecuteStatement(queries);
-    DescribeStatementResponse describeStatementResponse =
+    ExecutionResponse res = check redshift->batchExecuteStatement(queries);
+    DescriptionResponse descriptionResponse =
         check waitForDescribeStatementCompletion(redshift, res.statementId);
 
-    test:assertEquals(describeStatementResponse.status, FAILED, "Invalid status");
-    test:assertTrue(describeStatementResponse.'error is string, "Error message is nil");
-    test:assertTrue(describeStatementResponse.'error != "", "Error message is empty");
+    test:assertEquals(descriptionResponse.status, FAILED);
+    test:assertTrue(descriptionResponse.'error is string);
+    test:assertTrue(descriptionResponse.'error != "");
 
-    StatementData[] subStatements = describeStatementResponse.subStatements ?: [];
-    test:assertEquals(subStatements.length(), 2, "Invalid subStatements count");
-    test:assertEquals(subStatements[0].status, FINISHED, "SubStatement 1: Invalid status");
-    test:assertTrue(subStatements[0].'error is (), "SubStatement 1: Error is not nil");
+    StatementData[] subStatements = descriptionResponse.subStatements ?: [];
+    test:assertEquals(subStatements.length(), 2);
+    test:assertEquals(subStatements[0].status, FINISHED);
+    test:assertTrue(subStatements[0].'error is ());
 
-    test:assertEquals(subStatements[1].status, FAILED, "SubStatement 2: Invalid status");
-    test:assertTrue(subStatements[1].'error is string, "SubStatement 2: Error message is nil");
-    test:assertTrue(subStatements[1].'error != "", "SubStatement 2: Error message is empty");
+    test:assertEquals(subStatements[1].status, FAILED);
+    test:assertTrue(subStatements[1].'error is string);
+    test:assertTrue(subStatements[1].'error != "");
+    check redshift->close();
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
     groups: ["describeStatement"]
 }
 isolated function testDescribeStatementWithInvalidStatementId() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     StatementId invalidStatementId = "InvalidStatementId";
-    DescribeStatementResponse|Error res = redshift->describeStatement(invalidStatementId);
-    test:assertTrue(res is Error, "Query result is not an error");
-    if (res is Error) {
-        test:assertEquals(res.message(), "Statement ID validation failed: Validation failed for " +
-                "'$:pattern' constraint(s).", "Invalid Error Message");
+    DescriptionResponse|Error res = redshift->describeStatement(invalidStatementId);
+    test:assertTrue(res is Error);
+    if res is Error {
+        test:assertEquals(res.message(), "Invalid statement ID format.");
     }
+    check redshift->close();
 }
 
 // Helper function
-isolated function waitForDescribeStatementCompletion(Client redshift, string statementId) returns DescribeStatementResponse|Error {
+isolated function waitForDescribeStatementCompletion(Client redshift, string statementId) returns DescriptionResponse|Error {
     int i = 0;
-    while (i < 10) {
-        DescribeStatementResponse|Error describeStatementResponse = redshift->describeStatement(statementId);
-        if (describeStatementResponse is Error) {
-            return describeStatementResponse;
+    while i < 10 {
+        DescriptionResponse|Error descriptionResponse = redshift->describeStatement(statementId);
+        if descriptionResponse is Error {
+            return descriptionResponse;
         }
-        match describeStatementResponse.status {
+        match descriptionResponse.status {
             "FINISHED"|"FAILED"|"ABORTED" => {
-                return describeStatementResponse;
+                return descriptionResponse;
             }
         }
         i = i + 1;

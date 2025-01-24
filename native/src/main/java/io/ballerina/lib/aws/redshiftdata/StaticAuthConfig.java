@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
+ * Copyright (c) 2025, WSO2 LLC. (http://www.wso2.org).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,12 +18,13 @@
 
 package io.ballerina.lib.aws.redshiftdata;
 
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
 /**
- * {@code ConnectionConfig} represents the authentication configuration required
- * for the ballerina Redshift Data Client.
+ * {@code StaticAuthConfig} represents static authentication configurations
+ * for the ballerina Redshift Data API Client.
  *
  * @param accessKeyId     The AWS access key, used to identify the user
  *                        interacting with AWS.
@@ -34,24 +35,17 @@ import io.ballerina.runtime.api.values.BString;
  *                        * this user has received temporary permission to
  *                        access some resource.
  */
-public record AuthConfig(String accessKeyId, String secretAccessKey, String sessionToken) {
+public record StaticAuthConfig(String accessKeyId, String secretAccessKey, String sessionToken) {
+    static final BString AWS_ACCESS_KEY_ID = StringUtils.fromString("accessKeyId");
+    private static final BString AWS_SECRET_ACCESS_KEY = StringUtils.fromString("secretAccessKey");
+    private static final BString AWS_SESSION_TOKEN = StringUtils.fromString("sessionToken");
 
-    public AuthConfig(BMap<BString, Object> bAuthConfig) {
-        this(getAccessKeyId(bAuthConfig), getSecretAccessKey(bAuthConfig), getSessionToken(bAuthConfig));
-    }
-
-    private static String getAccessKeyId(BMap<BString, Object> bAuthConfig) {
-        return bAuthConfig.getStringValue(Constants.AWS_ACCESS_KEY_ID).getValue();
-    }
-
-    private static String getSecretAccessKey(BMap<BString, Object> bAuthConfig) {
-        return bAuthConfig.getStringValue(Constants.AWS_SECRET_ACCESS_KEY).getValue();
-    }
-
-    private static String getSessionToken(BMap<BString, Object> bAuthConfig) {
-        if (bAuthConfig.containsKey(Constants.AWS_SESSION_TOKEN)) {
-            return bAuthConfig.getStringValue(Constants.AWS_SESSION_TOKEN).getValue();
-        }
-        return null;
+    public StaticAuthConfig(BMap<BString, Object> bAuthConfig) {
+        this(
+                bAuthConfig.getStringValue(AWS_ACCESS_KEY_ID).getValue(),
+                bAuthConfig.getStringValue(AWS_SECRET_ACCESS_KEY).getValue(),
+                bAuthConfig.containsKey(AWS_SESSION_TOKEN) ?
+                        bAuthConfig.getStringValue(AWS_SESSION_TOKEN).getValue() : null
+        );
     }
 }

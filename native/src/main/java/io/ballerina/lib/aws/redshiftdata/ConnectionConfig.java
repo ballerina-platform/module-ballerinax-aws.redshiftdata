@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
+ * Copyright (c) 2025, WSO2 LLC. (http://www.wso2.org).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,20 +18,27 @@
 
 package io.ballerina.lib.aws.redshiftdata;
 
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import software.amazon.awssdk.regions.Region;
 
+import static io.ballerina.lib.aws.redshiftdata.Cluster.CLUSTER_ID;
+import static io.ballerina.lib.aws.redshiftdata.StaticAuthConfig.AWS_ACCESS_KEY_ID;
+
 /**
  * {@code ConnectionConfig} represents the connection configuration required for
- * ballerina Redshift Data Client.
+ * ballerina Redshift Data API Client.
  *
  * @param region         The AWS region where the Redshift cluster is located.
  * @param authConfig     The authentication configuration required for the
- *                       Redshift Data Client.
+ *                       Redshift Data API Client.
  * @param dbAccessConfig The database access configurations for the Redshift Data API.
  */
-public record ConnectionConfig(Region region, AuthConfig authConfig, Object dbAccessConfig) {
+public record ConnectionConfig(Region region, Object authConfig, Object dbAccessConfig) {
+    static final BString CONNECTION_CONFIG_DB_ACCESS_CONFIG = StringUtils.fromString("dbAccessConfig");
+    private static final BString CONNECTION_CONFIG_REGION = StringUtils.fromString("region");
+    private static final BString CONNECTION_CONFIG_AUTH_CONFIG = StringUtils.fromString("authConfig");
 
     public ConnectionConfig(BMap<BString, Object> bConnectionConfig) {
         this(
@@ -42,23 +49,25 @@ public record ConnectionConfig(Region region, AuthConfig authConfig, Object dbAc
     }
 
     private static Region getRegion(BMap<BString, Object> bConnectionConfig) {
-        String regionStr = bConnectionConfig.getStringValue(Constants.CONNECTION_CONFIG_REGION).getValue();
-        return Region.of(regionStr);
+        return Region.of(bConnectionConfig.getStringValue(CONNECTION_CONFIG_REGION).getValue());
     }
 
     @SuppressWarnings("unchecked")
-    private static AuthConfig getAuthConfig(BMap<BString, Object> bConnectionConfig) {
+    private static Object getAuthConfig(BMap<BString, Object> bConnectionConfig) {
         BMap<BString, Object> bAuthConfig = (BMap<BString, Object>) bConnectionConfig
-                .getMapValue(Constants.CONNECTION_CONFIG_AUTH_CONFIG);
-        return new AuthConfig(bAuthConfig);
+                .getMapValue(CONNECTION_CONFIG_AUTH_CONFIG);
+        if (bAuthConfig.containsKey(AWS_ACCESS_KEY_ID)) {
+            return new StaticAuthConfig(bAuthConfig);
+        }
+        return new InstanceProfileCredentials(bAuthConfig);
     }
 
     @SuppressWarnings("unchecked")
     private static Object getDbAccessConfig(BMap<BString, Object> bConnectionConfig) {
-        if (bConnectionConfig.containsKey(Constants.CONNECTION_CONFIG_DB_ACCESS_CONFIG)) {
+        if (bConnectionConfig.containsKey(CONNECTION_CONFIG_DB_ACCESS_CONFIG)) {
             BMap<BString, Object> bDbAccessConfig = (BMap<BString, Object>) bConnectionConfig
-                    .get(Constants.CONNECTION_CONFIG_DB_ACCESS_CONFIG);
-            if (bDbAccessConfig.containsKey(Constants.CLUSTER_ID)) {
+                    .get(CONNECTION_CONFIG_DB_ACCESS_CONFIG);
+            if (bDbAccessConfig.containsKey(CLUSTER_ID)) {
                 return new Cluster(bDbAccessConfig);
             }
             return new WorkGroup(bDbAccessConfig);

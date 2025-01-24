@@ -1,4 +1,4 @@
-//  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
+//  Copyright (c) 2025, WSO2 LLC. (http://www.wso2.org).
 //
 //  WSO2 LLC. licenses this file to you under the Apache License,
 //  Version 2.0 (the "License"); you may not use this file except
@@ -19,21 +19,20 @@ import ballerina/sql;
 import ballerina/test;
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
     groups: ["batchExecute"]
 }
 isolated function testBasicBatchExecuteStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM Users`];
-    ExecuteStatementResponse res = check redshift->batchExecuteStatement(queries);
+    ExecutionResponse res = check redshift->batchExecuteStatement(queries);
 
-    test:assertTrue(res.statementId != "", "Statement ID is empty");
-    test:assertTrue(res.createdAt[0] > 0, "Invalid createdAt time");
-    test:assertTrue(res.sessionId is (), "Session ID is not nil"); // Since we are not using sessionKeepAliveSeconds
+    test:assertTrue(res.statementId != "");
+    test:assertTrue(res.createdAt[0] > 0);
+    test:assertTrue(res.sessionId is ()); // Since we are not using sessionKeepAliveSeconds
+    check redshift->close();
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
     groups: ["batchExecute"]
 }
 isolated function testBatchExecuteSessionId() returns error? {
@@ -41,21 +40,22 @@ isolated function testBatchExecuteSessionId() returns error? {
         region: testRegion,
         authConfig: testAuthConfig,
         dbAccessConfig: {
-            id: TEST_CLUSTER_ID,
-            database: TEST_DATABASE_NAME,
-            dbUser: TEST_DB_USER,
+            id: testClusterId,
+            database: testDatabaseName,
+            dbUser: testDbUser,
             sessionKeepAliveSeconds: 3600
         }
     };
     Client redshift = check new Client(connectionConfig);
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM Users`];
-    ExecuteStatementResponse res1 = check redshift->batchExecuteStatement(queries);
+    ExecutionResponse res1 = check redshift->batchExecuteStatement(queries);
 
-    test:assertTrue(res1.statementId != "", "Statement ID is empty");
-    test:assertTrue(res1.sessionId is string && res1.sessionId != "", "Session ID is empty");
+    test:assertTrue(res1.statementId != "");
+    test:assertTrue(res1.sessionId is string && res1.sessionId != "");
 
     runtime:sleep(2); // wait for session to establish
-    ExecuteStatementResponse res2 = check redshift->batchExecuteStatement(queries,
+    ExecutionResponse res2 = check redshift->batchExecuteStatement(queries,
         {dbAccessConfig: res1.sessionId});
-    test:assertTrue(res2.sessionId == res1.sessionId, "Session ID is not equal");
+    test:assertTrue(res2.sessionId == res1.sessionId);
+    check redshift->close();
 }

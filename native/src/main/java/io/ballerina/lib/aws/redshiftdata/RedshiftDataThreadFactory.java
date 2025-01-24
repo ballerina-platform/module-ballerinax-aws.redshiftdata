@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
+ * Copyright (c) 2025, WSO2 LLC. (http://www.wso2.org).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -21,7 +21,7 @@ package io.ballerina.lib.aws.redshiftdata;
 import java.util.concurrent.ThreadFactory;
 
 /**
- * A {@link ThreadFactory} object that creates new threads on demand for Redshift Data client network operations.
+ * A {@link ThreadFactory} object that creates new threads on demand for Redshift Data API client network operations.
  */
 public class RedshiftDataThreadFactory implements ThreadFactory {
     @Override

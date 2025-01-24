@@ -9,8 +9,8 @@ icon = "icon.png"
 license = ["Apache-2.0"]
 distribution = "2201.10.2"
 
-[[platform.java11.dependency]]
+[[platform.java17.dependency]]
 groupId = "io.ballerina.lib"
 artifactId = "aws.redshiftdata-native"
-version = "0.1.0-SNAPSHOT"
-path = "../native/build/libs/aws.redshiftdata-native-0.1.0-SNAPSHOT.jar"
+version = "@project.version@"
+path = "../native/build/libs/aws.redshiftdata-native-@project.version@.jar"

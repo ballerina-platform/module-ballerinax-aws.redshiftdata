@@ -1,4 +1,4 @@
-//  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
+//  Copyright (c) 2025, WSO2 LLC. (http://www.wso2.org).
 //
 //  WSO2 LLC. licenses this file to you under the Apache License,
 //  Version 2.0 (the "License"); you may not use this file except
@@ -19,9 +19,6 @@ import ballerina/test;
 
 @test:BeforeSuite
 function beforeFunction() returns error? {
-    if (!IS_TESTS_ENABLED) {
-        return;
-    }
     log:printInfo("Setting up tables");
     Client redshift = check new Client(testConnectionConfig);
 
@@ -57,9 +54,6 @@ function beforeFunction() returns error? {
 
 @test:AfterSuite
 function afterFunction() returns error? {
-    if (!IS_TESTS_ENABLED) {
-        return;
-    }
     log:printInfo("Cleaning up resources");
     Client redshift = check new Client(testConnectionConfig);
 

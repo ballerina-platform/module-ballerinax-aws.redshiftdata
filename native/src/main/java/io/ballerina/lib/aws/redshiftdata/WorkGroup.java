@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
+ * Copyright (c) 2025, WSO2 LLC. (http://www.wso2.org).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,6 +18,7 @@
 
 package io.ballerina.lib.aws.redshiftdata;
 
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
@@ -30,42 +31,20 @@ import io.ballerina.runtime.api.values.BString;
  * @param sessionKeepAliveSeconds The number of seconds to keep the session alive after the query finishes.
  */
 public record WorkGroup(String name, String database, String secretArn, Integer sessionKeepAliveSeconds) {
+    static final BString WORK_GROUP_NAME = StringUtils.fromString("name");
+    private static final BString WORK_GROUP_DATABASE = StringUtils.fromString("database");
+    private static final BString WORK_GROUP_SECRET_ARN = StringUtils.fromString("secretArn");
+    private static final BString WORK_GROUP_SESSION_KEEP_ALIVE_SECONDS =
+            StringUtils.fromString("sessionKeepAliveSeconds");
 
     public WorkGroup(BMap<BString, Object> bWorkGroup) {
         this(
-                getName(bWorkGroup),
-                getDatabase(bWorkGroup),
-                getSecretArn(bWorkGroup),
-                getSessionKeepAliveSeconds(bWorkGroup)
+                bWorkGroup.getStringValue(WORK_GROUP_NAME).getValue(),
+                bWorkGroup.getStringValue(WORK_GROUP_DATABASE).getValue(),
+                bWorkGroup.containsKey(WORK_GROUP_SECRET_ARN) ?
+                        bWorkGroup.getStringValue(WORK_GROUP_SECRET_ARN).getValue() : null,
+                bWorkGroup.containsKey(WORK_GROUP_SESSION_KEEP_ALIVE_SECONDS) ?
+                        bWorkGroup.getIntValue(WORK_GROUP_SESSION_KEEP_ALIVE_SECONDS).intValue() : null
         );
-    }
-
-    private static String getName(BMap<BString, Object> bWorkGroup) {
-        if (bWorkGroup.containsKey(Constants.WORK_GROUP_NAME)) {
-            return bWorkGroup.getStringValue(Constants.WORK_GROUP_NAME).getValue();
-        }
-        return null;
-    }
-
-    private static String getDatabase(BMap<BString, Object> bWorkGroup) {
-        if (bWorkGroup.containsKey(Constants.WORK_GROUP_DATABASE)) {
-            return bWorkGroup.getStringValue(Constants.WORK_GROUP_DATABASE).getValue();
-        }
-        return null;
-    }
-
-    private static String getSecretArn(BMap<BString, Object> bWorkGroup) {
-        if (bWorkGroup.containsKey(Constants.WORK_GROUP_SECRET_ARN)) {
-            return bWorkGroup.getStringValue(Constants.WORK_GROUP_SECRET_ARN).getValue();
-        }
-        return null;
-    }
-
-    private static Integer getSessionKeepAliveSeconds(BMap<BString, Object> bWorkGroup) {
-        if (bWorkGroup.containsKey(Constants.WORK_GROUP_SESSION_KEEP_ALIVE_SECONDS)) {
-            return Integer.parseInt(bWorkGroup.getStringValue(
-                    Constants.WORK_GROUP_SESSION_KEEP_ALIVE_SECONDS).getValue());
-        }
-        return null;
     }
 }

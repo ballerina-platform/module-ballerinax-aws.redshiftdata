@@ -1,4 +1,4 @@
-// Copyright (c) 2024 WSO2 LLC. (http://www.wso2.com).
+// Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com).
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -19,13 +19,13 @@ import ballerina/time;
 
 # Additional configurations related to Redshift Data API
 #
-# + region - The AWS region with which the connector should communicate.
-# + authConfig - The authentication configurations for the Redshift Data API.
-# + dbAccessConfig - The database access configurations for the Redshift Data API.
-# This can be overridden in the individual `executeStatement` and `batchExecuteStatement` requests.
+# + region - The AWS region with which the connector should communicate
+# + authConfig - The authentication configurations for the Redshift Data API
+# + dbAccessConfig - The database access configurations for the Redshift Data API
+# This can be overridden in the individual `executeStatement` and `batchExecuteStatement` requests
 public type ConnectionConfig record {|
     Region region;
-    AuthConfig authConfig;
+    StaticAuthConfig|EC2_IAM_ROLE authConfig;
     Cluster|WorkGroup dbAccessConfig?;
 |};
 
@@ -77,22 +77,32 @@ public enum Region {
 
 # Auth configurations for the Redshift Data API.
 #
-# + accessKeyId - The AWS access key ID, used to identify the user interacting with AWS.
-# + secretAccessKey - The AWS secret access key, used to authenticate the user interacting with AWS.
-# + sessionToken - The AWS session token, used for authenticating a user with temporary permission to a resource.
-public type AuthConfig record {|
+# + accessKeyId - The AWS access key ID, used to identify the user interacting with AWS
+# + secretAccessKey - The AWS secret access key, used to authenticate the user interacting with AWS
+# + sessionToken - The AWS session token, used for authenticating a user with temporary permission to a resource
+public type StaticAuthConfig record {|
     string accessKeyId;
     string secretAccessKey;
     string sessionToken?;
 |};
 
+# Represents the EC2 IAM role based authentication for the Redshift Data API.
+#
+# + profileName - Configure the profile name used for loading IMDS-related configuration,
+# like the endpoint mode (IPv4 vs IPv6)
+# + profileFile - The path to the file containing the profile configuration
+public type EC2_IAM_ROLE record {|
+    string profileName?;
+    string profileFile?;
+|};
+
 # Represents the configuration details required for connecting to an Amazon Redshift cluster.
 #
-# + id - The cluster identifier. 
-# + database - The name of the database.
-# + dbUser - The database user name. 
-# + secretArn - The name or ARN of the secret that enables access to the database.
-# + sessionKeepAliveSeconds - The number of seconds to keep the session alive after the query finishes.
+# + id - The cluster identifier 
+# + database - The name of the database
+# + dbUser - The database user name 
+# + secretArn - The name or ARN of the secret that enables access to the database
+# + sessionKeepAliveSeconds - The number of seconds to keep the session alive after the query finishes
 public type Cluster record {|
     @constraint:String {
         minLength: {
@@ -123,10 +133,10 @@ public type Cluster record {|
 
 # Represents the configuration details required for connecting to an Amazon Redshift workgroup.
 #
-# + name - The serverless workgroup name or Amazon Resource Name (ARN).
-# + database - The name of the database. 
-# + secretArn - The name or ARN of the secret that enables access to the database.
-# + sessionKeepAliveSeconds - The number of seconds to keep the session alive after the query finishes.
+# + name - The serverless workgroup name or Amazon Resource Name (ARN)
+# + database - The name of the database 
+# + secretArn - The name or ARN of the secret that enables access to the database
+# + sessionKeepAliveSeconds - The number of seconds to keep the session alive after the query finishes
 public type WorkGroup record {|
     string name;
     string database;
@@ -155,7 +165,7 @@ public type SessionId string;
 
 # Configuration related to get the results
 #
-# + nextToken - A value that indicates the starting point for the next set of response records in a subsequent request.
+# + nextToken - A value that indicates the starting point for the next set of response records in a subsequent request
 # + timeout - The timeout to be used getting the query results and execution results in `seconds`
 # + pollingInterval - The polling interval to be used getting the query results and execution results in `seconds`
 public type RetrieveResultConfig record {|
@@ -166,13 +176,13 @@ public type RetrieveResultConfig record {|
 
 # Represents the configuration details required for `executeStatement` method.
 #
-# + dbAccessConfig - The database access configurations for the Redshift Data.
-# If dbAccessConfig set in the ExecuteStatementConfig, it will override the init level dbAccessConfig.
-# + clientToken - A unique, case-sensitive identifier that you provide to ensure the idempotency of the request. 
-# + statementName - The name of the SQL statement.
+# + dbAccessConfig - The database access configurations for the Redshift Data
+# If a `dbAccessConfig` is provided in the ExecutionConfig , it will override the init level dbAccessConfig
+# + clientToken - A unique, case-sensitive identifier that you provide to ensure the idempotency of the request 
+# + statementName - The name of the SQL statement
 # + withEvent - A value that indicates whether to send an event to the Amazon EventBridge event bus after the SQL 
-# statement runs.
-public type ExecuteStatementConfig record {|
+# statement runs
+public type ExecutionConfig record {|
     Cluster|WorkGroup|SessionId dbAccessConfig?;
     string clientToken?;
     @constraint:String {
@@ -191,11 +201,11 @@ public type ExecuteStatementConfig record {|
 
 # The response from the `executeStatement` method.
 #
-# + createdAt - The date and time (UTC) the statement was created.
-# + dbGroups - A list of colon (:) separated names of database groups.
-# + statementId - The identifier of the SQL statement whose results are to be fetched.
-# + sessionId - The session identifier of the query.
-public type ExecuteStatementResponse record {|
+# + createdAt - The date and time (UTC) the statement was created
+# + dbGroups - A list of colon (:) separated names of database groups
+# + statementId - The identifier of the SQL statement whose results are to be fetched
+# + sessionId - The session identifier of the query
+public type ExecutionResponse record {|
     time:Utc createdAt;
     string[] dbGroups?;
     StatementId statementId;
@@ -204,16 +214,19 @@ public type ExecuteStatementResponse record {|
 
 # The identifier of the SQL statement
 @constraint:String {
-    pattern: re `^[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}(:\d+)?$`
+    pattern: {
+        message: "Invalid statement ID format",
+        value: re `^[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}(:\d+)?$`
+    }
 }
 public type StatementId string;
 
 # Describes the details about a specific instance when a query was run by the Amazon Redshift Data API.
 #
-# + subStatements - The SQL statements from a multiple statement run.
-# + redshiftPid - The process identifier from Amazon Redshift.
-# + sessionId - The session identifier of the query.
-public type DescribeStatementResponse record {|
+# + subStatements - The SQL statements from a multiple statement run
+# + redshiftPid - The process identifier from Amazon Redshift
+# + sessionId - The session identifier of the query
+public type DescriptionResponse record {|
     *StatementData;
     StatementData[] subStatements?;
     int redshiftPid;
@@ -222,17 +235,17 @@ public type DescribeStatementResponse record {|
 
 # Information about an SQL statement.
 #
-# + statementId - The identifier of the SQL statement described.
-# + createdAt - The date and time (UTC) when the SQL statement was submitted to run. 
-# + duration - The amount of time in seconds that the statement ran. 
-# + 'error - The error message from the cluster if the SQL statement encountered an error while running.
-# + hasResultSet - A value that indicates whether the statement has a result set. 
-# + queryString - The SQL statement text.
-# + redshiftQueryId - The identifier of the query generated by Amazon Redshift.
-# + resultRows - Either the number of rows returned from the SQL statement or the number of rows affected.
-# + resultSize - The size in bytes of the returned results.
-# + status - The status of the SQL statement being described.
-# + updatedAt - The date and time (UTC) that the statement metadata was last updated.
+# + statementId - The identifier of the SQL statement described
+# + createdAt - The date and time (UTC) when the SQL statement was submitted to run 
+# + duration - The amount of time in seconds that the statement ran 
+# + 'error - The error message from the cluster if the SQL statement encountered an error while running
+# + hasResultSet - A value that indicates whether the statement has a result set 
+# + queryString - The SQL statement text
+# + redshiftQueryId - The identifier of the query generated by Amazon Redshift
+# + resultRows - Either the number of rows returned from the SQL statement or the number of rows affected
+# + resultSize - The size in bytes of the returned results
+# + status - The status of the SQL statement being described
+# + updatedAt - The date and time (UTC) that the statement metadata was last updated
 public type StatementData record {|
     StatementId statementId;
     time:Utc createdAt;
@@ -248,14 +261,14 @@ public type StatementData record {|
 |};
 
 # The status of the SQL statement being described. 
-# 
-# + SUBMITTED - The query was submitted, but not yet processed.
-# + PICKED - The query has been chosen to be run.
-# + STARTED - The query run has started.
-# + FINISHED - The query has finished running.
-# + ABORTED - The query run was stopped by the user.
-# + FAILED - The query run failed.
-# + ALL - A status value that includes all query statuses. This value can be used to filter results.
+#
+# + SUBMITTED - The query was submitted, but not yet processed
+# + PICKED - The query has been chosen to be run
+# + STARTED - The query run has started
+# + FINISHED - The query has finished running
+# + ABORTED - The query run was stopped by the user
+# + FAILED - The query run failed
+# + ALL - A status value that includes all query statuses. This value can be used to filter results
 public enum Status {
     SUBMITTED,
     PICKED,

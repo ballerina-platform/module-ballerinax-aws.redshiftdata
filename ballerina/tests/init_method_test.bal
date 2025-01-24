@@ -1,4 +1,4 @@
-//  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
+//  Copyright (c) 2025, WSO2 LLC. (http://www.wso2.org).
 //
 //  WSO2 LLC. licenses this file to you under the Apache License,
 //  Version 2.0 (the "License"); you may not use this file except
@@ -17,16 +17,16 @@
 import ballerina/test;
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
     groups: ["init"]
 }
 isolated function testInit() returns error? {
     Client|Error redshift = new Client(testConnectionConfig);
-    test:assertTrue(redshift is Client, "Client is not an instance of Client");
+    test:assertTrue(redshift is Client);
+    Client redshiftClient = check redshift.ensureType();
+    check redshiftClient->close();
 }
 
 @test:Config {
-    enable: IS_TESTS_ENABLED,
     groups: ["init"]
 }
 isolated function testNilDbAccessConfig() returns error? {
@@ -36,5 +36,7 @@ isolated function testNilDbAccessConfig() returns error? {
         dbAccessConfig: ()
     };
     Client|Error redshift = new Client(connectionConfig);
-    test:assertTrue(redshift is Client, "Client is not an instance of Client");
+    test:assertTrue(redshift is Client);
+    Client redshiftClient = check redshift.ensureType();
+    check redshiftClient->close();
 }

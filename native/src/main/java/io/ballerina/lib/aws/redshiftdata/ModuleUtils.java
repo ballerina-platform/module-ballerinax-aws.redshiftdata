@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
+ * Copyright (c) 2025, WSO2 LLC. (http://www.wso2.org).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
 
 /**
- * Module utils for the Ballerina AWS Redshift Data Client to obtain the module info in the init.
+ * Module utils for the Ballerina AWS Redshift Data API Client to obtain the module info in the init.
  */
 public class ModuleUtils {
     private static Module module;
@@ -37,5 +37,4 @@ public class ModuleUtils {
     public static void setModule(Environment environment) {
         module = environment.getCurrentModule();
     }
-
 }

@@ -1,8 +1,32 @@
+/*
+ * Copyright (c) 2025, WSO2 LLC. (http://www.wso2.org).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package io.ballerina.lib.aws.redshiftdata;
 
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import software.amazon.awssdk.services.redshiftdata.model.SqlParameter;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Represents a parameterized SQL query for use with AWS Redshift Data API.
@@ -40,6 +64,8 @@ import software.amazon.awssdk.services.redshiftdata.model.SqlParameter;
  * </p>
  */
 public class ParameterizedQuery {
+    private static final BString QUERY_STRINGS = StringUtils.fromString("strings");
+    private static final BString QUERY_INSERTIONS = StringUtils.fromString("insertions");
     private final String[] strings;
     private final String[] insertions;
 
@@ -49,14 +75,20 @@ public class ParameterizedQuery {
      * @param bSqlStatement the Ballerina object containing query strings and insertions
      */
     public ParameterizedQuery(BObject bSqlStatement) {
-        String[] strings = bSqlStatement.getArrayValue(Constants.QUERY_STRINGS).getStringArray();
-        BArray bInsertionsArray = bSqlStatement.getArrayValue(Constants.QUERY_INSERTIONS);
-        String[] insertions = new String[bInsertionsArray.size()];
-        for (int i = 0; i < bInsertionsArray.size(); i++) {
-            insertions[i] = bInsertionsArray.get(i).toString();
+        String[] strings = bSqlStatement.getArrayValue(QUERY_STRINGS).getStringArray();
+        BArray bInsertions = bSqlStatement.getArrayValue(QUERY_INSERTIONS);
+        List<String> insertions = new ArrayList<>();
+        for (int i = 0; i < bInsertions.size(); i++) {
+            Object value = bInsertions.get(i);
+            // If the value is null, insert "NULL" to the query string
+            if (Objects.isNull(value)) {
+                strings[i] += "NULL";
+            } else {
+                insertions.add(value.toString());
+            }
         }
         this.strings = strings;
-        this.insertions = insertions;
+        this.insertions = insertions.toArray(new String[0]);
     }
 
     /**
