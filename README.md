@@ -140,6 +140,10 @@ Now, utilize the available connector operations.
 
 ```ballerina
 redshiftdata:ExecutionResponse response = check redshiftdata->executeStatement(`SELECT * FROM Users`);
+
+redshiftdata:DescriptionResponse descriptionResponse = check redshiftdata->describeStatement(response.statementId);
+
+stream<User, redshiftdata:Error?> statementResult = check redshiftdata->getStatementResult(response.statementId);
 ```
 
 ### Step 4: Run the Ballerina application
