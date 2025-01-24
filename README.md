@@ -11,22 +11,17 @@
 
 The `ballerinax/aws.redshiftdata` package allows developers to interact with Amazon Redshift Data API seamlessly using Ballerina. The Redshift Data API simplifies data access by eliminating the need for managing persistent database connections or the Redshift JDBC driver.
 
-### Usage Options
+## Setup guide
 
-The Redshift Data Ballerina Connector can be used in two ways:
-
-1. **Redshift Cluster**: Connect directly to a provisioned Amazon Redshift cluster.
-2. **Serverless Mode**: Leverage the serverless capabilities of the Redshift Data API, which is particularly suited for applications that need to scale dynamically without managing infrastructure.
-
-## Setup guide: Cluster
+### Option 1: Cluster based setup
 
 To use the Ballerina AWS Redshift data connector, follow these steps to set up an Amazon Redshift cluster:
 
-### Step 1: Login to AWS Console
+#### Step 1: Login to AWS Console
 
 Log into the [AWS Management Console](https://aws.amazon.com/).
 
-### Step 2: Navigate to Amazon Redshift and create a cluster
+#### Step 2: Navigate to Amazon Redshift and create a cluster
 
 1. In the AWS Management Console, search for Redshift in the services search bar.
 1. Click on Amazon Redshift.
@@ -35,7 +30,7 @@ Log into the [AWS Management Console](https://aws.amazon.com/).
 1. Click on the `Create cluster` button to initiate the process of creating a new Amazon Redshift cluster.
    ![create-cluster-2.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/create-cluster-2.png)
 
-### Step 3: Configure cluster settings
+#### Step 3: Configure cluster settings
 
 1. Configure your Redshift cluster settings, including cluster identifier, database name, credentials, and other relevant parameters.
    ![configure-cluster-1.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/configure-cluster-1.png)
@@ -48,13 +43,13 @@ Log into the [AWS Management Console](https://aws.amazon.com/).
 
 1. Finally, review your configuration settings, and once satisfied, click `Create cluster` to launch your Amazon Redshift cluster.
 
-### Step 4: Wait for cluster availability
+#### Step 4: Wait for cluster availability
 
 1. It may take some time for your Redshift cluster to be available. Monitor the cluster status in the AWS Console until it shows as "Available".
 
    ![wait-for-availability.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/wait-for-availability.png)
 
-### Step 5: Create a user
+#### Step 5: Create a user
 
 1. In the AWS Management Console, search for IAM in the services search bar.
 1. Click on IAM
@@ -75,7 +70,7 @@ Log into the [AWS Management Console](https://aws.amazon.com/).
 1. Review and create the user
    ![review-create-user.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/review-create-user.png)
 
-### Step 6: Get user access keys
+#### Step 6: Get user access keys
 
 1. Click the user that created
    ![users.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/users.png)
@@ -89,6 +84,9 @@ Log into the [AWS Management Console](https://aws.amazon.com/).
 1. Record the Access Key and Secret access key. These credentials will be used to authenticate your Ballerina application with the Redshift cluster.
    ![retrieve-access-key.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/retrieve-access-key.png)
 
+### Option 2: Serverless setup
+
+Amazon Redshift Serverless is a data warehouse that automatically scales to handle your workloads,
 For configuring a **Redshift serverless** setup, please refer to this [link.](https://docs.aws.amazon.com/redshift/latest/gsg/new-user-serverless.html)
 
 ## Quickstart
