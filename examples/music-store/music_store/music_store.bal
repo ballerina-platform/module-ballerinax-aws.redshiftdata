@@ -36,10 +36,10 @@ service / on new http:Listener(8080) {
         self.redshiftdata = check new ({
             region: "us-east-2",
             authConfig: {
-                accessKeyId: accessKeyId,
-                secretAccessKey: secretAccessKey
+                accessKeyId,
+                secretAccessKey
             },
-            dbAccessConfig: dbAccessConfig
+            dbAccessConfig
         });
     }
 

@@ -107,10 +107,10 @@ configurable redshiftdata:Cluster dbAccessConfig = ?;
 
 redshiftdata:Client redshift = check new (region = "us-east-2",
         authConfig = {
-            accessKeyId: accessKeyId,
-            secretAccessKey: secretAccessKey
+            accessKeyId,
+            secretAccessKey
         },
-        dbAccessConfig = dbAccessConfig
+        dbAccessConfig
     );
 ```
 
