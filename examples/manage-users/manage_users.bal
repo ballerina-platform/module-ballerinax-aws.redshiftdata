@@ -65,8 +65,7 @@ public function main() returns error? {
     io:println("Describe statement response for insert query: ", insertDescription);
 
     // Select data from the table
-    sql:ParameterizedQuery query = `SELECT * FROM Users;`;
-    redshiftdata:ExecutionResponse res = check redshift->execute(query);
+    redshiftdata:ExecutionResponse res = check redshift->execute(`SELECT * FROM Users;`);
     _ = check waitForCompletion(redshift, res.statementId);
     stream<User, redshiftdata:Error?> resultStream = check redshift->getResultAsStream(res.statementId);
     io:println("User details: ");

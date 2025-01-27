@@ -52,29 +52,20 @@ service / on new http:Listener(8080) {
     }
 
     resource function get albums/[string id]() returns Album|http:NotFound|error {
-        redshiftdata:ExecutionResponse res = check self.redshift->execute(`SELECT * FROM Albums WHERE id = ${id}`);
+        redshiftdata:ExecutionResponse res = check self.redshift->execute(`SELECT * FROM Albums WHERE id = ${id} LIMIT 1`);
         _ = check waitForCompletion(self.redshift, res.statementId);
         stream<Album, redshiftdata:Error?> albumStream = check self.redshift->getResultAsStream(res.statementId);
         Album[] albums = check from Album album in albumStream
             select album;
-        if albums.length() == 0 {
-            return http:NOT_FOUND;
-        } else {
-            return albums[0];
-        }
+        return albums.length() == 0 ? http:NOT_FOUND : albums[0];
     }
 
-    resource function post album(@http:Payload Album album) returns Album|error {
+    resource function post album(Album album) returns Album|error {
         redshiftdata:ExecutionResponse res = check self.redshift->execute(`
             INSERT INTO Albums (id, title, artist, price)
             VALUES (${album.id}, ${album.title}, ${album.artist}, ${album.price});`);
-        redshiftdata:DescriptionResponse insertQueryDescribeStatement =
-            check waitForCompletion(self.redshift, res.statementId);
-
-        if insertQueryDescribeStatement.status == redshiftdata:FINISHED {
-            return album;
-        }
-        return error("Failed to insert the album");
+        redshiftdata:DescriptionResponse description = check waitForCompletion(self.redshift, res.statementId);
+        return description.status == redshiftdata:FINISHED ? album : error("Failed to insert the album");
     }
 }
 

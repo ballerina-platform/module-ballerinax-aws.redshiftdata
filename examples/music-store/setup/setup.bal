@@ -50,9 +50,8 @@ public function main() returns error? {
         `INSERT INTO Albums VALUES('A-123', 'Lemonade', 'Beyonce', 18.98);`,
         `INSERT INTO Albums VALUES('A-321', 'Renaissance', 'Beyonce', 24.98);`
     ];
-    redshiftdata:ExecutionResponse insertExecutionResponse =
-        check redshift->batchExecute(insertQueries);
-    _ = check waitForCompletion(redshift, insertExecutionResponse.statementId);
+    redshiftdata:ExecutionResponse insertDescription = check redshift->batchExecute(insertQueries);
+    _ = check waitForCompletion(redshift, insertDescription.statementId);
     io:println("Music Store database setup completed successfully.");
 }
 
