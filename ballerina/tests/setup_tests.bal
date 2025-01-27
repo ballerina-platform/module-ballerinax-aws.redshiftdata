@@ -22,7 +22,7 @@ function beforeFunction() returns error? {
     log:printInfo("Setting up tables");
     Client redshift = check new Client(testConnectionConfig);
 
-    _ = check redshift->executeStatement(`
+    ExecutionResponse createSupportedTypes = check redshift->executeStatement(`
         CREATE TABLE IF NOT EXISTS SupportedTypes (
         int_type INTEGER,
         bigint_type BIGINT,
@@ -32,8 +32,9 @@ function beforeFunction() returns error? {
         nil_type VARCHAR(255)
     );
     `);
+    _ = check waitForCompletion(redshift, createSupportedTypes.statementId);
 
-    _ = check redshift->executeStatement(`
+    ExecutionResponse createUserTable = check redshift->executeStatement(`
         CREATE TABLE Users (
         user_id INT,
         username VARCHAR(255),
@@ -41,13 +42,15 @@ function beforeFunction() returns error? {
         age INT
     );
     `);
+    _ = check waitForCompletion(redshift, createUserTable.statementId);
 
-    _ = check redshift->executeStatement(`
+    ExecutionResponse insertUsers = check redshift->executeStatement(`
         INSERT INTO Users (user_id, username, email, age) VALUES
         (1, 'JohnDoe', 'john.doe@example.com', 25),
         (2, 'JaneSmith', 'jane.smith@example.com', 30),
         (3, 'BobJohnson', 'bob.johnson@example.com', 22);
     `);
+    _ = check waitForCompletion(redshift, insertUsers.statementId);
 
     check redshift->close();
 }
@@ -57,8 +60,10 @@ function afterFunction() returns error? {
     log:printInfo("Cleaning up resources");
     Client redshift = check new Client(testConnectionConfig);
 
-    _ = check redshift->executeStatement(`DROP TABLE IF EXISTS Users`);
-    _ = check redshift->executeStatement(`DROP TABLE IF EXISTS SupportedTypes`);
+    ExecutionResponse dropUsers = check redshift->executeStatement(`DROP TABLE IF EXISTS Users`);
+    _ = check waitForCompletion(redshift, dropUsers.statementId);
+    ExecutionResponse dropSupportedTypes = check redshift->executeStatement(`DROP TABLE IF EXISTS SupportedTypes`);
+    _ = check waitForCompletion(redshift, dropSupportedTypes.statementId);
 
     check redshift->close();
 }
