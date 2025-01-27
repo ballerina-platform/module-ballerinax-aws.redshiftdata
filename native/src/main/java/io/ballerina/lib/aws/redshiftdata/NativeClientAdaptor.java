@@ -154,7 +154,7 @@ public class NativeClientAdaptor {
     }
 
     @SuppressWarnings("unchecked")
-    public static Object describeStatement(Environment env, BObject bClient, BString bStatementId) {
+    public static Object describe(Environment env, BObject bClient, BString bStatementId) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(NATIVE_CLIENT);
         String statementId = bStatementId.getValue();
         Future future = env.markAsync();
@@ -165,7 +165,7 @@ public class NativeClientAdaptor {
                 BMap<BString, Object> bResponse = CommonUtils.getDescriptionResponse(describeStatementResponse);
                 future.complete(bResponse);
             } catch (Exception e) {
-                String errorMsg = String.format("Error occurred while executing the describeStatement: %s",
+                String errorMsg = String.format("Error occurred while executing the describe: %s",
                         Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
                 BError bError = CommonUtils.createError(errorMsg, e);
                 future.complete(bError);
@@ -187,7 +187,7 @@ public class NativeClientAdaptor {
                         .getRecordStream(nativeClient, statementId, nativeResultResponse, recordType);
                 future.complete(resultStream);
             } catch (Exception e) {
-                String errorMsg = String.format("Error occurred while executing the getQueryResult: %s",
+                String errorMsg = String.format("Error occurred while executing the getResultAsStream: %s",
                         Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
                 BError bError = CommonUtils.createError(errorMsg, e);
                 future.complete(bError);

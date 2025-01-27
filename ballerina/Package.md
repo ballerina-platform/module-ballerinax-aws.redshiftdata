@@ -132,7 +132,7 @@ Now, utilize the available connector operations.
 ```ballerina
 redshiftdata:ExecutionResponse response = check redshift->executeStatement(`SELECT * FROM Users`);
 
-redshiftdata:DescriptionResponse descriptionResponse = check redshift->describeStatement(response.statementId);
+redshiftdata:DescriptionResponse descriptionResponse = check redshift->describe(response.statementId);
 
 stream<User, redshiftdata:Error?> statementResult = check redshift->getResultAsStream(response.statementId);
 ```

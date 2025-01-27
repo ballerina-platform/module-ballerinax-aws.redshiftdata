@@ -129,23 +129,23 @@ public isolated client class Client {
 
     # Describes the details about a specific instance when a query was run by the Amazon Redshift Data API.
     # ```ballerina
-    # redshiftdata:DescriptionResponse response = check redshift->describeStatement("<statement-id>");
+    # redshiftdata:DescriptionResponse response = check redshift->describe("<statement-id>");
     # ```
     #
     # + statementId - The identifier of the SQL statement
     # + return - The `redshiftdata:DescriptionResponse` or a `redshiftdata:Error` if the execution fails
-    remote isolated function describeStatement(StatementId statementId)
+    remote isolated function describe(StatementId statementId)
     returns DescriptionResponse|Error {
         StatementId|constraint:Error validationResult = constraint:validate(statementId);
         if validationResult is constraint:Error {
             return error Error(validationResult.message(), validationResult.cause());
         }
-        return self.externDescribeStatement(statementId);
+        return self.externDescribe(statementId);
     };
 
-    isolated function externDescribeStatement(StatementId statementId)
+    isolated function externDescribe(StatementId statementId)
     returns DescriptionResponse|Error = @java:Method {
-        name: "describeStatement",
+        name: "describe",
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
 

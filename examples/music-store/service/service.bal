@@ -81,7 +81,7 @@ service / on new http:Listener(8080) {
 isolated function waitForCompletion(redshiftdata:Client redshift, string statementId)
 returns redshiftdata:DescriptionResponse|redshiftdata:Error {
     foreach int retryCount in 0 ... 9 {
-        redshiftdata:DescriptionResponse descriptionResponse = check redshift->describeStatement(statementId);
+        redshiftdata:DescriptionResponse descriptionResponse = check redshift->describe(statementId);
         if descriptionResponse.status is redshiftdata:FINISHED|redshiftdata:FAILED|redshiftdata:ABORTED {
             return descriptionResponse;
         }

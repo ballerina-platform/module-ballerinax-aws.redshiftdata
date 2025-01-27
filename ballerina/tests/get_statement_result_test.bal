@@ -200,7 +200,7 @@ isolated function testMissingFieldInUserType() returns error? {
     stream<UserWithoutEmailField, Error?>|Error resultStream = redshift->getResultAsStream(res.statementId);
     test:assertTrue(resultStream is Error);
     if resultStream is Error {
-        test:assertEquals(resultStream.message(), "Error occurred while executing the getQueryResult: " +
+        test:assertEquals(resultStream.message(), "Error occurred while executing the getResultAsStream: " +
                 "Error occurred while creating the Record Stream: Field 'email' not found in the record type.");
     }
     check redshift->close();

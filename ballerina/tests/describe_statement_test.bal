@@ -19,7 +19,7 @@ import ballerina/sql;
 import ballerina/test;
 
 @test:Config {
-    groups: ["describeStatement"]
+    groups: ["describe"]
 }
 isolated function testBasicDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
@@ -41,7 +41,7 @@ isolated function testBasicDescribeStatement() returns error? {
 }
 
 @test:Config {
-    groups: ["describeStatement"]
+    groups: ["describe"]
 }
 isolated function testBatchDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
@@ -84,7 +84,7 @@ isolated function testBatchDescribeStatement() returns error? {
 }
 
 @test:Config {
-    groups: ["describeStatement"]
+    groups: ["describe"]
 }
 isolated function testIncorrectStatementDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
@@ -98,7 +98,7 @@ isolated function testIncorrectStatementDescribeStatement() returns error? {
 }
 
 @test:Config {
-    groups: ["describeStatement"]
+    groups: ["describe"]
 }
 isolated function testIncorrectBatchStatementDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
@@ -122,12 +122,12 @@ isolated function testIncorrectBatchStatementDescribeStatement() returns error? 
 }
 
 @test:Config {
-    groups: ["describeStatement"]
+    groups: ["describe"]
 }
 isolated function testDescribeStatementWithInvalidStatementId() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     StatementId invalidStatementId = "InvalidStatementId";
-    DescriptionResponse|Error res = redshift->describeStatement(invalidStatementId);
+    DescriptionResponse|Error res = redshift->describe(invalidStatementId);
     test:assertTrue(res is Error);
     if res is Error {
         test:assertEquals(res.message(), "Invalid statement ID format.");
@@ -138,7 +138,7 @@ isolated function testDescribeStatementWithInvalidStatementId() returns error? {
 isolated function waitForCompletion(Client redshift, string statementId)
 returns DescriptionResponse|Error {
     foreach int retryCount in 0 ... 9 {
-        DescriptionResponse descriptionResponse = check redshift->describeStatement(statementId);
+        DescriptionResponse descriptionResponse = check redshift->describe(statementId);
         if descriptionResponse.status is FINISHED|FAILED|ABORTED {
             return descriptionResponse;
         }
