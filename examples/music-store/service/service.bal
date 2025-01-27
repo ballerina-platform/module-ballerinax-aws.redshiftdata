@@ -46,7 +46,7 @@ service / on new http:Listener(8080) {
     resource function get albums() returns Album[]|error {
         redshiftdata:ExecutionResponse res = check self.redshift->executeStatement(`SELECT * FROM Albums`);
         _ = check waitForCompletion(self.redshift, res.statementId);
-        stream<Album, redshiftdata:Error?> albumStream = check self.redshift->getStatementResult(res.statementId);
+        stream<Album, redshiftdata:Error?> albumStream = check self.redshift->getResultAsStream(res.statementId);
         return from Album album in albumStream
             select album;
     }
@@ -54,7 +54,7 @@ service / on new http:Listener(8080) {
     resource function get albums/[string id]() returns Album|http:NotFound|error {
         redshiftdata:ExecutionResponse res = check self.redshift->executeStatement(`SELECT * FROM Albums WHERE id = ${id}`);
         _ = check waitForCompletion(self.redshift, res.statementId);
-        stream<Album, redshiftdata:Error?> albumStream = check self.redshift->getStatementResult(res.statementId);
+        stream<Album, redshiftdata:Error?> albumStream = check self.redshift->getResultAsStream(res.statementId);
         Album[] albums = check from Album album in albumStream
             select album;
         if albums.length() == 0 {

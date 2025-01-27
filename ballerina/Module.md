@@ -134,7 +134,7 @@ redshiftdata:ExecutionResponse response = check redshift->executeStatement(`SELE
 
 redshiftdata:DescriptionResponse descriptionResponse = check redshift->describeStatement(response.statementId);
 
-stream<User, redshiftdata:Error?> statementResult = check redshift->getStatementResult(response.statementId);
+stream<User, redshiftdata:Error?> statementResult = check redshift->getResultAsStream(response.statementId);
 ```
 
 ### Step 4: Run the Ballerina application

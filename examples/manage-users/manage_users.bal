@@ -68,7 +68,7 @@ public function main() returns error? {
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
     redshiftdata:ExecutionResponse res = check redshift->executeStatement(query);
     _ = check waitForCompletion(redshift, res.statementId);
-    stream<User, redshiftdata:Error?> resultStream = check redshift->getStatementResult(res.statementId);
+    stream<User, redshiftdata:Error?> resultStream = check redshift->getResultAsStream(res.statementId);
     io:println("User details: ");
     check from User user in resultStream
         do {

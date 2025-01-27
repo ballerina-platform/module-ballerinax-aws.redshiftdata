@@ -116,13 +116,13 @@ public isolated client class Client {
 
     # Retrieves the results of a previously executed SQL statement.
     # ```ballerina
-    # stream<User, Error?> response = check redshift->getStatementResult("<statement-id>");
+    # stream<User, Error?> response = check redshift->getResultAsStream("<statement-id>");
     # ```
     #
     # + statementId - The identifier of the SQL statement
     # + rowTypes - The typedesc of the record to which the result needs to be returned
     # + return - Stream of records in the type of rowTypes or a `redshiftdata:Error` if the retrieval fails
-    remote isolated function getStatementResult(StatementId statementId, typedesc<record {}> rowTypes = <>)
+    remote isolated function getResultAsStream(StatementId statementId, typedesc<record {}> rowTypes = <>)
     returns stream<rowTypes, Error?>|Error = @java:Method {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;

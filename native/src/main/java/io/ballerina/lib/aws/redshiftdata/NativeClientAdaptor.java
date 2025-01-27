@@ -174,8 +174,8 @@ public class NativeClientAdaptor {
         return null;
     }
 
-    public static Object getStatementResult(Environment env, BObject bClient, BString bStatementId,
-                                            BTypedesc recordType) {
+    public static Object getResultAsStream(Environment env, BObject bClient, BString bStatementId,
+                                           BTypedesc recordType) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(NATIVE_CLIENT);
         String statementId = bStatementId.getValue();
         Future future = env.markAsync();
