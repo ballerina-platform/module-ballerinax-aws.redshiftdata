@@ -115,7 +115,7 @@ import ballerinax/aws.redshiftdata;
 
 Create a new `redshiftdata:Client` by providing the region, authConfig and dbAccessConfig.
 
-The `dbAccessConfig` in the `ConnectionConfig` record defines the database access configuration for connecting to the Redshift Data API. It can be set to either a Cluster or a WorkGroup (Serverless mode). Additionally, users can override this configuration for specific requests by providing it in individual calls to methods like executeStatement or batchExecuteStatement, allowing for more granular control over database access per execution.
+The `dbAccessConfig` in the `ConnectionConfig` record defines the database access configuration for connecting to the Redshift Data API. It can be set to either a Cluster or a WorkGroup (Serverless mode). Additionally, users can override this configuration for specific requests by providing it in individual calls to methods like executeStatement or batchExecute, allowing for more granular control over database access per execution.
 
 ```ballerina
 configurable string accessKeyId = ?;

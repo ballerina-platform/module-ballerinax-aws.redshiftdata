@@ -60,7 +60,7 @@ public function main() returns error? {
         select `INSERT INTO Users (user_id, username, email, age) VALUES
             (${row.user_id}, ${row.username}, ${row.email}, ${row.age});`;
 
-    redshiftdata:ExecutionResponse insertResponse = check redshift->batchExecuteStatement(insertQueries);
+    redshiftdata:ExecutionResponse insertResponse = check redshift->batchExecute(insertQueries);
     redshiftdata:DescriptionResponse insertDescription = check waitForCompletion(redshift, insertResponse.statementId);
     io:println("Describe statement response for insert query: ", insertDescription);
 

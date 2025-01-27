@@ -128,7 +128,7 @@ public class NativeClientAdaptor {
     }
 
     @SuppressWarnings("unchecked")
-    public static Object batchExecuteStatement(Environment env, BObject bClient, BArray bSqlStatements,
+    public static Object batchExecute(Environment env, BObject bClient, BArray bSqlStatements,
                                                BMap<BString, Object> bExecutionConfig) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(NATIVE_CLIENT);
         Object initLevelDbAccessConfig = bClient.getNativeData(NATIVE_DB_ACCESS_CONFIG);
@@ -144,7 +144,7 @@ public class NativeClientAdaptor {
                         .getBatchExecutionResponse(batchExecutionResponse);
                 future.complete(bResponse);
             } catch (Exception e) {
-                String errorMsg = String.format("Error occurred while executing the batchExecuteStatement: %s",
+                String errorMsg = String.format("Error occurred while executing the batchExecute: %s",
                         Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
                 BError bError = CommonUtils.createError(errorMsg, e);
                 future.complete(bError);

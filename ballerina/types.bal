@@ -22,7 +22,7 @@ import ballerina/time;
 # + region - The AWS region with which the connector should communicate
 # + authConfig - The authentication configurations for the Redshift Data API
 # + dbAccessConfig - The database access configurations for the Redshift Data API
-# This can be overridden in the individual `executeStatement` and `batchExecuteStatement` requests
+# This can be overridden in the individual `executeStatement` and `batchExecute` requests
 public type ConnectionConfig record {|
     Region region;
     StaticAuthConfig|EC2_IAM_ROLE authConfig;

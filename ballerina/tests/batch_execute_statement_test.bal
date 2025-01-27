@@ -24,7 +24,7 @@ import ballerina/test;
 isolated function testBasicBatchExecuteStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM Users`];
-    ExecutionResponse res = check redshift->batchExecuteStatement(queries);
+    ExecutionResponse res = check redshift->batchExecute(queries);
 
     test:assertTrue(res.statementId != "");
     test:assertTrue(res.createdAt[0] > 0);
@@ -48,14 +48,13 @@ isolated function testBatchExecuteSessionId() returns error? {
     };
     Client redshift = check new Client(connectionConfig);
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM Users`];
-    ExecutionResponse res1 = check redshift->batchExecuteStatement(queries);
+    ExecutionResponse res1 = check redshift->batchExecute(queries);
 
     test:assertTrue(res1.statementId != "");
     test:assertTrue(res1.sessionId is string && res1.sessionId != "");
 
     runtime:sleep(2); // wait for session to establish
-    ExecutionResponse res2 = check redshift->batchExecuteStatement(queries,
-        {dbAccessConfig: res1.sessionId});
+    ExecutionResponse res2 = check redshift->batchExecute(queries, {dbAccessConfig: res1.sessionId});
     test:assertTrue(res2.sessionId == res1.sessionId);
     check redshift->close();
 }

@@ -84,14 +84,14 @@ public isolated client class Client {
     # Runs one or more SQL statements, which can be data manipulation language (DML) or data definition language (DDL).
     # The batch size should not exceed 40.
     # ```ballerina
-    # redshiftdata:ExecutionResponse response = check redshift->batchExecuteStatement([`<statement>`,
+    # redshiftdata:ExecutionResponse response = check redshift->batchExecute([`<statement>`,
     #    `<statement>`]);
     # ```
     #
     # + statements - The SQL statements to be executed
     # + executionConfig - The configurations related to the execution of the statements
     # + return - The `redshiftdata:ExecutionResponse` or a `redshiftdata:Error` if the execution fails
-    remote isolated function batchExecuteStatement(sql:ParameterizedQuery[] statements,
+    remote isolated function batchExecute(sql:ParameterizedQuery[] statements,
             *ExecutionConfig executionConfig)
     returns ExecutionResponse|Error {
         _ = check self.validateExecutionConfig(executionConfig);
@@ -104,13 +104,13 @@ public isolated client class Client {
         if statements.some(statement => statement.strings.length() == 0) {
             return error Error("SQL statements cannot have empty strings.");
         }
-        return self.externBatchExecuteStatement(statements, executionConfig);
+        return self.externBatchExecute(statements, executionConfig);
     }
 
-    isolated function externBatchExecuteStatement(sql:ParameterizedQuery[] statements,
+    isolated function externBatchExecute(sql:ParameterizedQuery[] statements,
             *ExecutionConfig executionConfig)
     returns ExecutionResponse|Error = @java:Method {
-        name: "batchExecuteStatement",
+        name: "batchExecute",
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
 
