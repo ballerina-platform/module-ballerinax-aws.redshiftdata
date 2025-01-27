@@ -44,7 +44,7 @@ service / on new http:Listener(8080) {
     }
 
     resource function get albums() returns Album[]|error {
-        redshiftdata:ExecutionResponse res = check self.redshift->executeStatement(`SELECT * FROM Albums`);
+        redshiftdata:ExecutionResponse res = check self.redshift->execute(`SELECT * FROM Albums`);
         _ = check waitForCompletion(self.redshift, res.statementId);
         stream<Album, redshiftdata:Error?> albumStream = check self.redshift->getResultAsStream(res.statementId);
         return from Album album in albumStream
@@ -52,7 +52,7 @@ service / on new http:Listener(8080) {
     }
 
     resource function get albums/[string id]() returns Album|http:NotFound|error {
-        redshiftdata:ExecutionResponse res = check self.redshift->executeStatement(`SELECT * FROM Albums WHERE id = ${id}`);
+        redshiftdata:ExecutionResponse res = check self.redshift->execute(`SELECT * FROM Albums WHERE id = ${id}`);
         _ = check waitForCompletion(self.redshift, res.statementId);
         stream<Album, redshiftdata:Error?> albumStream = check self.redshift->getResultAsStream(res.statementId);
         Album[] albums = check from Album album in albumStream
@@ -65,7 +65,7 @@ service / on new http:Listener(8080) {
     }
 
     resource function post album(@http:Payload Album album) returns Album|error {
-        redshiftdata:ExecutionResponse res = check self.redshift->executeStatement(`
+        redshiftdata:ExecutionResponse res = check self.redshift->execute(`
             INSERT INTO Albums (id, title, artist, price)
             VALUES (${album.id}, ${album.title}, ${album.artist}, ${album.price});`);
         redshiftdata:DescriptionResponse insertQueryDescribeStatement =

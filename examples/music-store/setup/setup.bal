@@ -42,8 +42,8 @@ public function main() returns error? {
         artist VARCHAR(100),
         price REAL
     );`;
-    redshiftdata:ExecutionResponse createTableExecutionResponse = check redshift->executeStatement(createTableQuery);
-    _ = check waitForCompletion(redshift, createTableExecutionResponse.statementId);
+    redshiftdata:ExecutionResponse createTableResponse = check redshift->execute(createTableQuery);
+    _ = check waitForCompletion(redshift, createTableResponse.statementId);
 
     // Adds the records to the `albums` table
     sql:ParameterizedQuery[] insertQueries = [

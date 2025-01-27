@@ -104,21 +104,21 @@ public class NativeClientAdaptor {
     }
 
     @SuppressWarnings("unchecked")
-    public static Object executeStatement(Environment env, BObject bClient, BObject bSqlStatement,
-                                          BMap<BString, Object> bExecutionConfig) {
+    public static Object execute(Environment env, BObject bClient, BObject bSqlStatement,
+                                 BMap<BString, Object> bExecutionConfig) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(NATIVE_CLIENT);
         Object initLevelDbAccessConfig = bClient.getNativeData(NATIVE_DB_ACCESS_CONFIG);
         Future future = env.markAsync();
         EXECUTOR_SERVICE.execute(() -> {
             try {
-                ExecuteStatementRequest executeStatementRequest = CommonUtils.getNativeExecuteStatementRequest(
+                ExecuteStatementRequest executeRequest = CommonUtils.getNativeExecuteRequest(
                         bSqlStatement, bExecutionConfig, initLevelDbAccessConfig);
                 ExecuteStatementResponse executionResponse = nativeClient
-                        .executeStatement(executeStatementRequest);
+                        .executeStatement(executeRequest);
                 BMap<BString, Object> bResponse = CommonUtils.getExecutionResponse(executionResponse);
                 future.complete(bResponse);
             } catch (Exception e) {
-                String errorMsg = String.format("Error occurred while executing the executeStatement: %s",
+                String errorMsg = String.format("Error occurred while executing the execute: %s",
                         Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
                 BError bError = CommonUtils.createError(errorMsg, e);
                 future.complete(bError);
@@ -129,14 +129,14 @@ public class NativeClientAdaptor {
 
     @SuppressWarnings("unchecked")
     public static Object batchExecute(Environment env, BObject bClient, BArray bSqlStatements,
-                                               BMap<BString, Object> bExecutionConfig) {
+                                      BMap<BString, Object> bExecutionConfig) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(NATIVE_CLIENT);
         Object initLevelDbAccessConfig = bClient.getNativeData(NATIVE_DB_ACCESS_CONFIG);
         Future future = env.markAsync();
         EXECUTOR_SERVICE.execute(() -> {
             try {
                 BatchExecuteStatementRequest batchExecuteStatementRequest = CommonUtils
-                        .getNativeBatchExecuteStatementRequest(
+                        .getNativeBatchExecuteRequest(
                                 bSqlStatements, bExecutionConfig, initLevelDbAccessConfig);
                 BatchExecuteStatementResponse batchExecutionResponse = nativeClient
                         .batchExecuteStatement(batchExecuteStatementRequest);

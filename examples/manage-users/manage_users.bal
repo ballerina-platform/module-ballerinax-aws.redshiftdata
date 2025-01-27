@@ -48,7 +48,7 @@ public function main() returns error? {
         email VARCHAR(255),
         age INT
     );`;
-    redshiftdata:ExecutionResponse createTableResponse = check redshift->executeStatement(createTableQuery);
+    redshiftdata:ExecutionResponse createTableResponse = check redshift->execute(createTableQuery);
     _ = check waitForCompletion(redshift, createTableResponse.statementId);
 
     // Insert data into the table
@@ -66,7 +66,7 @@ public function main() returns error? {
 
     // Select data from the table
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
-    redshiftdata:ExecutionResponse res = check redshift->executeStatement(query);
+    redshiftdata:ExecutionResponse res = check redshift->execute(query);
     _ = check waitForCompletion(redshift, res.statementId);
     stream<User, redshiftdata:Error?> resultStream = check redshift->getResultAsStream(res.statementId);
     io:println("User details: ");

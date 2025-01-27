@@ -25,7 +25,7 @@ isolated function testBasicDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
 
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
-    ExecutionResponse executionResponse = check redshift->executeStatement(query);
+    ExecutionResponse executionResponse = check redshift->execute(query);
     DescriptionResponse descriptionResponse = check waitForCompletion(redshift, executionResponse.statementId);
 
     test:assertTrue(descriptionResponse.statementId != "");
@@ -88,7 +88,7 @@ isolated function testBatchDescribeStatement() returns error? {
 }
 isolated function testIncorrectStatementDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
-    ExecutionResponse executionResponse = check redshift->executeStatement(`SELECT * FROM non_existent_table;`);
+    ExecutionResponse executionResponse = check redshift->execute(`SELECT * FROM non_existent_table;`);
     DescriptionResponse descriptionResponse = check waitForCompletion(redshift, executionResponse.statementId);
 
     test:assertEquals(descriptionResponse.status, FAILED);

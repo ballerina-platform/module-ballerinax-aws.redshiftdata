@@ -22,7 +22,7 @@ import ballerina/time;
 # + region - The AWS region with which the connector should communicate
 # + authConfig - The authentication configurations for the Redshift Data API
 # + dbAccessConfig - The database access configurations for the Redshift Data API
-# This can be overridden in the individual `executeStatement` and `batchExecute` requests
+# This can be overridden in the individual `execute` and `batchExecute` requests
 public type ConnectionConfig record {|
     Region region;
     StaticAuthConfig|EC2_IAM_ROLE authConfig;
@@ -163,7 +163,7 @@ public type WorkGroup record {|
 }
 public type SessionId string;
 
-# Represents the configuration details required for `executeStatement` method.
+# Represents the configuration details required for `execute` method.
 #
 # + dbAccessConfig - The database access configurations for the Redshift Data
 # If a `dbAccessConfig` is provided in the ExecutionConfig , it will override the init level dbAccessConfig
@@ -188,7 +188,7 @@ public type ExecutionConfig record {|
     boolean withEvent?;
 |};
 
-# The response from the `executeStatement` method.
+# The response from the `execute` method.
 #
 # + createdAt - The date and time (UTC) the statement was created
 # + dbGroups - A list of colon (:) separated names of database groups

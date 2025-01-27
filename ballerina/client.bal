@@ -59,25 +59,25 @@ public isolated client class Client {
 
     # Runs an SQL statement, which can be data manipulation language (DML) or data definition language (DDL).
     # ```ballerina
-    # redshiftdata:ExecutionResponse response = check redshift->executeStatement(`SELECT * FROM Users`);
+    # redshiftdata:ExecutionResponse response = check redshift->execute(`SELECT * FROM Users`);
     # ```
     #
     # + statement - The SQL statement to be executed
     # + executionConfig - The configurations related to the execution of the statement
     # + return - The `redshiftdata:ExecutionResponse` or a `redshiftdata:Error` if the execution fails
-    remote isolated function executeStatement(sql:ParameterizedQuery statement, *ExecutionConfig executionConfig)
+    remote isolated function execute(sql:ParameterizedQuery statement, *ExecutionConfig executionConfig)
     returns ExecutionResponse|Error {
         _ = check self.validateExecutionConfig(executionConfig);
         if statement.strings.length() == 0 {
             return error Error("SQL statement cannot be empty.");
         }
-        return self.externExecuteStatement(statement, executionConfig);
+        return self.externExecute(statement, executionConfig);
     }
 
-    isolated function externExecuteStatement(sql:ParameterizedQuery statement,
+    isolated function externExecute(sql:ParameterizedQuery statement,
             ExecutionConfig executionConfig)
     returns ExecutionResponse|Error = @java:Method {
-        name: "executeStatement",
+        name: "execute",
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
 

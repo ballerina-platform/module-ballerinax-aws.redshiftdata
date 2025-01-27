@@ -115,7 +115,7 @@ public final class CommonUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static ExecuteStatementRequest getNativeExecuteStatementRequest(
+    public static ExecuteStatementRequest getNativeExecuteRequest(
             BObject bSqlStatement, BMap<BString, Object> bConfig, Object initLevelDbAccessConfig) throws Exception {
         ExecuteStatementRequest.Builder builder = ExecuteStatementRequest.builder();
 
@@ -184,7 +184,7 @@ public final class CommonUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static BatchExecuteStatementRequest getNativeBatchExecuteStatementRequest(
+    public static BatchExecuteStatementRequest getNativeBatchExecuteRequest(
             BArray bSqlStatements, BMap<BString, Object> bConfig, Object initLevelDbAccessConfig) throws Exception {
         BatchExecuteStatementRequest.Builder builder = BatchExecuteStatementRequest.builder();
 
