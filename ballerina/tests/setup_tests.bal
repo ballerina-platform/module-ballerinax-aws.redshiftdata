@@ -20,9 +20,9 @@ import ballerina/test;
 @test:BeforeSuite
 function beforeFunction() returns error? {
     log:printInfo("Setting up tables");
-    Client redshiftdata = check new Client(testConnectionConfig);
+    Client redshift = check new Client(testConnectionConfig);
 
-    _ = check redshiftdata->executeStatement(`
+    _ = check redshift->executeStatement(`
         CREATE TABLE IF NOT EXISTS SupportedTypes (
         int_type INTEGER,
         bigint_type BIGINT,
@@ -33,7 +33,7 @@ function beforeFunction() returns error? {
     );
     `);
 
-    _ = check redshiftdata->executeStatement(`
+    _ = check redshift->executeStatement(`
         CREATE TABLE Users (
         user_id INT,
         username VARCHAR(255),
@@ -42,23 +42,23 @@ function beforeFunction() returns error? {
     );
     `);
 
-    _ = check redshiftdata->executeStatement(`
+    _ = check redshift->executeStatement(`
         INSERT INTO Users (user_id, username, email, age) VALUES
         (1, 'JohnDoe', 'john.doe@example.com', 25),
         (2, 'JaneSmith', 'jane.smith@example.com', 30),
         (3, 'BobJohnson', 'bob.johnson@example.com', 22);
     `);
 
-    check redshiftdata->close();
+    check redshift->close();
 }
 
 @test:AfterSuite
 function afterFunction() returns error? {
     log:printInfo("Cleaning up resources");
-    Client redshiftdata = check new Client(testConnectionConfig);
+    Client redshift = check new Client(testConnectionConfig);
 
-    _ = check redshiftdata->executeStatement(`DROP TABLE IF EXISTS Users`);
-    _ = check redshiftdata->executeStatement(`DROP TABLE IF EXISTS SupportedTypes`);
+    _ = check redshift->executeStatement(`DROP TABLE IF EXISTS Users`);
+    _ = check redshift->executeStatement(`DROP TABLE IF EXISTS SupportedTypes`);
 
-    check redshiftdata->close();
+    check redshift->close();
 }

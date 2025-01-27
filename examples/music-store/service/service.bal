@@ -30,10 +30,10 @@ type Album record {|
 |};
 
 service / on new http:Listener(8080) {
-    private final redshiftdata:Client redshiftdata;
+    private final redshiftdata:Client redshift;
 
     function init() returns error? {
-        self.redshiftdata = check new ({
+        self.redshift = check new ({
             region: redshiftdata:US_EAST_2,
             authConfig: {
                 accessKeyId,
@@ -44,17 +44,17 @@ service / on new http:Listener(8080) {
     }
 
     resource function get albums() returns Album[]|error {
-        redshiftdata:ExecutionResponse res = check self.redshiftdata->executeStatement(`SELECT * FROM Albums`);
-        _ = check waitForCompletion(self.redshiftdata, res.statementId);
-        stream<Album, redshiftdata:Error?> albumStream = check self.redshiftdata->getStatementResult(res.statementId);
+        redshiftdata:ExecutionResponse res = check self.redshift->executeStatement(`SELECT * FROM Albums`);
+        _ = check waitForCompletion(self.redshift, res.statementId);
+        stream<Album, redshiftdata:Error?> albumStream = check self.redshift->getStatementResult(res.statementId);
         return from Album album in albumStream
             select album;
     }
 
     resource function get albums/[string id]() returns Album|http:NotFound|error {
-        redshiftdata:ExecutionResponse res = check self.redshiftdata->executeStatement(`SELECT * FROM Albums WHERE id = ${id}`);
-        _ = check waitForCompletion(self.redshiftdata, res.statementId);
-        stream<Album, redshiftdata:Error?> albumStream = check self.redshiftdata->getStatementResult(res.statementId);
+        redshiftdata:ExecutionResponse res = check self.redshift->executeStatement(`SELECT * FROM Albums WHERE id = ${id}`);
+        _ = check waitForCompletion(self.redshift, res.statementId);
+        stream<Album, redshiftdata:Error?> albumStream = check self.redshift->getStatementResult(res.statementId);
         Album[] albums = check from Album album in albumStream
             select album;
         if albums.length() == 0 {
@@ -65,11 +65,11 @@ service / on new http:Listener(8080) {
     }
 
     resource function post album(@http:Payload Album album) returns Album|error {
-        redshiftdata:ExecutionResponse res = check self.redshiftdata->executeStatement(`
+        redshiftdata:ExecutionResponse res = check self.redshift->executeStatement(`
             INSERT INTO Albums (id, title, artist, price)
             VALUES (${album.id}, ${album.title}, ${album.artist}, ${album.price});`);
         redshiftdata:DescriptionResponse insertQueryDescribeStatement =
-            check waitForCompletion(self.redshiftdata, res.statementId);
+            check waitForCompletion(self.redshift, res.statementId);
 
         if insertQueryDescribeStatement.status == "FINISHED" {
             return album;
@@ -78,12 +78,12 @@ service / on new http:Listener(8080) {
     }
 }
 
-isolated function waitForCompletion(redshiftdata:Client redshiftdata, string statementId)
+isolated function waitForCompletion(redshiftdata:Client redshift, string statementId)
 returns redshiftdata:DescriptionResponse|redshiftdata:Error {
     int i = 0;
     while i < 10 {
         redshiftdata:DescriptionResponse|redshiftdata:Error describeStatementResponse =
-            redshiftdata->describeStatement(statementId);
+            redshift->describeStatement(statementId);
         if describeStatementResponse is redshiftdata:Error {
             return describeStatementResponse;
         }

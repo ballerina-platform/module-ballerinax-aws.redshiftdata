@@ -26,7 +26,7 @@ configurable redshiftdata:Cluster dbAccessConfig = ?;
 public function main() returns error? {
     io:println("Setting up the Music Store database...");
     // Create a Redshift client
-    redshiftdata:Client redshiftdata = check new ({
+    redshiftdata:Client redshift = check new ({
         region: redshiftdata:US_EAST_2,
         authConfig: {
             accessKeyId,
@@ -42,8 +42,8 @@ public function main() returns error? {
         artist VARCHAR(100),
         price REAL
     );`;
-    redshiftdata:ExecutionResponse createTableExecutionResponse = check redshiftdata->executeStatement(createTableQuery);
-    _ = check waitForCompletion(redshiftdata, createTableExecutionResponse.statementId);
+    redshiftdata:ExecutionResponse createTableExecutionResponse = check redshift->executeStatement(createTableQuery);
+    _ = check waitForCompletion(redshift, createTableExecutionResponse.statementId);
 
     // Adds the records to the `albums` table
     sql:ParameterizedQuery[] insertQueries = [
@@ -51,17 +51,17 @@ public function main() returns error? {
         `INSERT INTO Albums VALUES('A-321', 'Renaissance', 'Beyonce', 24.98);`
     ];
     redshiftdata:ExecutionResponse insertExecutionResponse =
-        check redshiftdata->batchExecuteStatement(insertQueries);
-    _ = check waitForCompletion(redshiftdata, insertExecutionResponse.statementId);
+        check redshift->batchExecuteStatement(insertQueries);
+    _ = check waitForCompletion(redshift, insertExecutionResponse.statementId);
     io:println("Music Store database setup completed successfully.");
 }
 
-isolated function waitForCompletion(redshiftdata:Client redshiftdata, string statementId)
+isolated function waitForCompletion(redshiftdata:Client redshift, string statementId)
 returns redshiftdata:DescriptionResponse|redshiftdata:Error {
     int i = 0;
     while i < 10 {
         redshiftdata:DescriptionResponse|redshiftdata:Error describeStatementResponse =
-            redshiftdata->describeStatement(statementId);
+            redshift->describeStatement(statementId);
         if describeStatementResponse is redshiftdata:Error {
             return describeStatementResponse;
         }
