@@ -71,7 +71,7 @@ service / on new http:Listener(8080) {
         redshiftdata:DescriptionResponse insertQueryDescribeStatement =
             check waitForCompletion(self.redshift, res.statementId);
 
-        if insertQueryDescribeStatement.status == "FINISHED" {
+        if insertQueryDescribeStatement.status == redshiftdata:FINISHED {
             return album;
         }
         return error("Failed to insert the album");
@@ -80,20 +80,12 @@ service / on new http:Listener(8080) {
 
 isolated function waitForCompletion(redshiftdata:Client redshift, string statementId)
 returns redshiftdata:DescriptionResponse|redshiftdata:Error {
-    int i = 0;
-    while i < 10 {
-        redshiftdata:DescriptionResponse|redshiftdata:Error describeStatementResponse =
-            redshift->describeStatement(statementId);
-        if describeStatementResponse is redshiftdata:Error {
-            return describeStatementResponse;
+    foreach int retryCount in 0 ... 9 {
+        redshiftdata:DescriptionResponse descriptionResponse = check redshift->describeStatement(statementId);
+        if descriptionResponse.status is redshiftdata:FINISHED|redshiftdata:FAILED|redshiftdata:ABORTED {
+            return descriptionResponse;
         }
-        match describeStatementResponse.status {
-            "FINISHED"|"FAILED"|"ABORTED" => {
-                return describeStatementResponse;
-            }
-        }
-        i = i + 1;
         runtime:sleep(1);
     }
-    panic error("Statement execution did not finish within the expected time");
+    return error("Statement execution did not finish within the expected time");
 }

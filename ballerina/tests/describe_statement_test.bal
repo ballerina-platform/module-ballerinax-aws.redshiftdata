@@ -135,21 +135,14 @@ isolated function testDescribeStatementWithInvalidStatementId() returns error? {
     check redshift->close();
 }
 
-// Helper function
-isolated function waitForCompletion(Client redshift, string statementId) returns DescriptionResponse|Error {
-    int i = 0;
-    while i < 10 {
-        DescriptionResponse|Error descriptionResponse = redshift->describeStatement(statementId);
-        if descriptionResponse is Error {
+isolated function waitForCompletion(Client redshift, string statementId)
+returns DescriptionResponse|Error {
+    foreach int retryCount in 0 ... 9 {
+        DescriptionResponse descriptionResponse = check redshift->describeStatement(statementId);
+        if descriptionResponse.status is FINISHED|FAILED|ABORTED {
             return descriptionResponse;
         }
-        match descriptionResponse.status {
-            "FINISHED"|"FAILED"|"ABORTED" => {
-                return descriptionResponse;
-            }
-        }
-        i = i + 1;
         runtime:sleep(1);
     }
-    panic error("Statement execution did not finish within the expected time");
+    return error("Statement execution did not finish within the expected time");
 }

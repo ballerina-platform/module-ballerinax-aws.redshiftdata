@@ -48,17 +48,21 @@ public function main() returns error? {
         email VARCHAR(255),
         age INT
     );`;
-    redshiftdata:ExecutionResponse createTableExecutionResponse = check redshift->executeStatement(createTableQuery);
-    _ = check waitForCompletion(redshift, createTableExecutionResponse.statementId);
+    redshiftdata:ExecutionResponse createTableResponse = check redshift->executeStatement(createTableQuery);
+    _ = check waitForCompletion(redshift, createTableResponse.statementId);
 
     // Insert data into the table
-    sql:ParameterizedQuery insertQuery = `INSERT INTO Users (user_id, username, email, age) VALUES
-        (1, 'Alice', 'alice@gmail.com', 25),
-        (2, 'Bob', 'bob@gmail.com', 30);`;
-    redshiftdata:ExecutionResponse insertExecutionResponse = check redshift->executeStatement(insertQuery);
-    redshiftdata:DescriptionResponse insertDescriptionResponse =
-        check waitForCompletion(redshift, insertExecutionResponse.statementId);
-    io:println("Describe statement response for insert query: ", insertDescriptionResponse);
+    User[] users = [
+        {user_id: 1, username: "Alice", email: "alice@gmail.com", age: 25},
+        {user_id: 2, username: "Bob", email: "bob@gmail.com", age: 30}
+    ];
+    sql:ParameterizedQuery[] insertQueries = from var row in users
+        select `INSERT INTO Users (user_id, username, email, age) VALUES
+            (${row.user_id}, ${row.username}, ${row.email}, ${row.age});`;
+
+    redshiftdata:ExecutionResponse insertResponse = check redshift->batchExecuteStatement(insertQueries);
+    redshiftdata:DescriptionResponse insertDescription = check waitForCompletion(redshift, insertResponse.statementId);
+    io:println("Describe statement response for insert query: ", insertDescription);
 
     // Select data from the table
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
@@ -70,29 +74,16 @@ public function main() returns error? {
         do {
             io:println(user);
         };
-
-    // Drop the table
-    sql:ParameterizedQuery dropTableQuery = `DROP TABLE Users;`;
-    redshiftdata:ExecutionResponse dropTableExecutionResponse = check redshift->executeStatement(dropTableQuery);
-    _ = check waitForCompletion(redshift, dropTableExecutionResponse.statementId);
 }
 
 isolated function waitForCompletion(redshiftdata:Client redshift, string statementId)
 returns redshiftdata:DescriptionResponse|redshiftdata:Error {
-    int i = 0;
-    while i < 10 {
-        redshiftdata:DescriptionResponse|redshiftdata:Error describeStatementResponse =
-            redshift->describeStatement(statementId);
-        if describeStatementResponse is redshiftdata:Error {
-            return describeStatementResponse;
+    foreach int retryCount in 0 ... 9 {
+        redshiftdata:DescriptionResponse descriptionResponse = check redshift->describeStatement(statementId);
+        if descriptionResponse.status is redshiftdata:FINISHED|redshiftdata:FAILED|redshiftdata:ABORTED {
+            return descriptionResponse;
         }
-        match describeStatementResponse.status {
-            "FINISHED"|"FAILED"|"ABORTED" => {
-                return describeStatementResponse;
-            }
-        }
-        i = i + 1;
         runtime:sleep(1);
     }
-    panic error("Statement execution did not finish within the expected time");
+    return error("Statement execution did not finish within the expected time");
 }
