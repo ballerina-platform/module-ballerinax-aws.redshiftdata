@@ -32,8 +32,8 @@ type User record {|
 
 public function main() returns error? {
     // Create a Redshift client
-    redshiftdata:Client redshiftdata = check new ({
-        region: "us-east-2",
+    redshiftdata:Client redshift = check new ({
+        region: redshiftdata:US_EAST_2,
         authConfig: {
             accessKeyId,
             secretAccessKey
@@ -48,23 +48,23 @@ public function main() returns error? {
         email VARCHAR(255),
         age INT
     );`;
-    redshiftdata:ExecutionResponse createTableExecutionResponse = check redshiftdata->executeStatement(createTableQuery);
-    _ = check waitForCompletion(redshiftdata, createTableExecutionResponse.statementId);
+    redshiftdata:ExecutionResponse createTableExecutionResponse = check redshift->executeStatement(createTableQuery);
+    _ = check waitForCompletion(redshift, createTableExecutionResponse.statementId);
 
     // Insert data into the table
     sql:ParameterizedQuery insertQuery = `INSERT INTO Users (user_id, username, email, age) VALUES
         (1, 'Alice', 'alice@gmail.com', 25),
         (2, 'Bob', 'bob@gmail.com', 30);`;
-    redshiftdata:ExecutionResponse insertExecutionResponse = check redshiftdata->executeStatement(insertQuery);
+    redshiftdata:ExecutionResponse insertExecutionResponse = check redshift->executeStatement(insertQuery);
     redshiftdata:DescriptionResponse insertDescriptionResponse =
-        check waitForCompletion(redshiftdata, insertExecutionResponse.statementId);
+        check waitForCompletion(redshift, insertExecutionResponse.statementId);
     io:println("Describe statement response for insert query: ", insertDescriptionResponse);
 
     // Select data from the table
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
-    redshiftdata:ExecutionResponse res = check redshiftdata->executeStatement(query);
-    _ = check waitForCompletion(redshiftdata, res.statementId);
-    stream<User, redshiftdata:Error?> resultStream = check redshiftdata->getStatementResult(res.statementId);
+    redshiftdata:ExecutionResponse res = check redshift->executeStatement(query);
+    _ = check waitForCompletion(redshift, res.statementId);
+    stream<User, redshiftdata:Error?> resultStream = check redshift->getStatementResult(res.statementId);
     io:println("User details: ");
     check from User user in resultStream
         do {
@@ -73,17 +73,17 @@ public function main() returns error? {
 
     // Drop the table
     sql:ParameterizedQuery dropTableQuery = `DROP TABLE Users;`;
-    redshiftdata:ExecutionResponse dropTableExecutionResponse = check redshiftdata->executeStatement(dropTableQuery);
-    _ = check waitForCompletion(redshiftdata, dropTableExecutionResponse.statementId);
+    redshiftdata:ExecutionResponse dropTableExecutionResponse = check redshift->executeStatement(dropTableQuery);
+    _ = check waitForCompletion(redshift, dropTableExecutionResponse.statementId);
 }
 
-isolated function waitForCompletion(redshiftdata:Client redshiftdata, string statementId)
+isolated function waitForCompletion(redshiftdata:Client redshift, string statementId)
 returns redshiftdata:DescriptionResponse|redshiftdata:Error {
     int i = 0;
-    while (i < 10) {
+    while i < 10 {
         redshiftdata:DescriptionResponse|redshiftdata:Error describeStatementResponse =
-            redshiftdata->describeStatement(statementId);
-        if (describeStatementResponse is redshiftdata:Error) {
+            redshift->describeStatement(statementId);
+        if describeStatementResponse is redshiftdata:Error {
             return describeStatementResponse;
         }
         match describeStatementResponse.status {

@@ -163,17 +163,6 @@ public type WorkGroup record {|
 }
 public type SessionId string;
 
-# Configuration related to get the results
-#
-# + nextToken - A value that indicates the starting point for the next set of response records in a subsequent request
-# + timeout - The timeout to be used getting the query results and execution results in `seconds`
-# + pollingInterval - The polling interval to be used getting the query results and execution results in `seconds`
-public type RetrieveResultConfig record {|
-    string nextToken?;
-    decimal timeout = 30;
-    decimal pollingInterval = 5;
-|};
-
 # Represents the configuration details required for `executeStatement` method.
 #
 # + dbAccessConfig - The database access configurations for the Redshift Data

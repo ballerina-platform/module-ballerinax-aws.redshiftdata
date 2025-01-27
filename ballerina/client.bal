@@ -24,7 +24,7 @@ public isolated client class Client {
 
     # Initialize AWS Redshift Data API client.
     # ```ballerina
-    # redshiftdata:Client redshift = check new (region = "us-east-2",
+    # redshiftdata:Client redshift = check new (region = redshiftdata:US_EAST_2,
     #    authConfig = {
     #        accessKeyId: "<aws-access-key>",
     #        secretAccessKey: "<aws-secret-key>"
@@ -82,7 +82,7 @@ public isolated client class Client {
     } external;
 
     # Runs one or more SQL statements, which can be data manipulation language (DML) or data definition language (DDL).
-    #  The batch size should not exceed 40.
+    # The batch size should not exceed 40.
     # ```ballerina
     # redshiftdata:ExecutionResponse response = check redshift->batchExecuteStatement([`<statement>`,
     #    `<statement>`]);

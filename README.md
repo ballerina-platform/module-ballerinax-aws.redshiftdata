@@ -1,4 +1,4 @@
-# AWS Redshift Data API connector for Ballerina.
+# AWS Redshift Data API connector for Ballerina
 
 [![Build](https://github.com/ballerina-platform/module-ballerinax-aws.redshiftdata/actions/workflows/ci.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-aws.redshiftdata/actions/workflows/ci.yml)
 [![Trivy](https://github.com/ballerina-platform/module-ballerinax-aws.redshiftdata/actions/workflows/trivy-scan.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-aws.redshiftdata/actions/workflows/trivy-scan.yml)
@@ -11,85 +11,95 @@
 
 The `ballerinax/aws.redshiftdata` package allows developers to interact with Amazon Redshift Data API seamlessly using Ballerina. The Redshift Data API simplifies data access by eliminating the need for managing persistent database connections or the Redshift JDBC driver.
 
-### Usage Options
+## Setup guide
 
-The Redshift Data Ballerina Connector can be used in two ways:
+### Login to AWS Console
 
-1. **Redshift Cluster**: Connect directly to a provisioned Amazon Redshift cluster.
-2. **Serverless Mode**: Leverage the serverless capabilities of the Redshift Data API, which is particularly suited for applications that need to scale dynamically without managing infrastructure.
+Log into the [AWS Management Console](https://console.aws.amazon.com/console). If you don’t have an AWS account yet, you can create one by visiting the AWS [sign-up](https://aws.amazon.com/free/) page. Sign up is free, and you can explore many services under the Free Tier.
 
-## Setup guide: Cluster
+### Create a user
+
+1. In the AWS Management Console, search for IAM in the services search bar.
+2. Click on IAM
+
+   ![create-user-1.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/create-user-1.png)
+
+3. Click Users
+
+   ![create-user-2.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/create-user-2.png)
+
+4. Click Create User
+
+   ![create-user-3.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/create-user-3.png)
+
+5. Provide a suitable name for the user and continue
+
+   ![specify-user-details.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/specify-user-details.png)
+
+6. Add necessary permissions by adding the user to a user group, copy permissions or directly attach the policies. And click next.
+
+   ![set-user-permissions.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/set-user-permissions.png)
+
+7. Review and create the user
+
+   ![review-create-user.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/review-create-user.png)
+
+### Get user access keys
+
+1. Click the user that created
+
+   ![users.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/users.png)
+
+2. Click `Create access key`
+
+   ![create-access-key-1.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/create-access-key-1.png)
+
+3. Click your use case and click next.
+
+   ![select-usecase.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/select-usecase.png)
+
+4. Record the Access Key and Secret access key. These credentials will be used to authenticate your Ballerina application with the Redshift cluster.
+
+   ![retrieve-access-key.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/retrieve-access-key.png)
+
+### Setup a Cluster
 
 To use the Ballerina AWS Redshift data connector, follow these steps to set up an Amazon Redshift cluster:
 
-### Step 1: Login to AWS Console
-
-Log into the [AWS Management Console](https://aws.amazon.com/).
-
-### Step 2: Navigate to Amazon Redshift and create a cluster
+#### Step 1: Navigate to Amazon Redshift and create a cluster
 
 1. In the AWS Management Console, search for Redshift in the services search bar.
-1. Click on Amazon Redshift.
-   ![create-cluster-1.png](/docs/setup/resources/create-cluster-1.png)
+2. Click on Amazon Redshift.
 
-1. Click on the `Create cluster` button to initiate the process of creating a new Amazon Redshift cluster.
-   ![create-cluster-2.png](/docs/setup/resources/create-cluster-2.png)
+   ![create-cluster-1.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/create-cluster-1.png)
 
-### Step 3: Configure cluster settings
+3. Click on the `Create cluster` button to initiate the process of creating a new Amazon Redshift cluster.
+
+   ![create-cluster-2.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/create-cluster-2.png)
+
+#### Step 2: Configure cluster settings
 
 1. Configure your Redshift cluster settings, including cluster identifier, database name, credentials, and other relevant parameters.
-   ![configure-cluster-1.png](/docs/setup/resources/configure-cluster-1.png)
 
-1. Configure security groups to control inbound and outbound traffic to your Redshift cluster. Ensure that your Ballerina application will have the necessary permissions to access the cluster.
-   ![configure-security-groups.png](/docs/setup/resources/configure-security-groups.png)
+   ![configure-cluster-1.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/configure-cluster-1.png)
 
-1. Record the username during the cluster configuration. This will be used to authenticate your Ballerina application with the Redshift cluster.
-   ![database-configurations.png](/docs/setup/resources/database-configurations.png)
+2. Configure security groups to control inbound and outbound traffic to your Redshift cluster. Ensure that your Ballerina application will have the necessary permissions to access the cluster.
 
-1. Finally, review your configuration settings, and once satisfied, click `Create cluster` to launch your Amazon Redshift cluster.
+   ![configure-security-groups.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/configure-security-groups.png)
 
-### Step 4: Wait for cluster availability
+3. Record the username during the cluster configuration. This will be used to authenticate your Ballerina application with the Redshift cluster.
+
+   ![database-configurations.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/database-configurations.png)
+
+4. Finally, review your configuration settings, and once satisfied, click `Create cluster` to launch your Amazon Redshift cluster.
+
+#### Step 3: Wait for cluster availability
 
 1. It may take some time for your Redshift cluster to be available. Monitor the cluster status in the AWS Console until it shows as "Available".
 
-   ![wait-for-availability.png](/docs/setup/resources/wait-for-availability.png)
+   ![wait-for-availability.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/wait-for-availability.png)
 
-### Step 5: Create a user
-
-1. In the AWS Management Console, search for IAM in the services search bar.
-1. Click on IAM
-   ![create-user-1.png](/docs/setup/resources/create-user-1.png)
-
-1. Click Users
-   ![create-user-2.png](/docs/setup/resources/create-user-2.png)
-
-1. Click Create User
-   ![create-user-3.png](/docs/setup/resources/create-user-3.png)
-
-1. Give user a name and click next
-   ![specify-user-details.png](/docs/setup/resources/specify-user-details.png)
-
-1. Add necessary permissions by adding the user to a user group, copy permissions or directly attach the policies. And click next.
-   ![set-user-permissions.png](/docs/setup/resources/set-user-permissions.png)
-
-1. Review and create the user
-   ![review-create-user.png](/docs/setup/resources/review-create-user.png)
-
-### Step 6: Get user access keys
-
-1. Click the user that created
-   ![users.png](/docs/setup/resources/users.png)
-
-1. Click `Create access key`
-   ![create-access-key-1.png](/docs/setup/resources/create-access-key-1.png)
-
-1. Click your use case and click next.
-   ![select-usecase.png](/docs/setup/resources/select-usecase.png)
-
-1. Record the Access Key and Secret access key. These credentials will be used to authenticate your Ballerina application with the Redshift cluster.
-   ![retrieve-access-key.png](/docs/setup/resources/retrieve-access-key.png)
-
-For configuring a **Redshift serverless** setup, please refer to this [link.](https://docs.aws.amazon.com/redshift/latest/gsg/new-user-serverless.html)
+> **Note:** Amazon Redshift now offers a serverless option, allowing you to use the data warehouse without managing infrastructure. Redshift Serverless automatically scales to handle your workloads, providing a flexible and efficient way to run analytics. To configure a **Redshift serverless** setup, please refer to this [link.](https://docs.aws.amazon.com/redshift/latest/gsg/new-user-serverless.html)
 
 ## Quickstart
 
@@ -112,13 +122,14 @@ configurable string accessKeyId = ?;
 configurable string secretAccessKey = ?;
 configurable redshiftdata:Cluster dbAccessConfig = ?;
 
-redshiftdata:Client redshift = check new (region = "us-east-2",
-        authConfig = {
-            accessKeyId,
-            secretAccessKey
-        },
-        dbAccessConfig
-    );
+redshiftdata:Client redshift = check new ({
+   region: redshiftdata:US_EAST_2,
+   authConfig: {
+      accessKeyId,
+      secretAccessKey
+   },
+   dbAccessConfig
+});
 ```
 
 ### Step 3: Invoke the connector operations
@@ -127,6 +138,10 @@ Now, utilize the available connector operations.
 
 ```ballerina
 redshiftdata:ExecutionResponse response = check redshift->executeStatement(`SELECT * FROM Users`);
+
+redshiftdata:DescriptionResponse descriptionResponse = check redshift->describeStatement(response.statementId);
+
+stream<User, redshiftdata:Error?> statementResult = check redshift->getStatementResult(response.statementId);
 ```
 
 ### Step 4: Run the Ballerina application
@@ -139,11 +154,11 @@ bal run
 
 ## Examples
 
-The `aws.redshiftdata` connector provides practical examples illustrating usage in various scenarios. Explore these [examples](/examples).
+The `aws.redshiftdata` connector provides practical examples illustrating usage in various scenarios. Explore these [examples](https://github.com/ballerina-platform/module-ballerinax-aws.redshiftdata/tree/main/examples).
 
-1. [Redshift Data Example](/examples/redshift-data-example/) - This example demonstrates how to use the Ballerina Redshift Data connector to perform SQL operations on an AWS Redshift cluster. It includes creating a table, inserting data, querying data, and dropping the table.
+1. [Manage users](https://github.com/ballerina-platform/module-ballerinax-aws.redshiftdata/tree/main/examples/manage-users/) - This example demonstrates how to use the Ballerina Redshift Data connector to perform SQL operations on an AWS Redshift cluster. It includes creating a table, inserting data, querying data, and dropping the table.
 
-2. [Music store](examples/music-store) - This example illustrates the process of creating an HTTP RESTful API with Ballerina to perform basic CRUD operations on a database, specifically AWS Redshift, involving setup, configuration, and running examples.
+2. [Music store](https://github.com/ballerina-platform/module-ballerinax-aws.redshiftdata/tree/main/examples/music-store) - This example illustrates the process of creating an HTTP RESTful API with Ballerina to perform basic CRUD operations on a database, specifically AWS Redshift, involving setup, configuration, and running examples.
 
 ## Issues and projects
 
