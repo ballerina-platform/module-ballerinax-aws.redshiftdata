@@ -129,7 +129,7 @@ public class QueryResultProcessor {
                 BMap<BString, Object> fieldAnnotations = (BMap<BString, Object>) fieldAnnotationsObj;
                 BMap<BString, Object> columnAnnotation = (BMap<BString, Object>) fieldAnnotations.getMapValue(
                         fromString(SQL_COLUMN_ANNOTATION));
-                if (columnAnnotation != null) {
+                if (Objects.nonNull(columnAnnotation)) {
                     columnName = columnAnnotation.getStringValue(ANN_COLUMN_NAME_FIELD).getValue().toLowerCase();
                 }
             }
