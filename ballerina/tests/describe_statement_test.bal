@@ -19,15 +19,16 @@ import ballerina/sql;
 import ballerina/test;
 
 @test:Config {
-    groups: ["describeStatement"]
+    groups: ["describe"]
 }
 isolated function testBasicDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
 
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
-    ExecutionResponse executionResponse = check redshift->executeStatement(query);
+    ExecutionResponse executionResponse = check redshift->execute(query);
     DescriptionResponse descriptionResponse = check waitForCompletion(redshift, executionResponse.statementId);
 
+    test:assertEquals(descriptionResponse.status, FINISHED);
     test:assertTrue(descriptionResponse.statementId != "");
     test:assertTrue(descriptionResponse.createdAt[0] > 0);
     test:assertTrue(descriptionResponse.duration > 0d);
@@ -41,13 +42,13 @@ isolated function testBasicDescribeStatement() returns error? {
 }
 
 @test:Config {
-    groups: ["describeStatement"]
+    groups: ["describe"]
 }
 isolated function testBatchDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
 
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM Users;`];
-    ExecutionResponse res = check redshift->batchExecuteStatement(queries);
+    ExecutionResponse res = check redshift->batchExecute(queries);
     DescriptionResponse descriptionResponse = check waitForCompletion(redshift, res.statementId);
 
     test:assertTrue(descriptionResponse.redshiftPid > 0);
@@ -84,11 +85,11 @@ isolated function testBatchDescribeStatement() returns error? {
 }
 
 @test:Config {
-    groups: ["describeStatement"]
+    groups: ["describe"]
 }
 isolated function testIncorrectStatementDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
-    ExecutionResponse executionResponse = check redshift->executeStatement(`SELECT * FROM non_existent_table;`);
+    ExecutionResponse executionResponse = check redshift->execute(`SELECT * FROM non_existent_table;`);
     DescriptionResponse descriptionResponse = check waitForCompletion(redshift, executionResponse.statementId);
 
     test:assertEquals(descriptionResponse.status, FAILED);
@@ -98,12 +99,12 @@ isolated function testIncorrectStatementDescribeStatement() returns error? {
 }
 
 @test:Config {
-    groups: ["describeStatement"]
+    groups: ["describe"]
 }
 isolated function testIncorrectBatchStatementDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM non_existent_table;`];
-    ExecutionResponse res = check redshift->batchExecuteStatement(queries);
+    ExecutionResponse res = check redshift->batchExecute(queries);
     DescriptionResponse descriptionResponse = check waitForCompletion(redshift, res.statementId);
 
     test:assertEquals(descriptionResponse.status, FAILED);
@@ -122,12 +123,12 @@ isolated function testIncorrectBatchStatementDescribeStatement() returns error? 
 }
 
 @test:Config {
-    groups: ["describeStatement"]
+    groups: ["describe"]
 }
 isolated function testDescribeStatementWithInvalidStatementId() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     StatementId invalidStatementId = "InvalidStatementId";
-    DescriptionResponse|Error res = redshift->describeStatement(invalidStatementId);
+    DescriptionResponse|Error res = redshift->describe(invalidStatementId);
     test:assertTrue(res is Error);
     if res is Error {
         test:assertEquals(res.message(), "Invalid statement ID format.");
@@ -135,21 +136,14 @@ isolated function testDescribeStatementWithInvalidStatementId() returns error? {
     check redshift->close();
 }
 
-// Helper function
-isolated function waitForCompletion(Client redshift, string statementId) returns DescriptionResponse|Error {
-    int i = 0;
-    while i < 10 {
-        DescriptionResponse|Error descriptionResponse = redshift->describeStatement(statementId);
-        if descriptionResponse is Error {
+isolated function waitForCompletion(Client redshift, string statementId)
+returns DescriptionResponse|Error {
+    foreach int retryCount in 0 ... 9 {
+        DescriptionResponse descriptionResponse = check redshift->describe(statementId);
+        if descriptionResponse.status is FINISHED|FAILED|ABORTED {
             return descriptionResponse;
         }
-        match descriptionResponse.status {
-            "FINISHED"|"FAILED"|"ABORTED" => {
-                return descriptionResponse;
-            }
-        }
-        i = i + 1;
         runtime:sleep(1);
     }
-    panic error("Statement execution did not finish within the expected time");
+    return error("Statement execution did not finish within the expected time");
 }

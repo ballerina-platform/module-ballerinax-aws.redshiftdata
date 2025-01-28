@@ -18,14 +18,16 @@ import ballerina/sql;
 import ballerina/test;
 
 type User record {|
-    int user_id;
+    @sql:Column {name: "user_id"}
+    int userId;
     string username;
     string email;
     int age;
 |};
 
 type UserWithoutEmailField record {|
-    int user_id;
+    @sql:Column {name: "user_id"}
+    int userId;
     string username;
     int age;
 |};
@@ -34,29 +36,36 @@ type UserOpenRecord record {
 };
 
 type SupportedTypes record {|
-    int int_type;
-    int bigint_type;
-    float double_type;
-    boolean boolean_type;
-    string string_type;
-    () nil_type;
+    @sql:Column {name: "int_type"}
+    int intType;
+    @sql:Column {name: "bigint_type"}
+    int bigintType;
+    @sql:Column {name: "double_type"}
+    float doubleType;
+    @sql:Column {name: "boolean_type"}
+    boolean booleanType;
+    @sql:Column {name: "string_type"}
+    string stringType;
+    @sql:Column {name: "nil_type"}
+    () nilType;
 |};
 
 @test:Config {
-    groups: ["getStatementResult"]
+    groups: ["getResultAsStream"]
 }
 isolated function testBasicQueryResult() returns error? {
     User[] expectedUsers = [
-        {user_id: 1, username: "JohnDoe", email: "john.doe@example.com", age: 25},
-        {user_id: 2, username: "JaneSmith", email: "jane.smith@example.com", age: 30},
-        {user_id: 3, username: "BobJohnson", email: "bob.johnson@example.com", age: 22}
+        {userId: 1, username: "JohnDoe", email: "john.doe@example.com", age: 25},
+        {userId: 2, username: "JaneSmith", email: "jane.smith@example.com", age: 30},
+        {userId: 3, username: "BobJohnson", email: "bob.johnson@example.com", age: 22}
     ];
 
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
     Client redshift = check new Client(testConnectionConfig);
-    ExecutionResponse res = check redshift->executeStatement(query);
-    _ = check waitForCompletion(redshift, res.statementId);
-    stream<User, Error?> resultStream = check redshift->getStatementResult(res.statementId);
+    ExecutionResponse res = check redshift->execute(query);
+    DescriptionResponse descriptionResponse = check waitForCompletion(redshift, res.statementId);
+    test:assertEquals(descriptionResponse.status, FINISHED);
+    stream<User, Error?> resultStream = check redshift->getResultAsStream(res.statementId);
     User[] resultArray = check from User user in resultStream
         select user;
 
@@ -68,16 +77,17 @@ isolated function testBasicQueryResult() returns error? {
 }
 
 @test:Config {
-    groups: ["getStatementResult"]
+    groups: ["getResultAsStream"]
 }
 isolated function testParameterizedQueryResult() returns error? {
-    int user_id = 1;
-    sql:ParameterizedQuery query = `SELECT * FROM Users WHERE user_id = ${user_id};`;
+    int userId = 1;
+    sql:ParameterizedQuery query = `SELECT * FROM Users WHERE user_id = ${userId};`;
 
     Client redshift = check new Client(testConnectionConfig);
-    ExecutionResponse res = check redshift->executeStatement(query);
-    _ = check waitForCompletion(redshift, res.statementId);
-    stream<User, Error?> resultStream = check redshift->getStatementResult(res.statementId);
+    ExecutionResponse res = check redshift->execute(query);
+    DescriptionResponse descriptionResponse = check waitForCompletion(redshift, res.statementId);
+    test:assertEquals(descriptionResponse.status, FINISHED);
+    stream<User, Error?> resultStream = check redshift->getResultAsStream(res.statementId);
     User[] resultArray = check from User user in resultStream
         select user;
 
@@ -87,31 +97,32 @@ isolated function testParameterizedQueryResult() returns error? {
 }
 
 @test:Config {
-    groups: ["getStatementResult"]
+    groups: ["getResultAsStream"]
 }
 isolated function testSupportedTypes() returns error? {
     SupportedTypes data = {
-        int_type: 12,
-        bigint_type: 9223372036854774807,
-        double_type: 123.34,
-        boolean_type: true,
-        string_type: "test",
-        nil_type: ()
+        intType: 12,
+        bigintType: 9223372036854774807,
+        doubleType: 123.34,
+        booleanType: true,
+        stringType: "test",
+        nilType: ()
     };
 
     Client redshift = check new Client(testConnectionConfig);
 
     sql:ParameterizedQuery insertQuery = `INSERT INTO SupportedTypes (
         int_type, bigint_type, double_type, boolean_type, string_type, nil_type) VALUES 
-        (${data.int_type}, ${data.bigint_type}, ${data.double_type}, ${data.boolean_type},
-         ${data.string_type},  ${data.nil_type}
+        (${data.intType}, ${data.bigintType}, ${data.doubleType}, ${data.booleanType},
+         ${data.stringType},  ${data.nilType}
         );`;
-    _ = check redshift->executeStatement(insertQuery);
+    _ = check redshift->execute(insertQuery);
 
     sql:ParameterizedQuery selectQuery = `SELECT * FROM SupportedTypes;`;
-    ExecutionResponse res = check redshift->executeStatement(selectQuery);
-    _ = check waitForCompletion(redshift, res.statementId);
-    stream<SupportedTypes, Error?> queryResult = check redshift->getStatementResult(res.statementId);
+    ExecutionResponse res = check redshift->execute(selectQuery);
+    DescriptionResponse descriptionResponse = check waitForCompletion(redshift, res.statementId);
+    test:assertEquals(descriptionResponse.status, FINISHED);
+    stream<SupportedTypes, Error?> queryResult = check redshift->getResultAsStream(res.statementId);
 
     SupportedTypes[] resultArray = check from SupportedTypes item in queryResult
         select item;
@@ -122,15 +133,16 @@ isolated function testSupportedTypes() returns error? {
 }
 
 @test:Config {
-    groups: ["getStatementResult"]
+    groups: ["getResultAsStream"]
 }
 isolated function testNoQueryResult() returns error? {
     sql:ParameterizedQuery query = `DROP TABLE IF EXISTS non_existent_table;`;
 
     Client redshift = check new Client(testConnectionConfig);
-    ExecutionResponse res = check redshift->executeStatement(query);
-    _ = check waitForCompletion(redshift, res.statementId);
-    stream<User, Error?>|Error queryResult = redshift->getStatementResult(res.statementId);
+    ExecutionResponse res = check redshift->execute(query);
+    DescriptionResponse descriptionResponse = check waitForCompletion(redshift, res.statementId);
+    test:assertEquals(descriptionResponse.status, FINISHED);
+    stream<User, Error?>|Error queryResult = redshift->getResultAsStream(res.statementId);
     test:assertTrue(queryResult is Error);
     if queryResult is Error {
         ErrorDetails errorDetails = queryResult.detail();
@@ -142,14 +154,15 @@ isolated function testNoQueryResult() returns error? {
 }
 
 @test:Config {
-    groups: ["getStatementResult"]
+    groups: ["getResultAsStream"]
 }
 isolated function testNoResultRows() returns error? {
     sql:ParameterizedQuery query = `SELECT * FROM Users WHERE user_id = 0;`;
     Client redshift = check new Client(testConnectionConfig);
-    ExecutionResponse res = check redshift->executeStatement(query);
-    _ = check waitForCompletion(redshift, res.statementId);
-    stream<User, Error?> resultStream = check redshift->getStatementResult(res.statementId);
+    ExecutionResponse res = check redshift->execute(query);
+    DescriptionResponse descriptionResponse = check waitForCompletion(redshift, res.statementId);
+    test:assertEquals(descriptionResponse.status, FINISHED);
+    stream<User, Error?> resultStream = check redshift->getResultAsStream(res.statementId);
     User[] resultArray = check from User user in resultStream
         select user;
 
@@ -158,12 +171,12 @@ isolated function testNoResultRows() returns error? {
 }
 
 @test:Config {
-    groups: ["getStatementResult"]
+    groups: ["getResultAsStream"]
 }
 isolated function testInvalidStatementId() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     StatementId invalidStatementId = "InvalidStatementId";
-    stream<User, Error?>|Error queryResult = redshift->getStatementResult(invalidStatementId);
+    stream<User, Error?>|Error queryResult = redshift->getResultAsStream(invalidStatementId);
     test:assertTrue(queryResult is Error);
     if queryResult is Error {
         ErrorDetails errorDetails = queryResult.detail();
@@ -175,11 +188,11 @@ isolated function testInvalidStatementId() returns error? {
 }
 
 @test:Config {
-    groups: ["getStatementResult"]
+    groups: ["getResultAsStream"]
 }
 isolated function testIncorrectStatementId() returns error? {
     Client redshift = check new Client(testConnectionConfig);
-    stream<User, Error?>|Error queryResult = redshift->getStatementResult("70662acc-f334-46f8-b953-3a9546796d7k");
+    stream<User, Error?>|Error queryResult = redshift->getResultAsStream("70662acc-f334-46f8-b953-3a9546796d7k");
     test:assertTrue(queryResult is Error);
     if queryResult is Error {
         ErrorDetails errorDetails = queryResult.detail();
@@ -190,31 +203,33 @@ isolated function testIncorrectStatementId() returns error? {
 }
 
 @test:Config {
-    groups: ["getStatementResult"]
+    groups: ["getResultAsStream"]
 }
 isolated function testMissingFieldInUserType() returns error? {
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
     Client redshift = check new Client(testConnectionConfig);
-    ExecutionResponse res = check redshift->executeStatement(query);
-    _ = check waitForCompletion(redshift, res.statementId);
-    stream<UserWithoutEmailField, Error?>|Error resultStream = redshift->getStatementResult(res.statementId);
+    ExecutionResponse res = check redshift->execute(query);
+    DescriptionResponse descriptionResponse = check waitForCompletion(redshift, res.statementId);
+    test:assertEquals(descriptionResponse.status, FINISHED);
+    stream<UserWithoutEmailField, Error?>|Error resultStream = redshift->getResultAsStream(res.statementId);
     test:assertTrue(resultStream is Error);
     if resultStream is Error {
-        test:assertEquals(resultStream.message(), "Error occurred while executing the getQueryResult: " +
+        test:assertEquals(resultStream.message(), "Error occurred while executing the getResultAsStream: " +
                 "Error occurred while creating the Record Stream: Field 'email' not found in the record type.");
     }
     check redshift->close();
 }
 
 @test:Config {
-    groups: ["getStatementResult"]
+    groups: ["getResultAsStream"]
 }
 isolated function testUserWithOpenRecord() returns error? {
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
     Client redshift = check new Client(testConnectionConfig);
-    ExecutionResponse res = check redshift->executeStatement(query);
-    _ = check waitForCompletion(redshift, res.statementId);
-    stream<UserOpenRecord, Error?> resultStream = check redshift->getStatementResult(res.statementId);
+    ExecutionResponse res = check redshift->execute(query);
+    DescriptionResponse descriptionResponse = check waitForCompletion(redshift, res.statementId);
+    test:assertEquals(descriptionResponse.status, FINISHED);
+    stream<UserOpenRecord, Error?> resultStream = check redshift->getResultAsStream(res.statementId);
     UserOpenRecord[] resultArray = check from UserOpenRecord user in resultStream
         select user;
     test:assertEquals(resultArray[0],
@@ -239,15 +254,15 @@ isolated function testResultPagination() returns error? {
         `;
 
     Client redshift = check new Client(testConnectionConfig);
-    ExecutionResponse res = check redshift->executeStatement(query);
-    DescriptionResponse descriptionResponse =
-        check waitForCompletion(redshift, res.statementId);
+    ExecutionResponse res = check redshift->execute(query);
+    DescriptionResponse descriptionResponse = check waitForCompletion(redshift, res.statementId);
+    test:assertEquals(descriptionResponse.status, FINISHED);
 
     int resultSize = descriptionResponse.resultSize / 1024 / 1024; // Convert bytes to MB
     int totalRows = descriptionResponse.resultRows;
     test:assertTrue(resultSize >= 150);
 
-    stream<record {int num;}, Error?> resultStream = check redshift->getStatementResult(res.statementId);
+    stream<record {int num;}, Error?> resultStream = check redshift->getResultAsStream(res.statementId);
     record {int num;}[] resultArray = check from var item in resultStream
         select item;
 

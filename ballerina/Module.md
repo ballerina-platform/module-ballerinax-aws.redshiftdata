@@ -92,7 +92,7 @@ To use the Ballerina AWS Redshift data connector, follow these steps to set up a
 
    ![wait-for-availability.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/wait-for-availability.png)
 
-> **Note:** Amazon Redshift now offers a serverless option, allowing you to use the data warehouse without managing infrastructure. Redshift Serverless automatically scales to handle your workloads, providing a flexible and efficient way to run analytics. To configure a **Redshift serverless** setup, please refer to this [link.](https://docs.aws.amazon.com/redshift/latest/gsg/new-user-serverless.html)
+> **Note:** Amazon Redshift now offers a serverless option, allowing you to use the data warehouse without managing infrastructure. Redshift Serverless automatically scales to handle your workloads, providing a flexible and efficient way to run analytics. To configure a **Redshift serverless** setup, please refer to [AWS documentation.](https://docs.aws.amazon.com/redshift/latest/gsg/new-user-serverless.html)
 
 ## Quickstart
 
@@ -108,7 +108,7 @@ import ballerinax/aws.redshiftdata;
 
 Create a new `redshiftdata:Client` by providing the region, authConfig and dbAccessConfig.
 
-The `dbAccessConfig` in the `ConnectionConfig` record defines the database access configuration for connecting to the Redshift Data API. It can be set to either a Cluster or a WorkGroup (Serverless mode). Additionally, users can override this configuration for specific requests by providing it in individual calls to methods like executeStatement or batchExecuteStatement, allowing for more granular control over database access per execution.
+The `dbAccessConfig` in the `ConnectionConfig` record defines the database access configuration for connecting to the Redshift Data API. It can be set to either a Cluster or a WorkGroup (Serverless mode). Additionally, users can override this configuration for specific requests by providing it in individual calls to methods like execute or batchExecute, allowing for more granular control over database access per execution.
 
 ```ballerina
 configurable string accessKeyId = ?;
@@ -130,11 +130,11 @@ redshiftdata:Client redshift = check new ({
 Now, utilize the available connector operations.
 
 ```ballerina
-redshiftdata:ExecutionResponse response = check redshift->executeStatement(`SELECT * FROM Users`);
+redshiftdata:ExecutionResponse response = check redshift->execute(`SELECT * FROM Users`);
 
-redshiftdata:DescriptionResponse descriptionResponse = check redshift->describeStatement(response.statementId);
+redshiftdata:DescriptionResponse descriptionResponse = check redshift->describe(response.statementId);
 
-stream<User, redshiftdata:Error?> statementResult = check redshift->getStatementResult(response.statementId);
+stream<User, redshiftdata:Error?> statementResult = check redshift->getResultAsStream(response.statementId);
 ```
 
 ### Step 4: Run the Ballerina application
@@ -149,6 +149,6 @@ bal run
 
 The `aws.redshiftdata` connector provides practical examples illustrating usage in various scenarios. Explore these [examples](https://github.com/ballerina-platform/module-ballerinax-aws.redshiftdata/tree/main/examples).
 
-1. [Manage users](https://github.com/ballerina-platform/module-ballerinax-aws.redshiftdata/tree/main/examples/manage-users/) - This example demonstrates how to use the Ballerina Redshift Data connector to perform SQL operations on an AWS Redshift cluster. It includes creating a table, inserting data, querying data, and dropping the table.
+1. [Manage users](https://github.com/ballerina-platform/module-ballerinax-aws.redshiftdata/tree/main/examples/manage-users/) - This example demonstrates how to use the Ballerina Redshift Data connector to perform SQL operations on an AWS Redshift cluster. It includes creating a table, inserting data, and querying data.
 
 2. [Music store](https://github.com/ballerina-platform/module-ballerinax-aws.redshiftdata/tree/main/examples/music-store) - This example illustrates the process of creating an HTTP RESTful API with Ballerina to perform basic CRUD operations on a database, specifically AWS Redshift, involving setup, configuration, and running examples.

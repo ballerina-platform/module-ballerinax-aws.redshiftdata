@@ -22,7 +22,6 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.RecordType;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
@@ -41,6 +40,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor.NATIVE_CLIENT;
+import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 
 /**
  * Represents the utility functions for processing query results.
@@ -53,6 +53,9 @@ public class QueryResultProcessor {
     private static final String RESULT_ITERATOR_COLUMN_INDEX_MAP = "IndexMap"; // field name -> result column index
     private static final String RESULT_ITERATOR_NATIVE_CLIENT = "nativeClient";
     private static final String RESULT_ITERATOR_STATEMENT_ID = "statementId";
+    private static final String RECORD_FIELD_ANN_PREFIX = "$field$.";
+    private static final String SQL_COLUMN_ANNOTATION = "ballerina/sql:1:Column";
+    private static final BString ANN_COLUMN_NAME_FIELD = fromString("name");
 
     private QueryResultProcessor() {
     }
@@ -66,23 +69,24 @@ public class QueryResultProcessor {
                     recordType.getDescribingType());
 
             List<String> resultFields = columnMetadata.stream().map(ColumnMetadata::name).toList();
-            String[] ballerinaFields = streamConstraint.getFields().keySet().toArray(new String[0]);
+            // Get the ballerina field names and the corresponding annotated column names
+            Map<String, String> ballerinaFieldMap = getAnnotationMap(streamConstraint);
 
             // Map the field name with result column index
             Map<String, Integer> columnIndexMap = new HashMap<>();
             int columnIndex = -1;
-            for (String ballerinaField : ballerinaFields) {
-                columnIndex = resultFields.indexOf(ballerinaField);
+            for (String ballerinaField : ballerinaFieldMap.keySet()) {
+                String annotatedColumnName = ballerinaFieldMap.get(ballerinaField);
+                columnIndex = resultFields.indexOf(annotatedColumnName);
                 if (columnIndex == -1) {
-                    throw new Exception("Field '" + ballerinaField + "' not found in the result set.");
+                    throw new Exception("Field '" + annotatedColumnName + "' not found in the result set.");
                 }
                 columnIndexMap.put(ballerinaField, columnIndex);
             }
-            boolean isClosedRecord = streamConstraint.isSealed();
-            if (isClosedRecord) {
+            if (streamConstraint.isSealed()) {
                 // Ensure no extra fields are present in result set
                 for (String resultField : resultFields) {
-                    if (!columnIndexMap.containsKey(resultField)) {
+                    if (!columnIndexMap.containsKey(resultField) && !ballerinaFieldMap.containsValue(resultField)) {
                         throw new Exception("Field '" + resultField + "' not found in the record type.");
                     }
                 }
@@ -110,6 +114,28 @@ public class QueryResultProcessor {
             throw new Exception("Error occurred while creating the Record Stream: "
                     + Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, String> getAnnotationMap(RecordType streamConstraint) {
+        Map<String, String> annotatationMap = new HashMap<>();
+        String[] fields = streamConstraint.getFields().keySet().toArray(new String[0]);
+        for (String fieldName : fields) {
+            String columnName = fieldName.toLowerCase();
+            Object fieldAnnotationsObj = streamConstraint
+                    .getAnnotation(fromString(RECORD_FIELD_ANN_PREFIX + fieldName));
+            // Check if the field has the SQL Column annotation
+            if (fieldAnnotationsObj instanceof BMap) {
+                BMap<BString, Object> fieldAnnotations = (BMap<BString, Object>) fieldAnnotationsObj;
+                BMap<BString, Object> columnAnnotation = (BMap<BString, Object>) fieldAnnotations.getMapValue(
+                        fromString(SQL_COLUMN_ANNOTATION));
+                if (Objects.nonNull(columnAnnotation)) {
+                    columnName = columnAnnotation.getStringValue(ANN_COLUMN_NAME_FIELD).getValue().toLowerCase();
+                }
+            }
+            annotatationMap.put(fieldName, columnName);
+        }
+        return annotatationMap;
     }
 
     @SuppressWarnings("unchecked")
@@ -146,7 +172,7 @@ public class QueryResultProcessor {
                 for (String fieldName : columnIndexMap.keySet()) {
                     int columnIndex = columnIndexMap.get(fieldName);
                     Field field = row.get(columnIndex);
-                    record.put(StringUtils.fromString(fieldName), getFieldValue(field));
+                    record.put(fromString(fieldName), getFieldValue(field));
                 }
                 bResultIterator.addNativeData(RESULT_ITERATOR_CURRENT_RESULT_INDEX, index + 1);
                 return record;
@@ -163,7 +189,7 @@ public class QueryResultProcessor {
 
     private static Object getFieldValue(Field field) {
         if (field.stringValue() != null) {
-            return StringUtils.fromString(field.stringValue());
+            return fromString(field.stringValue());
         }
         if (field.booleanValue() != null) {
             return field.booleanValue();

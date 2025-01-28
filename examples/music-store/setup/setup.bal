@@ -42,36 +42,30 @@ public function main() returns error? {
         artist VARCHAR(100),
         price REAL
     );`;
-    redshiftdata:ExecutionResponse createTableExecutionResponse = check redshift->executeStatement(createTableQuery);
-    _ = check waitForCompletion(redshift, createTableExecutionResponse.statementId);
+    redshiftdata:ExecutionResponse createTableResponse = check redshift->execute(createTableQuery);
+    _ = check waitForCompletion(redshift, createTableResponse.statementId);
 
     // Adds the records to the `albums` table
     sql:ParameterizedQuery[] insertQueries = [
         `INSERT INTO Albums VALUES('A-123', 'Lemonade', 'Beyonce', 18.98);`,
         `INSERT INTO Albums VALUES('A-321', 'Renaissance', 'Beyonce', 24.98);`
     ];
-    redshiftdata:ExecutionResponse insertExecutionResponse =
-        check redshift->batchExecuteStatement(insertQueries);
-    _ = check waitForCompletion(redshift, insertExecutionResponse.statementId);
+    redshiftdata:ExecutionResponse insertDescription = check redshift->batchExecute(insertQueries);
+    _ = check waitForCompletion(redshift, insertDescription.statementId);
     io:println("Music Store database setup completed successfully.");
 }
 
 isolated function waitForCompletion(redshiftdata:Client redshift, string statementId)
 returns redshiftdata:DescriptionResponse|redshiftdata:Error {
-    int i = 0;
-    while i < 10 {
-        redshiftdata:DescriptionResponse|redshiftdata:Error describeStatementResponse =
-            redshift->describeStatement(statementId);
-        if describeStatementResponse is redshiftdata:Error {
-            return describeStatementResponse;
+    foreach int retryCount in 0 ... 9 {
+        redshiftdata:DescriptionResponse descriptionResponse = check redshift->describe(statementId);
+        if descriptionResponse.status is redshiftdata:FINISHED {
+            return descriptionResponse;
         }
-        match describeStatementResponse.status {
-            "FINISHED"|"FAILED"|"ABORTED" => {
-                return describeStatementResponse;
-            }
+        if descriptionResponse.status is redshiftdata:FAILED|redshiftdata:ABORTED {
+            return error("Execution did not finish successfully. Status: " + descriptionResponse.status);
         }
-        i = i + 1;
         runtime:sleep(1);
     }
-    panic error("Statement execution did not finish within the expected time");
+    return error("Statement execution did not finish within the expected time");
 }

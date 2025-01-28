@@ -16,7 +16,7 @@
 
 import ballerina/jballerina.java;
 
-# The result iterator used to iterate results in stream returned from `getQueryResult` method.
+# The result iterator used to iterate results in stream returned from `getResultAsStream` method.
 isolated class ResultIterator {
     private boolean isClosed = false;
 

@@ -22,7 +22,7 @@ import ballerina/test;
 }
 isolated function testBasicStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
-    ExecutionResponse res = check redshift->executeStatement(`SELECT * FROM Users`);
+    ExecutionResponse res = check redshift->execute(`SELECT * FROM Users`);
 
     test:assertTrue(res.statementId != "");
     test:assertTrue(res.createdAt[0] > 0);
@@ -45,11 +45,11 @@ isolated function testSessionId() returns error? {
         }
     };
     Client redshift = check new Client(connectionConfig);
-    ExecutionResponse res1 = check redshift->executeStatement(`SELECT * FROM Users`);
+    ExecutionResponse res1 = check redshift->execute(`SELECT * FROM Users`);
     test:assertTrue(res1.sessionId is string && res1.sessionId != "");
 
     runtime:sleep(2); // wait for session to establish
-    ExecutionResponse res2 = check redshift->executeStatement(`SELECT * FROM Users`,
+    ExecutionResponse res2 = check redshift->execute(`SELECT * FROM Users`,
         {dbAccessConfig: res1.sessionId});
     test:assertTrue(res2.sessionId == res1.sessionId);
     check redshift->close();
@@ -66,7 +66,7 @@ isolated function testExecutionConfig() returns error? {
         statementName: "testStatement",
         withEvent: true
     };
-    ExecutionResponse res = check redshift->executeStatement(`SELECT * FROM Users`, config);
+    ExecutionResponse res = check redshift->execute(`SELECT * FROM Users`, config);
     test:assertTrue(res.statementId != "");
     check redshift->close();
 }
@@ -77,7 +77,7 @@ isolated function testExecutionConfig() returns error? {
 isolated function testParameterizedStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     string tableName = "Users";
-    ExecutionResponse res = check redshift->executeStatement(`SELECT * FROM ${tableName}`);
+    ExecutionResponse res = check redshift->execute(`SELECT * FROM ${tableName}`);
     test:assertTrue(res.statementId != "");
     check redshift->close();
 }
@@ -88,8 +88,8 @@ isolated function testParameterizedStatement() returns error? {
 isolated function testNilParameterizedStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
     string? username = ();
-    ExecutionResponse res = check redshift->executeStatement(`SELECT * FROM User WHERE username = ${username}`);
-    DescriptionResponse descRes = check redshift->describeStatement(res.statementId);
+    ExecutionResponse res = check redshift->execute(`SELECT * FROM User WHERE username = ${username}`);
+    DescriptionResponse descRes = check redshift->describe(res.statementId);
     test:assertEquals(descRes.queryString, "SELECT * FROM User WHERE username = NULL");
     check redshift->close();
 }
@@ -99,7 +99,7 @@ isolated function testNilParameterizedStatement() returns error? {
 }
 isolated function testEmptyStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
-    ExecutionResponse|Error res = redshift->executeStatement(``);
+    ExecutionResponse|Error res = redshift->execute(``);
     test:assertTrue(res is Error && (res.message() == "SQL statement cannot be empty."));
     check redshift->close();
 }
@@ -118,7 +118,7 @@ isolated function testWithDbConfigs() returns error? {
         }
     };
     Client redshift = check new Client(mockConnectionConfig);
-    ExecutionResponse res = check redshift->executeStatement(`SELECT * FROM Users`,
+    ExecutionResponse res = check redshift->execute(`SELECT * FROM Users`,
         {dbAccessConfig: testDbAccessConfig});
     test:assertTrue(res.statementId != "");
     check redshift->close();
@@ -138,7 +138,7 @@ isolated function testWithInvalidDbConfigs() returns error? {
         }
     };
     Client redshift = check new Client(mockConnectionConfig);
-    ExecutionResponse|Error res = redshift->executeStatement(`SELECT * FROM Users`);
+    ExecutionResponse|Error res = redshift->execute(`SELECT * FROM Users`);
     test:assertTrue(res is Error);
     if res is Error {
         ErrorDetails errorDetails = res.detail();
@@ -153,7 +153,7 @@ isolated function testWithInvalidDbConfigs() returns error? {
 }
 isolated function testWithInvalidStatementName() returns error? {
     Client redshift = check new Client(testConnectionConfig);
-    ExecutionResponse|Error res = redshift->executeStatement(`SELECT * FROM Users`, statementName = "");
+    ExecutionResponse|Error res = redshift->execute(`SELECT * FROM Users`, statementName = "");
     test:assertTrue(res is Error);
     if res is Error {
         test:assertEquals(res.message(), "The statement name should be at least 1 character long.");
@@ -166,7 +166,7 @@ isolated function testWithInvalidStatementName() returns error? {
 }
 isolated function testWithInvalidClusterId() returns error? {
     Client redshift = check new Client(testConnectionConfig);
-    ExecutionResponse|Error res = redshift->executeStatement(`SELECT * FROM Users`, dbAccessConfig = {
+    ExecutionResponse|Error res = redshift->execute(`SELECT * FROM Users`, dbAccessConfig = {
         id: "",
         database: testDatabaseName
     });
@@ -186,10 +186,10 @@ isolated function testNoDbAccessConfig() returns error? {
         dbAccessConfig: ()
     };
     Client redshift = check new Client(connectionConfig);
-    ExecutionResponse|Error res = redshift->executeStatement(`SELECT * FROM Users`);
+    ExecutionResponse|Error res = redshift->execute(`SELECT * FROM Users`);
     test:assertTrue(res is Error);
     if res is Error {
-        test:assertEquals(res.message(), "Error occurred while executing the executeStatement: No database access " +
+        test:assertEquals(res.message(), "Error occurred while executing the execute: No database access " +
                 "configuration provided in the initialization of the client or in the execute statement config");
     }
     check redshift->close();

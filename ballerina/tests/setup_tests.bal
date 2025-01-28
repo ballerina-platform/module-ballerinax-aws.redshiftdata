@@ -22,7 +22,7 @@ function beforeFunction() returns error? {
     log:printInfo("Setting up tables");
     Client redshift = check new Client(testConnectionConfig);
 
-    _ = check redshift->executeStatement(`
+    ExecutionResponse createSupportedTypes = check redshift->execute(`
         CREATE TABLE IF NOT EXISTS SupportedTypes (
         int_type INTEGER,
         bigint_type BIGINT,
@@ -32,8 +32,11 @@ function beforeFunction() returns error? {
         nil_type VARCHAR(255)
     );
     `);
+    DescriptionResponse SupportedTypesDescription =
+        check waitForCompletion(redshift, createSupportedTypes.statementId);
+    test:assertEquals(SupportedTypesDescription.status, FINISHED);
 
-    _ = check redshift->executeStatement(`
+    ExecutionResponse createUserTable = check redshift->execute(`
         CREATE TABLE Users (
         user_id INT,
         username VARCHAR(255),
@@ -41,13 +44,19 @@ function beforeFunction() returns error? {
         age INT
     );
     `);
+    DescriptionResponse createUserTableDescription =
+        check waitForCompletion(redshift, createUserTable.statementId);
+    test:assertEquals(createUserTableDescription.status, FINISHED);
 
-    _ = check redshift->executeStatement(`
+    ExecutionResponse insertUsers = check redshift->execute(`
         INSERT INTO Users (user_id, username, email, age) VALUES
         (1, 'JohnDoe', 'john.doe@example.com', 25),
         (2, 'JaneSmith', 'jane.smith@example.com', 30),
         (3, 'BobJohnson', 'bob.johnson@example.com', 22);
     `);
+    DescriptionResponse insertUsersDescription =
+        check waitForCompletion(redshift, insertUsers.statementId);
+    test:assertEquals(insertUsersDescription.status, FINISHED);
 
     check redshift->close();
 }
@@ -57,8 +66,14 @@ function afterFunction() returns error? {
     log:printInfo("Cleaning up resources");
     Client redshift = check new Client(testConnectionConfig);
 
-    _ = check redshift->executeStatement(`DROP TABLE IF EXISTS Users`);
-    _ = check redshift->executeStatement(`DROP TABLE IF EXISTS SupportedTypes`);
+    ExecutionResponse dropUsers = check redshift->execute(`DROP TABLE IF EXISTS Users`);
+    DescriptionResponse dropUsersDescription = check waitForCompletion(redshift, dropUsers.statementId);
+    test:assertEquals(dropUsersDescription.status, FINISHED);
+
+    ExecutionResponse dropSupportedTypes = check redshift->execute(`DROP TABLE IF EXISTS SupportedTypes`);
+    DescriptionResponse dropSupportedTypesDescription =
+        check waitForCompletion(redshift, dropSupportedTypes.statementId);
+    test:assertEquals(dropSupportedTypesDescription.status, FINISHED);
 
     check redshift->close();
 }
