@@ -59,8 +59,11 @@ isolated function waitForCompletion(redshiftdata:Client redshift, string stateme
 returns redshiftdata:DescriptionResponse|redshiftdata:Error {
     foreach int retryCount in 0 ... 9 {
         redshiftdata:DescriptionResponse descriptionResponse = check redshift->describe(statementId);
-        if descriptionResponse.status is redshiftdata:FINISHED|redshiftdata:FAILED|redshiftdata:ABORTED {
+        if descriptionResponse.status is redshiftdata:FINISHED {
             return descriptionResponse;
+        }
+        if descriptionResponse.status is redshiftdata:FAILED|redshiftdata:ABORTED {
+            return error("Execution did not finish successfully. Status: " + descriptionResponse.status);
         }
         runtime:sleep(1);
     }

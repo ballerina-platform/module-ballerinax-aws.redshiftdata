@@ -32,7 +32,9 @@ function beforeFunction() returns error? {
         nil_type VARCHAR(255)
     );
     `);
-    _ = check waitForCompletion(redshift, createSupportedTypes.statementId);
+    DescriptionResponse SupportedTypesDescription =
+        check waitForCompletion(redshift, createSupportedTypes.statementId);
+    test:assertEquals(SupportedTypesDescription.status, FINISHED);
 
     ExecutionResponse createUserTable = check redshift->execute(`
         CREATE TABLE Users (
@@ -42,7 +44,9 @@ function beforeFunction() returns error? {
         age INT
     );
     `);
-    _ = check waitForCompletion(redshift, createUserTable.statementId);
+    DescriptionResponse createUserTableDescription =
+        check waitForCompletion(redshift, createUserTable.statementId);
+    test:assertEquals(createUserTableDescription.status, FINISHED);
 
     ExecutionResponse insertUsers = check redshift->execute(`
         INSERT INTO Users (user_id, username, email, age) VALUES
@@ -50,7 +54,9 @@ function beforeFunction() returns error? {
         (2, 'JaneSmith', 'jane.smith@example.com', 30),
         (3, 'BobJohnson', 'bob.johnson@example.com', 22);
     `);
-    _ = check waitForCompletion(redshift, insertUsers.statementId);
+    DescriptionResponse insertUsersDescription =
+        check waitForCompletion(redshift, insertUsers.statementId);
+    test:assertEquals(insertUsersDescription.status, FINISHED);
 
     check redshift->close();
 }
@@ -61,9 +67,13 @@ function afterFunction() returns error? {
     Client redshift = check new Client(testConnectionConfig);
 
     ExecutionResponse dropUsers = check redshift->execute(`DROP TABLE IF EXISTS Users`);
-    _ = check waitForCompletion(redshift, dropUsers.statementId);
+    DescriptionResponse dropUsersDescription = check waitForCompletion(redshift, dropUsers.statementId);
+    test:assertEquals(dropUsersDescription.status, FINISHED);
+
     ExecutionResponse dropSupportedTypes = check redshift->execute(`DROP TABLE IF EXISTS SupportedTypes`);
-    _ = check waitForCompletion(redshift, dropSupportedTypes.statementId);
+    DescriptionResponse dropSupportedTypesDescription =
+        check waitForCompletion(redshift, dropSupportedTypes.statementId);
+    test:assertEquals(dropSupportedTypesDescription.status, FINISHED);
 
     check redshift->close();
 }

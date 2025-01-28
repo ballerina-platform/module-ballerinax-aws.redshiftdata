@@ -63,7 +63,8 @@ isolated function testBasicQueryResult() returns error? {
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
     Client redshift = check new Client(testConnectionConfig);
     ExecutionResponse res = check redshift->execute(query);
-    _ = check waitForCompletion(redshift, res.statementId);
+    DescriptionResponse descriptionResponse = check waitForCompletion(redshift, res.statementId);
+    test:assertEquals(descriptionResponse.status, FINISHED);
     stream<User, Error?> resultStream = check redshift->getResultAsStream(res.statementId);
     User[] resultArray = check from User user in resultStream
         select user;
@@ -84,7 +85,8 @@ isolated function testParameterizedQueryResult() returns error? {
 
     Client redshift = check new Client(testConnectionConfig);
     ExecutionResponse res = check redshift->execute(query);
-    _ = check waitForCompletion(redshift, res.statementId);
+    DescriptionResponse descriptionResponse = check waitForCompletion(redshift, res.statementId);
+    test:assertEquals(descriptionResponse.status, FINISHED);
     stream<User, Error?> resultStream = check redshift->getResultAsStream(res.statementId);
     User[] resultArray = check from User user in resultStream
         select user;
@@ -118,7 +120,8 @@ isolated function testSupportedTypes() returns error? {
 
     sql:ParameterizedQuery selectQuery = `SELECT * FROM SupportedTypes;`;
     ExecutionResponse res = check redshift->execute(selectQuery);
-    _ = check waitForCompletion(redshift, res.statementId);
+    DescriptionResponse descriptionResponse = check waitForCompletion(redshift, res.statementId);
+    test:assertEquals(descriptionResponse.status, FINISHED);
     stream<SupportedTypes, Error?> queryResult = check redshift->getResultAsStream(res.statementId);
 
     SupportedTypes[] resultArray = check from SupportedTypes item in queryResult
@@ -137,7 +140,8 @@ isolated function testNoQueryResult() returns error? {
 
     Client redshift = check new Client(testConnectionConfig);
     ExecutionResponse res = check redshift->execute(query);
-    _ = check waitForCompletion(redshift, res.statementId);
+    DescriptionResponse descriptionResponse = check waitForCompletion(redshift, res.statementId);
+    test:assertEquals(descriptionResponse.status, FINISHED);
     stream<User, Error?>|Error queryResult = redshift->getResultAsStream(res.statementId);
     test:assertTrue(queryResult is Error);
     if queryResult is Error {
@@ -156,7 +160,8 @@ isolated function testNoResultRows() returns error? {
     sql:ParameterizedQuery query = `SELECT * FROM Users WHERE user_id = 0;`;
     Client redshift = check new Client(testConnectionConfig);
     ExecutionResponse res = check redshift->execute(query);
-    _ = check waitForCompletion(redshift, res.statementId);
+    DescriptionResponse descriptionResponse = check waitForCompletion(redshift, res.statementId);
+    test:assertEquals(descriptionResponse.status, FINISHED);
     stream<User, Error?> resultStream = check redshift->getResultAsStream(res.statementId);
     User[] resultArray = check from User user in resultStream
         select user;
@@ -204,7 +209,8 @@ isolated function testMissingFieldInUserType() returns error? {
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
     Client redshift = check new Client(testConnectionConfig);
     ExecutionResponse res = check redshift->execute(query);
-    _ = check waitForCompletion(redshift, res.statementId);
+    DescriptionResponse descriptionResponse = check waitForCompletion(redshift, res.statementId);
+    test:assertEquals(descriptionResponse.status, FINISHED);
     stream<UserWithoutEmailField, Error?>|Error resultStream = redshift->getResultAsStream(res.statementId);
     test:assertTrue(resultStream is Error);
     if resultStream is Error {
@@ -221,7 +227,8 @@ isolated function testUserWithOpenRecord() returns error? {
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
     Client redshift = check new Client(testConnectionConfig);
     ExecutionResponse res = check redshift->execute(query);
-    _ = check waitForCompletion(redshift, res.statementId);
+    DescriptionResponse descriptionResponse = check waitForCompletion(redshift, res.statementId);
+    test:assertEquals(descriptionResponse.status, FINISHED);
     stream<UserOpenRecord, Error?> resultStream = check redshift->getResultAsStream(res.statementId);
     UserOpenRecord[] resultArray = check from UserOpenRecord user in resultStream
         select user;
@@ -248,8 +255,8 @@ isolated function testResultPagination() returns error? {
 
     Client redshift = check new Client(testConnectionConfig);
     ExecutionResponse res = check redshift->execute(query);
-    DescriptionResponse descriptionResponse =
-        check waitForCompletion(redshift, res.statementId);
+    DescriptionResponse descriptionResponse = check waitForCompletion(redshift, res.statementId);
+    test:assertEquals(descriptionResponse.status, FINISHED);
 
     int resultSize = descriptionResponse.resultSize / 1024 / 1024; // Convert bytes to MB
     int totalRows = descriptionResponse.resultRows;

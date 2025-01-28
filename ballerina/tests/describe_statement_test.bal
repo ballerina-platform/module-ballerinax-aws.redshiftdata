@@ -28,6 +28,7 @@ isolated function testBasicDescribeStatement() returns error? {
     ExecutionResponse executionResponse = check redshift->execute(query);
     DescriptionResponse descriptionResponse = check waitForCompletion(redshift, executionResponse.statementId);
 
+    test:assertEquals(descriptionResponse.status, FINISHED);
     test:assertTrue(descriptionResponse.statementId != "");
     test:assertTrue(descriptionResponse.createdAt[0] > 0);
     test:assertTrue(descriptionResponse.duration > 0d);
