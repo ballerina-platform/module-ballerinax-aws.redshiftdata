@@ -1,4 +1,4 @@
-# Manage users with AWS Redshift Data connector
+# Manage users
 
 This example demonstrates how to use the Ballerina Redshift Data connector to perform SQL operations on an AWS Redshift cluster. It includes creating a table, inserting data, and querying data.
 

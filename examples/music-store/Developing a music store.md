@@ -1,4 +1,4 @@
-# Developing a music store API with AWS Redshift Data connector
+# Developing a music store
 
 This guide explains how to create an HTTP RESTful API using Ballerina for performing basic CRUD operations on a database by connecting to AWS Redshift Data API.
 
