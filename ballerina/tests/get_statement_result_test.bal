@@ -18,14 +18,16 @@ import ballerina/sql;
 import ballerina/test;
 
 type User record {|
-    int user_id;
+    @sql:Column {name: "user_id"}
+    int userId;
     string username;
     string email;
     int age;
 |};
 
 type UserWithoutEmailField record {|
-    int user_id;
+    @sql:Column {name: "user_id"}
+    int userId;
     string username;
     int age;
 |};
@@ -34,12 +36,18 @@ type UserOpenRecord record {
 };
 
 type SupportedTypes record {|
-    int int_type;
-    int bigint_type;
-    float double_type;
-    boolean boolean_type;
-    string string_type;
-    () nil_type;
+    @sql:Column {name: "int_type"}
+    int intType;
+    @sql:Column {name: "bigint_type"}
+    int bigintType;
+    @sql:Column {name: "double_type"}
+    float doubleType;
+    @sql:Column {name: "boolean_type"}
+    boolean booleanType;
+    @sql:Column {name: "string_type"}
+    string stringType;
+    @sql:Column {name: "nil_type"}
+    () nilType;
 |};
 
 @test:Config {
@@ -47,9 +55,9 @@ type SupportedTypes record {|
 }
 isolated function testBasicQueryResult() returns error? {
     User[] expectedUsers = [
-        {user_id: 1, username: "JohnDoe", email: "john.doe@example.com", age: 25},
-        {user_id: 2, username: "JaneSmith", email: "jane.smith@example.com", age: 30},
-        {user_id: 3, username: "BobJohnson", email: "bob.johnson@example.com", age: 22}
+        {userId: 1, username: "JohnDoe", email: "john.doe@example.com", age: 25},
+        {userId: 2, username: "JaneSmith", email: "jane.smith@example.com", age: 30},
+        {userId: 3, username: "BobJohnson", email: "bob.johnson@example.com", age: 22}
     ];
 
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
@@ -71,8 +79,8 @@ isolated function testBasicQueryResult() returns error? {
     groups: ["getResultAsStream"]
 }
 isolated function testParameterizedQueryResult() returns error? {
-    int user_id = 1;
-    sql:ParameterizedQuery query = `SELECT * FROM Users WHERE user_id = ${user_id};`;
+    int userId = 1;
+    sql:ParameterizedQuery query = `SELECT * FROM Users WHERE user_id = ${userId};`;
 
     Client redshift = check new Client(testConnectionConfig);
     ExecutionResponse res = check redshift->execute(query);
@@ -91,20 +99,20 @@ isolated function testParameterizedQueryResult() returns error? {
 }
 isolated function testSupportedTypes() returns error? {
     SupportedTypes data = {
-        int_type: 12,
-        bigint_type: 9223372036854774807,
-        double_type: 123.34,
-        boolean_type: true,
-        string_type: "test",
-        nil_type: ()
+        intType: 12,
+        bigintType: 9223372036854774807,
+        doubleType: 123.34,
+        booleanType: true,
+        stringType: "test",
+        nilType: ()
     };
 
     Client redshift = check new Client(testConnectionConfig);
 
     sql:ParameterizedQuery insertQuery = `INSERT INTO SupportedTypes (
         int_type, bigint_type, double_type, boolean_type, string_type, nil_type) VALUES 
-        (${data.int_type}, ${data.bigint_type}, ${data.double_type}, ${data.boolean_type},
-         ${data.string_type},  ${data.nil_type}
+        (${data.intType}, ${data.bigintType}, ${data.doubleType}, ${data.booleanType},
+         ${data.stringType},  ${data.nilType}
         );`;
     _ = check redshift->execute(insertQuery);
 

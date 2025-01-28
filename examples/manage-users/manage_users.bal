@@ -24,7 +24,8 @@ configurable string secretAccessKey = ?;
 configurable redshiftdata:Cluster dbAccessConfig = ?;
 
 type User record {|
-    int user_id;
+    @sql:Column {name: "user_id"}
+    int userId;
     string username;
     string email;
     int age;
@@ -53,12 +54,12 @@ public function main() returns error? {
 
     // Insert data into the table
     User[] users = [
-        {user_id: 1, username: "Alice", email: "alice@gmail.com", age: 25},
-        {user_id: 2, username: "Bob", email: "bob@gmail.com", age: 30}
+        {userId: 1, username: "Alice", email: "alice@gmail.com", age: 25},
+        {userId: 2, username: "Bob", email: "bob@gmail.com", age: 30}
     ];
     sql:ParameterizedQuery[] insertQueries = from var row in users
         select `INSERT INTO Users (user_id, username, email, age) VALUES
-            (${row.user_id}, ${row.username}, ${row.email}, ${row.age});`;
+            (${row.userId}, ${row.username}, ${row.email}, ${row.age});`;
 
     redshiftdata:ExecutionResponse insertResponse = check redshift->batchExecute(insertQueries);
     redshiftdata:DescriptionResponse insertDescription = check waitForCompletion(redshift, insertResponse.statementId);
