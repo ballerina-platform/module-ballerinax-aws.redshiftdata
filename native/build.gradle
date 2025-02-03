@@ -40,7 +40,7 @@ dependencies {
 
     dist (group: 'software.amazon.awssdk', name: 'redshiftdata', version: "${awsJavaSdkVersion}") {
         exclude group: "commons-logging", module: "commons-logging"
-        exclude group: "io.netty", module: "netty-buffer"
+        exclude group: "io.netty"
         exclude group: "org.slf4j", module: "slf4j-api"
     }
 }
