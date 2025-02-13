@@ -14,3 +14,57 @@ groupId = "io.ballerina.lib"
 artifactId = "aws.redshiftdata-native"
 version = "@project.version@"
 path = "../native/build/libs/aws.redshiftdata-native-@project.version@.jar"
+
+[[platform.java17.dependency]]
+groupId = "io.netty"
+artifactId = "netty-buffer"
+version = "@netty.version@"
+path = "./lib/netty-buffer-@netty.version@.jar"
+
+[[platform.java17.dependency]]
+groupId = "io.netty"
+artifactId = "netty-codec"
+version = "@netty.version@"
+path = "./lib/netty-codec-@netty.version@.jar"
+
+[[platform.java17.dependency]]
+groupId = "io.netty"
+artifactId = "netty-codec-http"
+version = "@netty.version@"
+path = "./lib/netty-codec-http-@netty.version@.jar"
+
+[[platform.java17.dependency]]
+groupId = "io.netty"
+artifactId = "netty-codec-http2"
+version = "@netty.version@"
+path = "./lib/netty-codec-http2-@netty.version@.jar"
+
+[[platform.java17.dependency]]
+groupId = "io.netty"
+artifactId = "netty-common"
+version = "@netty.version@"
+path = "./lib/netty-common-@netty.version@.jar"
+
+[[platform.java17.dependency]]
+groupId = "io.netty"
+artifactId = "netty-handler"
+version = "@netty.version@"
+path = "./lib/netty-handler-@netty.version@.jar"
+
+[[platform.java17.dependency]]
+groupId = "io.netty"
+artifactId = "netty-resolver"
+version = "@netty.version@"
+path = "./lib/netty-resolver-@netty.version@.jar"
+
+[[platform.java17.dependency]]
+groupId = "io.netty"
+artifactId = "netty-transport"
+version = "@netty.version@"
+path = "./lib/netty-transport-@netty.version@.jar"
+
+[[platform.java17.dependency]]
+groupId = "io.netty"
+artifactId = "netty-transport-native-unix-common"
+version = "@netty.version@"
+path = "./lib/netty-transport-native-unix-common-@netty.version@.jar"
