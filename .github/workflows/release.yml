@@ -14,4 +14,4 @@ jobs:
     with:
       package-name: aws.redshiftdata
       package-org: ballerinax
-      additional-publish-flags: "-x test"
+      additional-release-flags: "-x test"
