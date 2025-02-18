@@ -110,3 +110,9 @@ groupId = "software.amazon.awssdk"
 artifactId = "utils"
 version = "2.27.21"
 path = "./lib/utils-2.27.21.jar"
+
+[[platform.java17.dependency]]
+groupId = "org.reactivestreams"
+artifactId = "reactive-streams"
+version = "1.0.4"
+path = "./lib/reactive-streams-1.0.4.jar"
