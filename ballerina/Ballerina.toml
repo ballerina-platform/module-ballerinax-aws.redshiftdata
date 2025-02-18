@@ -41,6 +41,12 @@ path = "./lib/aws-core-2.27.21.jar"
 
 [[platform.java17.dependency]]
 groupId = "software.amazon.awssdk"
+artifactId = "aws-json-protocol"
+version = "2.27.21"
+path = "./lib/aws-json-protocol-2.27.21.jar"
+
+[[platform.java17.dependency]]
+groupId = "software.amazon.awssdk"
 artifactId = "endpoints-spi"
 version = "2.27.21"
 path = "./lib/endpoints-spi-2.27.21.jar"
