@@ -44,3 +44,9 @@ groupId = "software.amazon.awssdk"
 artifactId = "http-auth-aws"
 version = "2.27.21"
 path = "./lib/http-auth-aws-2.27.21.jar"
+
+[[platform.java17.dependency]]
+groupId = "software.amazon.awssdk"
+artifactId = "auth"
+version = "2.27.21"
+path = "./lib/auth-2.27.21.jar"
