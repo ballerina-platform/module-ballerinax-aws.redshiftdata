@@ -56,3 +56,9 @@ groupId = "software.amazon.awssdk"
 artifactId = "utils"
 version = "@aws.sdk.version@"
 path = "./lib/utils-@aws.sdk.version@.jar"
+
+[[platform.java17.dependency]]
+groupId = "software.amazon.awssdk"
+artifactId = "regions"
+version = "@aws.sdk.version@"
+path = "./lib/regions-@aws.sdk.version@.jar"
