@@ -59,6 +59,6 @@ path = "./lib/identity-spi-2.27.21.jar"
 
 [[platform.java17.dependency]]
 groupId = "software.amazon.awssdk"
-artifactId = "core"
+artifactId = "aws-core"
 version = "2.27.21"
-path = "./lib/core-2.27.21.jar"
+path = "./lib/aws-core-2.27.21.jar"
