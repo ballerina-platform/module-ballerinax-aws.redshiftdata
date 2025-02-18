@@ -50,3 +50,15 @@ groupId = "software.amazon.awssdk"
 artifactId = "auth"
 version = "2.27.21"
 path = "./lib/auth-2.27.21.jar"
+
+[[platform.java17.dependency]]
+groupId = "software.amazon.awssdk"
+artifactId = "identity-spi"
+version = "2.27.21"
+path = "./lib/identity-spi-2.27.21.jar"
+
+[[platform.java17.dependency]]
+groupId = "software.amazon.awssdk"
+artifactId = "core"
+version = "2.27.21"
+path = "./lib/core-2.27.21.jar"
