@@ -37,20 +37,6 @@ dependencies {
     implementation group: 'org.ballerinalang', name: 'ballerina-runtime', version: "${ballerinaLangVersion}"
     implementation group: 'io.ballerina.stdlib', name: 'time-native', version: "${stdlibTimeVersion}"
     implementation group: 'software.amazon.awssdk', name: 'redshiftdata', version: "${awsJavaSdkVersion}"
-
-    dist (group: 'software.amazon.awssdk', name: 'redshiftdata', version: "${awsJavaSdkVersion}") {
-        exclude group: "commons-logging", module: "commons-logging"
-        exclude group: "io.netty", module: "netty-buffer"
-        exclude group: "io.netty", module: "netty-codec"
-        exclude group: "io.netty", module: "netty-codec-http"
-        exclude group: "io.netty", module: "netty-codec-http2"
-        exclude group: "io.netty", module: "netty-common"
-        exclude group: "io.netty", module: "netty-handler"
-        exclude group: "io.netty", module: "netty-resolver"
-        exclude group: "io.netty", module: "netty-transport"
-        exclude group: "io.netty", module: "netty-transport-native-unix-common"
-        exclude group: "org.slf4j", module: "slf4j-api"
-    }
 }
 
 tasks.withType(JavaCompile) {

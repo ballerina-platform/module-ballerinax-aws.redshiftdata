@@ -56,31 +56,25 @@ configurations {
 }
 
 dependencies {
-    externalJars(group: 'io.netty', name: 'netty-buffer', version: "${nettyVersion}") {
+    externalJars(group: 'software.amazon.awssdk', name: 'redshiftdata', version: "${awsJavaSdkVersion}") {
         transitive = false
     }
-    externalJars(group: 'io.netty', name: 'netty-codec', version: "${nettyVersion}") {
+    externalJars(group: 'software.amazon.awssdk', name: 'apache-client', version: "${awsJavaSdkVersion}") {
         transitive = false
     }
-    externalJars(group: 'io.netty', name: 'netty-codec-http', version: "${nettyVersion}") {
+    externalJars(group: 'software.amazon.awssdk', name: 'auth', version: "${awsJavaSdkVersion}") {
         transitive = false
     }
-    externalJars(group: 'io.netty', name: 'netty-codec-http2', version: "${nettyVersion}") {
+    externalJars(group: 'software.amazon.awssdk', name: 'aws-core', version: "${awsJavaSdkVersion}") {
         transitive = false
     }
-    externalJars(group: 'io.netty', name: 'netty-common', version: "${nettyVersion}") {
+    externalJars(group: 'software.amazon.awssdk', name: 'identity-spi', version: "${awsJavaSdkVersion}") {
         transitive = false
     }
-    externalJars(group: 'io.netty', name: 'netty-handler', version: "${nettyVersion}") {
+    externalJars(group: 'software.amazon.awssdk', name: 'sdk-core', version: "${awsJavaSdkVersion}") {
         transitive = false
     }
-    externalJars(group: 'io.netty', name: 'netty-resolver', version: "${nettyVersion}") {
-        transitive = false
-    }
-    externalJars(group: 'io.netty', name: 'netty-transport', version: "${nettyVersion}") {
-        transitive = false
-    }
-    externalJars(group: 'io.netty', name: 'netty-transport-native-unix-common', version: "${nettyVersion}") {
+    externalJars(group: 'software.amazon.awssdk', name: 'utils', version: "${awsJavaSdkVersion}") {
         transitive = false
     }
 }
@@ -89,7 +83,7 @@ task updateTomlFiles {
     doLast {
         def newConfig = ballerinaTomlFilePlaceHolder.text.replace('@project.version@', project.version.toString())
         newConfig = newConfig.replace('@toml.version@', tomlVersion)
-        newConfig = newConfig.replace("@netty.version@", project.nettyVersion)
+        newConfig = newConfig.replace("@aws.sdk.version@", project.awsJavaSdkVersion)
         ballerinaTomlFile.text = newConfig
     }
 }

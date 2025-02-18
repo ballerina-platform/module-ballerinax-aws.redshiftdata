@@ -16,55 +16,43 @@ version = "@project.version@"
 path = "../native/build/libs/aws.redshiftdata-native-@project.version@.jar"
 
 [[platform.java17.dependency]]
-groupId = "io.netty"
-artifactId = "netty-buffer"
-version = "@netty.version@"
-path = "./lib/netty-buffer-@netty.version@.jar"
+groupId = "software.amazon.awssdk"
+artifactId = "redshiftdata"
+version = "@aws.sdk.version@"
+path = "./lib/redshiftdata-@aws.sdk.version@.jar"
 
 [[platform.java17.dependency]]
-groupId = "io.netty"
-artifactId = "netty-codec"
-version = "@netty.version@"
-path = "./lib/netty-codec-@netty.version@.jar"
+groupId = "software.amazon.awssdk"
+artifactId = "apache-client"
+version = "@aws.sdk.version@"
+path = "./lib/apache-client-@aws.sdk.version@.jar"
 
 [[platform.java17.dependency]]
-groupId = "io.netty"
-artifactId = "netty-codec-http"
-version = "@netty.version@"
-path = "./lib/netty-codec-http-@netty.version@.jar"
+groupId = "software.amazon.awssdk"
+artifactId = "auth"
+version = "@aws.sdk.version@"
+path = "./lib/auth-@aws.sdk.version@.jar"
 
 [[platform.java17.dependency]]
-groupId = "io.netty"
-artifactId = "netty-codec-http2"
-version = "@netty.version@"
-path = "./lib/netty-codec-http2-@netty.version@.jar"
+groupId = "software.amazon.awssdk"
+artifactId = "aws-core"
+version = "@aws.sdk.version@"
+path = "./lib/aws-core-@aws.sdk.version@.jar"
 
 [[platform.java17.dependency]]
-groupId = "io.netty"
-artifactId = "netty-common"
-version = "@netty.version@"
-path = "./lib/netty-common-@netty.version@.jar"
+groupId = "software.amazon.awssdk"
+artifactId = "identity-spi"
+version = "@aws.sdk.version@"
+path = "./lib/identity-spi-@aws.sdk.version@.jar"
 
 [[platform.java17.dependency]]
-groupId = "io.netty"
-artifactId = "netty-handler"
-version = "@netty.version@"
-path = "./lib/netty-handler-@netty.version@.jar"
+groupId = "software.amazon.awssdk"
+artifactId = "sdk-core"
+version = "@aws.sdk.version@"
+path = "./lib/sdk-core-@aws.sdk.version@.jar"
 
 [[platform.java17.dependency]]
-groupId = "io.netty"
-artifactId = "netty-resolver"
-version = "@netty.version@"
-path = "./lib/netty-resolver-@netty.version@.jar"
-
-[[platform.java17.dependency]]
-groupId = "io.netty"
-artifactId = "netty-transport"
-version = "@netty.version@"
-path = "./lib/netty-transport-@netty.version@.jar"
-
-[[platform.java17.dependency]]
-groupId = "io.netty"
-artifactId = "netty-transport-native-unix-common"
-version = "@netty.version@"
-path = "./lib/netty-transport-native-unix-common-@netty.version@.jar"
+groupId = "software.amazon.awssdk"
+artifactId = "utils"
+version = "@aws.sdk.version@"
+path = "./lib/utils-@aws.sdk.version@.jar"
