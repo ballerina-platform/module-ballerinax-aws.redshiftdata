@@ -47,6 +47,18 @@ path = "./lib/aws-json-protocol-2.27.21.jar"
 
 [[platform.java17.dependency]]
 groupId = "software.amazon.awssdk"
+artifactId = "checksums"
+version = "2.27.21"
+path = "./lib/checksums-2.27.21.jar"
+
+[[platform.java17.dependency]]
+groupId = "software.amazon.awssdk"
+artifactId = "checksums-spi"
+version = "2.27.21"
+path = "./lib/checksums-spi-2.27.21.jar"
+
+[[platform.java17.dependency]]
+groupId = "software.amazon.awssdk"
 artifactId = "endpoints-spi"
 version = "2.27.21"
 path = "./lib/endpoints-spi-2.27.21.jar"
@@ -131,6 +143,12 @@ path = "./lib/sdk-core-2.27.21.jar"
 
 [[platform.java17.dependency]]
 groupId = "software.amazon.awssdk"
+artifactId = "third-party-jackson-core"
+version = "2.27.21"
+path = "./lib/third-party-jackson-core-2.27.21.jar"
+
+[[platform.java17.dependency]]
+groupId = "software.amazon.awssdk"
 artifactId = "utils"
 version = "2.27.21"
 path = "./lib/utils-2.27.21.jar"
@@ -138,8 +156,8 @@ path = "./lib/utils-2.27.21.jar"
 [[platform.java17.dependency]]
 groupId = "org.apache.httpcomponents"
 artifactId = "httpcore"
-version = "4.4.16"
-path = "./lib/httpcore-4.4.16.jar"
+version = "2.27.21"
+path = "./lib/httpcore-2.27.21.jar"
 
 [[platform.java17.dependency]]
 groupId = "org.apache.httpcomponents"
