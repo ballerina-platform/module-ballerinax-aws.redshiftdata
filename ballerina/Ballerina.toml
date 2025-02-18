@@ -53,15 +53,15 @@ path = "./lib/identity-spi-2.27.21.jar"
 
 [[platform.java17.dependency]]
 groupId = "software.amazon.awssdk"
-artifactId = "sdk-core"
+artifactId = "regions"
 version = "2.27.21"
-path = "./lib/sdk-core-2.27.21.jar"
+path = "./lib/regions-2.27.21.jar"
 
-[[platform.java17.dependency]]
-groupId = "software.amazon.awssdk"
-artifactId = "retries"
-version = "2.27.21"
-path = "./lib/retries-2.27.21.jar"
+# [[platform.java17.dependency]]
+# groupId = "software.amazon.awssdk"
+# artifactId = "retries"
+# version = "2.27.21"
+# path = "./lib/retries-2.27.21.jar"
 
 [[platform.java17.dependency]]
 groupId = "software.amazon.awssdk"
@@ -71,12 +71,12 @@ path = "./lib/retries-spi-2.27.21.jar"
 
 [[platform.java17.dependency]]
 groupId = "software.amazon.awssdk"
-artifactId = "utils"
+artifactId = "sdk-core"
 version = "2.27.21"
-path = "./lib/utils-2.27.21.jar"
+path = "./lib/sdk-core-2.27.21.jar"
 
 [[platform.java17.dependency]]
 groupId = "software.amazon.awssdk"
-artifactId = "regions"
+artifactId = "utils"
 version = "2.27.21"
-path = "./lib/regions-2.27.21.jar"
+path = "./lib/utils-2.27.21.jar"
