@@ -62,3 +62,9 @@ groupId = "software.amazon.awssdk"
 artifactId = "aws-core"
 version = "2.27.21"
 path = "./lib/aws-core-2.27.21.jar"
+
+[[platform.java17.dependency]]
+groupId = "software.amazon.awssdk"
+artifactId = "sdk-core"
+version = "2.27.21"
+path = "./lib/sdk-core-2.27.21.jar"
