@@ -41,6 +41,12 @@ path = "./lib/aws-core-2.27.21.jar"
 
 [[platform.java17.dependency]]
 groupId = "software.amazon.awssdk"
+artifactId = "http-client-spi"
+version = "2.27.21"
+path = "./lib/http-client-spi-2.27.21.jar"
+
+[[platform.java17.dependency]]
+groupId = "software.amazon.awssdk"
 artifactId = "identity-spi"
 version = "2.27.21"
 path = "./lib/identity-spi-2.27.21.jar"
