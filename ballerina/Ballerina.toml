@@ -1,7 +1,7 @@
 [package]
 org = "ballerinax"
 name = "aws.redshiftdata"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Ballerina"]
 keywords = ["Data Warehouse", "Columnar Storage", "Cost/Paid", "vendor/aws"]
 repository = "https://github.com/ballerina-platform/module-ballerinax-aws.redshiftdata"
@@ -12,8 +12,8 @@ distribution = "2201.9.0"
 [[platform.java17.dependency]]
 groupId = "io.ballerina.lib"
 artifactId = "aws.redshiftdata-native"
-version = "0.1.0-SNAPSHOT"
-path = "../native/build/libs/aws.redshiftdata-native-0.1.0-SNAPSHOT.jar"
+version = "1.0.0-SNAPSHOT"
+path = "../native/build/libs/aws.redshiftdata-native-1.0.0-SNAPSHOT.jar"
 
 [[platform.java17.dependency]]
 groupId = "software.amazon.awssdk"
