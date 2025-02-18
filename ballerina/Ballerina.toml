@@ -95,6 +95,12 @@ path = "./lib/profiles-2.27.21.jar"
 
 [[platform.java17.dependency]]
 groupId = "software.amazon.awssdk"
+artifactId = "protocol-core"
+version = "2.27.21"
+path = "./lib/protocol-core-2.27.21.jar"
+
+[[platform.java17.dependency]]
+groupId = "software.amazon.awssdk"
 artifactId = "regions"
 version = "2.27.21"
 path = "./lib/regions-2.27.21.jar"
