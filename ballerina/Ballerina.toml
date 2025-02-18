@@ -27,23 +27,23 @@ artifactId = "apache-client"
 version = "2.27.21"
 path = "./lib/apache-client-2.27.21.jar"
 
-[[platform.java17.dependency]]
-groupId = "software.amazon.awssdk"
-artifactId = "protocol-core"
-version = "2.27.21"
-path = "./lib/protocol-core-2.27.21.jar"
+# [[platform.java17.dependency]]
+# groupId = "software.amazon.awssdk"
+# artifactId = "protocol-core"
+# version = "2.27.21"
+# path = "./lib/protocol-core-2.27.21.jar"
 
-[[platform.java17.dependency]]
-groupId = "software.amazon.awssdk"
-artifactId = "aws-json-protocol"
-version = "2.27.21"
-path = "./lib/aws-json-protocol-2.27.21.jar"
+# [[platform.java17.dependency]]
+# groupId = "software.amazon.awssdk"
+# artifactId = "aws-json-protocol"
+# version = "2.27.21"
+# path = "./lib/aws-json-protocol-2.27.21.jar"
 
-[[platform.java17.dependency]]
-groupId = "software.amazon.awssdk"
-artifactId = "http-auth-aws"
-version = "2.27.21"
-path = "./lib/http-auth-aws-2.27.21.jar"
+# [[platform.java17.dependency]]
+# groupId = "software.amazon.awssdk"
+# artifactId = "http-auth-aws"
+# version = "2.27.21"
+# path = "./lib/http-auth-aws-2.27.21.jar"
 
 [[platform.java17.dependency]]
 groupId = "software.amazon.awssdk"
