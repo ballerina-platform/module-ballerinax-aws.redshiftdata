@@ -53,6 +53,12 @@ path = "./lib/identity-spi-2.27.21.jar"
 
 [[platform.java17.dependency]]
 groupId = "software.amazon.awssdk"
+artifactId = "profiles"
+version = "2.27.21"
+path = "./lib/profiles-2.27.21.jar"
+
+[[platform.java17.dependency]]
+groupId = "software.amazon.awssdk"
 artifactId = "regions"
 version = "2.27.21"
 path = "./lib/regions-2.27.21.jar"
