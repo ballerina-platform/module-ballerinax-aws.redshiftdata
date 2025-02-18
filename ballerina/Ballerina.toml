@@ -16,55 +16,31 @@ version = "0.1.0-SNAPSHOT"
 path = "../native/build/libs/aws.redshiftdata-native-0.1.0-SNAPSHOT.jar"
 
 [[platform.java17.dependency]]
-groupId = "io.netty"
-artifactId = "netty-buffer"
-version = "4.1.115.Final"
-path = "./lib/netty-buffer-4.1.115.Final.jar"
+groupId = "software.amazon.awssdk"
+artifactId = "redshiftdata"
+version = "2.27.21"
+path = "./lib/redshiftdata-2.27.21.jar"
 
 [[platform.java17.dependency]]
-groupId = "io.netty"
-artifactId = "netty-codec"
-version = "4.1.115.Final"
-path = "./lib/netty-codec-4.1.115.Final.jar"
+groupId = "software.amazon.awssdk"
+artifactId = "apache-client"
+version = "2.27.21"
+path = "./lib/apache-client-2.27.21.jar"
 
 [[platform.java17.dependency]]
-groupId = "io.netty"
-artifactId = "netty-codec-http"
-version = "4.1.115.Final"
-path = "./lib/netty-codec-http-4.1.115.Final.jar"
+groupId = "software.amazon.awssdk"
+artifactId = "protocol-core"
+version = "2.27.21"
+path = "./lib/protocol-core-2.27.21.jar"
 
 [[platform.java17.dependency]]
-groupId = "io.netty"
-artifactId = "netty-codec-http2"
-version = "4.1.115.Final"
-path = "./lib/netty-codec-http2-4.1.115.Final.jar"
+groupId = "software.amazon.awssdk"
+artifactId = "aws-json-protocol"
+version = "2.27.21"
+path = "./lib/aws-json-protocol-2.27.21.jar"
 
 [[platform.java17.dependency]]
-groupId = "io.netty"
-artifactId = "netty-common"
-version = "4.1.115.Final"
-path = "./lib/netty-common-4.1.115.Final.jar"
-
-[[platform.java17.dependency]]
-groupId = "io.netty"
-artifactId = "netty-handler"
-version = "4.1.115.Final"
-path = "./lib/netty-handler-4.1.115.Final.jar"
-
-[[platform.java17.dependency]]
-groupId = "io.netty"
-artifactId = "netty-resolver"
-version = "4.1.115.Final"
-path = "./lib/netty-resolver-4.1.115.Final.jar"
-
-[[platform.java17.dependency]]
-groupId = "io.netty"
-artifactId = "netty-transport"
-version = "4.1.115.Final"
-path = "./lib/netty-transport-4.1.115.Final.jar"
-
-[[platform.java17.dependency]]
-groupId = "io.netty"
-artifactId = "netty-transport-native-unix-common"
-version = "4.1.115.Final"
-path = "./lib/netty-transport-native-unix-common-4.1.115.Final.jar"
+groupId = "software.amazon.awssdk"
+artifactId = "http-auth-aws"
+version = "2.27.21"
+path = "./lib/http-auth-aws-2.27.21.jar"
