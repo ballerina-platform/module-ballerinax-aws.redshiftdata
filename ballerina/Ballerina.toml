@@ -83,6 +83,12 @@ path = "./lib/identity-spi-2.27.21.jar"
 
 [[platform.java17.dependency]]
 groupId = "software.amazon.awssdk"
+artifactId = "json-utils"
+version = "2.27.21"
+path = "./lib/json-utils-2.27.21.jar"
+
+[[platform.java17.dependency]]
+groupId = "software.amazon.awssdk"
 artifactId = "metrics-spi"
 version = "2.27.21"
 path = "./lib/metrics-spi-2.27.21.jar"
