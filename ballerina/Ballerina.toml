@@ -87,11 +87,11 @@ artifactId = "regions"
 version = "2.27.21"
 path = "./lib/regions-2.27.21.jar"
 
-# [[platform.java17.dependency]]
-# groupId = "software.amazon.awssdk"
-# artifactId = "retries"
-# version = "2.27.21"
-# path = "./lib/retries-2.27.21.jar"
+[[platform.java17.dependency]]
+groupId = "software.amazon.awssdk"
+artifactId = "retries"
+version = "2.27.21"
+path = "./lib/retries-2.27.21.jar"
 
 [[platform.java17.dependency]]
 groupId = "software.amazon.awssdk"
