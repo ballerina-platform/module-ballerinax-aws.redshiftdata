@@ -56,31 +56,82 @@ configurations {
 }
 
 dependencies {
-    externalJars(group: 'io.netty', name: 'netty-buffer', version: "${nettyVersion}") {
+    externalJars(group: 'software.amazon.awssdk', name: 'redshiftdata', version: "${awsJavaSdkVersion}") {
         transitive = false
     }
-    externalJars(group: 'io.netty', name: 'netty-codec', version: "${nettyVersion}") {
+    externalJars(group: 'software.amazon.awssdk', name: 'apache-client', version: "${awsJavaSdkVersion}") {
         transitive = false
     }
-    externalJars(group: 'io.netty', name: 'netty-codec-http', version: "${nettyVersion}") {
+    externalJars(group: 'software.amazon.awssdk', name: 'auth', version: "${awsJavaSdkVersion}") {
         transitive = false
     }
-    externalJars(group: 'io.netty', name: 'netty-codec-http2', version: "${nettyVersion}") {
+    externalJars(group: 'software.amazon.awssdk', name: 'aws-core', version: "${awsJavaSdkVersion}") {
         transitive = false
     }
-    externalJars(group: 'io.netty', name: 'netty-common', version: "${nettyVersion}") {
+    externalJars(group: 'software.amazon.awssdk', name: 'aws-json-protocol', version: "${awsJavaSdkVersion}") {
         transitive = false
     }
-    externalJars(group: 'io.netty', name: 'netty-handler', version: "${nettyVersion}") {
+    externalJars(group: 'software.amazon.awssdk', name: 'checksums', version: "${awsJavaSdkVersion}") {
         transitive = false
     }
-    externalJars(group: 'io.netty', name: 'netty-resolver', version: "${nettyVersion}") {
+    externalJars(group: 'software.amazon.awssdk', name: 'checksums-spi', version: "${awsJavaSdkVersion}") {
         transitive = false
     }
-    externalJars(group: 'io.netty', name: 'netty-transport', version: "${nettyVersion}") {
+    externalJars(group: 'software.amazon.awssdk', name: 'endpoints-spi', version: "${awsJavaSdkVersion}") {
         transitive = false
     }
-    externalJars(group: 'io.netty', name: 'netty-transport-native-unix-common', version: "${nettyVersion}") {
+    externalJars(group: 'software.amazon.awssdk', name: 'http-auth', version: "${awsJavaSdkVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'software.amazon.awssdk', name: 'http-auth-aws', version: "${awsJavaSdkVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'software.amazon.awssdk', name: 'http-auth-spi', version: "${awsJavaSdkVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'software.amazon.awssdk', name: 'http-client-spi', version: "${awsJavaSdkVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'software.amazon.awssdk', name: 'identity-spi', version: "${awsJavaSdkVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'software.amazon.awssdk', name: 'json-utils', version: "${awsJavaSdkVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'software.amazon.awssdk', name: 'metrics-spi', version: "${awsJavaSdkVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'software.amazon.awssdk', name: 'profiles', version: "${awsJavaSdkVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'software.amazon.awssdk', name: 'protocol-core', version: "${awsJavaSdkVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'software.amazon.awssdk', name: 'regions', version: "${awsJavaSdkVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'software.amazon.awssdk', name: 'retries', version: "${awsJavaSdkVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'software.amazon.awssdk', name: 'retries-spi', version: "${awsJavaSdkVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'software.amazon.awssdk', name: 'sdk-core', version: "${awsJavaSdkVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'software.amazon.awssdk', name: 'third-party-jackson-core', version: "${awsJavaSdkVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'software.amazon.awssdk', name: 'utils', version: "${awsJavaSdkVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'org.apache.httpcomponents', name: 'httpcore', version: "${apacheHttpCoreVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'org.apache.httpcomponents', name: 'httpclient', version: "${apacheHttpClientVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'org.reactivestreams', name: 'reactive-streams', version: "${reactiveStreamsVersion}") {
         transitive = false
     }
 }
@@ -89,7 +140,10 @@ task updateTomlFiles {
     doLast {
         def newConfig = ballerinaTomlFilePlaceHolder.text.replace('@project.version@', project.version.toString())
         newConfig = newConfig.replace('@toml.version@', tomlVersion)
-        newConfig = newConfig.replace("@netty.version@", project.nettyVersion)
+        newConfig = newConfig.replace("@aws.sdk.version@", project.awsJavaSdkVersion)
+        newConfig = newConfig.replace("@apache.httpcore.version@", project.apacheHttpCoreVersion)
+        newConfig = newConfig.replace("@apache.httpclient.version@", project.apacheHttpClientVersion)
+        newConfig = newConfig.replace("@reactivestreams.version@", project.reactiveStreamsVersion)
         ballerinaTomlFile.text = newConfig
     }
 }
