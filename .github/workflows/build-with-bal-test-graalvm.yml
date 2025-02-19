@@ -17,5 +17,5 @@ jobs:
     secrets: inherit
     with:
       additional-build-flags: "-x test"
-      # Adding a test group for `liveServer` to disable the test as currently we don't have a live redshift-data instance 
-      additional-test-flags: "--groups liveServer"
+      # Adding a test group for `mockServer` to disable the tests, as we don't have a live redshift-data instance to run tests against 
+      additional-test-flags: "--groups mockServer"
