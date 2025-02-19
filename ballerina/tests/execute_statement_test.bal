@@ -18,7 +18,7 @@ import ballerina/lang.runtime;
 import ballerina/test;
 
 @test:Config {
-    groups: ["execute"]
+    groups: ["execute", "liveServer"]
 }
 isolated function testBasicStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
@@ -31,7 +31,7 @@ isolated function testBasicStatement() returns error? {
 }
 
 @test:Config {
-    groups: ["execute"]
+    groups: ["execute", "liveServer"]
 }
 isolated function testSessionId() returns error? {
     ConnectionConfig connectionConfig = {
@@ -56,7 +56,7 @@ isolated function testSessionId() returns error? {
 }
 
 @test:Config {
-    groups: ["execute"]
+    groups: ["execute", "liveServer"]
 }
 isolated function testExecutionConfig() returns error? {
     Client redshift = check new Client(testConnectionConfig);
@@ -72,7 +72,7 @@ isolated function testExecutionConfig() returns error? {
 }
 
 @test:Config {
-    groups: ["execute"]
+    groups: ["execute", "liveServer"]
 }
 isolated function testParameterizedStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
@@ -83,7 +83,7 @@ isolated function testParameterizedStatement() returns error? {
 }
 
 @test:Config {
-    groups: ["execute"]
+    groups: ["execute", "liveServer"]
 }
 isolated function testNilParameterizedStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
@@ -95,7 +95,7 @@ isolated function testNilParameterizedStatement() returns error? {
 }
 
 @test:Config {
-    groups: ["execute"]
+    groups: ["execute", "liveServer"]
 }
 isolated function testEmptyStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
@@ -105,7 +105,7 @@ isolated function testEmptyStatement() returns error? {
 }
 
 @test:Config {
-    groups: ["execute"]
+    groups: ["execute", "liveServer"]
 }
 isolated function testWithDbConfigs() returns error? {
     ConnectionConfig mockConnectionConfig = {
@@ -125,7 +125,7 @@ isolated function testWithDbConfigs() returns error? {
 }
 
 @test:Config {
-    groups: ["execute"]
+    groups: ["execute", "liveServer"]
 }
 isolated function testWithInvalidDbConfigs() returns error? {
     ConnectionConfig mockConnectionConfig = {
@@ -149,7 +149,7 @@ isolated function testWithInvalidDbConfigs() returns error? {
 }
 
 @test:Config {
-    groups: ["execute"]
+    groups: ["execute", "liveServer"]
 }
 isolated function testWithInvalidStatementName() returns error? {
     Client redshift = check new Client(testConnectionConfig);
@@ -162,7 +162,7 @@ isolated function testWithInvalidStatementName() returns error? {
 }
 
 @test:Config {
-    groups: ["execute"]
+    groups: ["execute", "liveServer"]
 }
 isolated function testWithInvalidClusterId() returns error? {
     Client redshift = check new Client(testConnectionConfig);
@@ -177,7 +177,7 @@ isolated function testWithInvalidClusterId() returns error? {
 }
 
 @test:Config {
-    groups: ["execute"]
+    groups: ["execute", "liveServer"]
 }
 isolated function testNoDbAccessConfig() returns error? {
     ConnectionConfig connectionConfig = {

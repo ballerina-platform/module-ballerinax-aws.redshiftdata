@@ -19,7 +19,7 @@ import ballerina/sql;
 import ballerina/test;
 
 @test:Config {
-    groups: ["describe"]
+    groups: ["describe", "liveServer"]
 }
 isolated function testBasicDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
@@ -42,7 +42,7 @@ isolated function testBasicDescribeStatement() returns error? {
 }
 
 @test:Config {
-    groups: ["describe"]
+    groups: ["describe", "liveServer"]
 }
 isolated function testBatchDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
@@ -85,7 +85,7 @@ isolated function testBatchDescribeStatement() returns error? {
 }
 
 @test:Config {
-    groups: ["describe"]
+    groups: ["describe", "liveServer"]
 }
 isolated function testIncorrectStatementDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
@@ -99,7 +99,7 @@ isolated function testIncorrectStatementDescribeStatement() returns error? {
 }
 
 @test:Config {
-    groups: ["describe"]
+    groups: ["describe", "liveServer"]
 }
 isolated function testIncorrectBatchStatementDescribeStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
@@ -123,7 +123,7 @@ isolated function testIncorrectBatchStatementDescribeStatement() returns error? 
 }
 
 @test:Config {
-    groups: ["describe"]
+    groups: ["describe", "liveServer"]
 }
 isolated function testDescribeStatementWithInvalidStatementId() returns error? {
     Client redshift = check new Client(testConnectionConfig);

@@ -17,7 +17,9 @@
 import ballerina/log;
 import ballerina/test;
 
-@test:BeforeSuite
+@test:BeforeGroups {
+    value: ["liveServer"]
+}
 function beforeFunction() returns error? {
     log:printInfo("Setting up tables");
     Client redshift = check new Client(testConnectionConfig);
@@ -61,7 +63,9 @@ function beforeFunction() returns error? {
     check redshift->close();
 }
 
-@test:AfterSuite
+@test:AfterGroups {
+    value: ["liveServer"]
+}
 function afterFunction() returns error? {
     log:printInfo("Cleaning up resources");
     Client redshift = check new Client(testConnectionConfig);
