@@ -18,4 +18,4 @@ jobs:
     with:
       additional-build-flags: "-x test"
       # Disabling `liveServer` test group as we don't have a live redshift-data instance to run tests against 
-      additional-test-flags: "-disable-groups liveServer"
+      additional-test-flags: "--disable-groups liveServer"
