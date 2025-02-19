@@ -17,7 +17,7 @@
 import ballerina/test;
 
 @test:Config {
-    groups: ["init"]
+    groups: ["init", "liveServer"]
 }
 isolated function testInit() returns error? {
     Client|Error redshift = new (testConnectionConfig);
@@ -27,7 +27,7 @@ isolated function testInit() returns error? {
 }
 
 @test:Config {
-    groups: ["init"]
+    groups: ["init", "liveServer"]
 }
 isolated function testNilDbAccessConfig() returns error? {
     ConnectionConfig connectionConfig = {

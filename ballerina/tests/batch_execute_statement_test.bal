@@ -19,7 +19,7 @@ import ballerina/sql;
 import ballerina/test;
 
 @test:Config {
-    groups: ["batchExecute"]
+    groups: ["batchExecute", "liveServer"]
 }
 isolated function testBasicBatchExecuteStatement() returns error? {
     Client redshift = check new Client(testConnectionConfig);
@@ -33,7 +33,7 @@ isolated function testBasicBatchExecuteStatement() returns error? {
 }
 
 @test:Config {
-    groups: ["batchExecute"]
+    groups: ["batchExecute", "liveServer"]
 }
 isolated function testBatchExecuteSessionId() returns error? {
     ConnectionConfig connectionConfig = {
