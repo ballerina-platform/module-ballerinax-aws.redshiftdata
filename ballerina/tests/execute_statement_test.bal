@@ -34,7 +34,7 @@ isolated function testBasicStatement() returns error? {
 isolated function testSessionId() returns error? {
     ConnectionConfig connectionConfig = {
         region: awsRegion,
-        authConfig: testAuthConfig,
+        authConfig,
         dbAccessConfig: {
             id: clusterId,
             database: database,
@@ -58,7 +58,7 @@ isolated function testSessionId() returns error? {
 }
 isolated function testExecutionConfig() returns error? {
     ExecutionConfig config = {
-        dbAccessConfig: testDbAccessConfig,
+        dbAccessConfig,
         clientToken: "testToken",
         statementName: "testStatement",
         withEvent: true
@@ -100,7 +100,7 @@ isolated function testEmptyStatement() returns error? {
 isolated function testWithDbConfigs() returns error? {
     ConnectionConfig connectionConfig = {
         region: awsRegion,
-        authConfig: testAuthConfig,
+        authConfig,
         dbAccessConfig: {
             id: "CLUSTER_ID",
             database: "",
@@ -109,7 +109,7 @@ isolated function testWithDbConfigs() returns error? {
     };
     Client redshiftData = check new Client(connectionConfig);
     ExecutionResponse res = check redshiftData->execute(`SELECT * FROM Users`,
-        {dbAccessConfig: testDbAccessConfig});
+        {dbAccessConfig});
     test:assertTrue(res.statementId != "");
     check redshiftData->close();
 }
@@ -120,7 +120,7 @@ isolated function testWithDbConfigs() returns error? {
 isolated function testWithInvalidDbConfigs() returns error? {
     ConnectionConfig connectionConfig = {
         region: awsRegion,
-        authConfig: testAuthConfig,
+        authConfig,
         dbAccessConfig: {
             id: "clusterId",
             database: "dbName",
@@ -168,8 +168,7 @@ isolated function testWithInvalidClusterId() returns error? {
 isolated function testNoDbAccessConfig() returns error? {
     ConnectionConfig connectionConfig = {
         region: awsRegion,
-        authConfig: testAuthConfig,
-        dbAccessConfig: ()
+        authConfig
     };
     Client redshiftData = check new Client(connectionConfig);
     ExecutionResponse|Error res = redshiftData->execute(`SELECT * FROM Users`);
