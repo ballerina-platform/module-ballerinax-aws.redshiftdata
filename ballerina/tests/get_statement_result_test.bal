@@ -51,7 +51,7 @@ type SupportedTypes record {|
 |};
 
 @test:Config {
-    groups: ["getResultAsStream", "liveServer"]
+    groups: ["getResultAsStream"]
 }
 isolated function testBasicQueryResult() returns error? {
     User[] expectedUsers = [
@@ -75,7 +75,7 @@ isolated function testBasicQueryResult() returns error? {
 }
 
 @test:Config {
-    groups: ["getResultAsStream", "liveServer"]
+    groups: ["getResultAsStream"]
 }
 isolated function testParameterizedQueryResult() returns error? {
     int userId = 1;
@@ -92,7 +92,7 @@ isolated function testParameterizedQueryResult() returns error? {
 }
 
 @test:Config {
-    groups: ["getResultAsStream", "liveServer"]
+    groups: ["getResultAsStream"]
 }
 isolated function testSupportedTypes() returns error? {
     SupportedTypes data = {
@@ -125,7 +125,7 @@ isolated function testSupportedTypes() returns error? {
 }
 
 @test:Config {
-    groups: ["getResultAsStream", "liveServer"]
+    groups: ["getResultAsStream"]
 }
 isolated function testNoQueryResult() returns error? {
     sql:ParameterizedQuery query = `DROP TABLE IF EXISTS non_existent_table;`;
@@ -143,7 +143,7 @@ isolated function testNoQueryResult() returns error? {
 }
 
 @test:Config {
-    groups: ["getResultAsStream", "liveServer"]
+    groups: ["getResultAsStream"]
 }
 isolated function testNoResultRows() returns error? {
     sql:ParameterizedQuery query = `SELECT * FROM Users WHERE user_id = 0;`;
@@ -158,7 +158,7 @@ isolated function testNoResultRows() returns error? {
 }
 
 @test:Config {
-    groups: ["getResultAsStream", "liveServer"]
+    groups: ["getResultAsStream"]
 }
 isolated function testInvalidStatementId() returns error? {
     StatementId invalidStatementId = "InvalidStatementId";
@@ -173,7 +173,7 @@ isolated function testInvalidStatementId() returns error? {
 }
 
 @test:Config {
-    groups: ["getResultAsStream", "liveServer"]
+    groups: ["getResultAsStream"]
 }
 isolated function testIncorrectStatementId() returns error? {
     stream<User, Error?>|Error queryResult = redshiftData->getResultAsStream("70662acc-f334-46f8-b953-3a9546796d7k");
@@ -186,7 +186,7 @@ isolated function testIncorrectStatementId() returns error? {
 }
 
 @test:Config {
-    groups: ["getResultAsStream", "liveServer"]
+    groups: ["getResultAsStream"]
 }
 isolated function testMissingFieldInUserType() returns error? {
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
@@ -202,7 +202,7 @@ isolated function testMissingFieldInUserType() returns error? {
 }
 
 @test:Config {
-    groups: ["getResultAsStream", "liveServer"]
+    groups: ["getResultAsStream"]
 }
 isolated function testUserWithOpenRecord() returns error? {
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
@@ -217,7 +217,7 @@ isolated function testUserWithOpenRecord() returns error? {
 }
 
 @test:Config {
-    groups: ["queryResult", "liveServer"]
+    groups: ["queryResult"]
 }
 isolated function testResultPagination() returns error? {
     sql:ParameterizedQuery query = `SELECT 
