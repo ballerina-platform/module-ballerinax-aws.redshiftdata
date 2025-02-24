@@ -18,7 +18,7 @@ import ballerina/lang.runtime;
 import ballerina/test;
 
 @test:Config {
-    groups: ["execute", "liveServer"]
+    groups: ["execute"]
 }
 isolated function testBasicStatement() returns error? {
     ExecutionResponse res = check redshiftData->execute(`SELECT * FROM Users`);
@@ -29,7 +29,7 @@ isolated function testBasicStatement() returns error? {
 }
 
 @test:Config {
-    groups: ["execute", "liveServer"]
+    groups: ["execute"]
 }
 isolated function testSessionId() returns error? {
     ConnectionConfig connectionConfig = {
@@ -42,19 +42,19 @@ isolated function testSessionId() returns error? {
             sessionKeepAliveSeconds: 3600
         }
     };
-    Client redshift = check new Client(connectionConfig);
-    ExecutionResponse res1 = check redshift->execute(`SELECT * FROM Users`);
+    Client redshiftData = check new Client(connectionConfig);
+    ExecutionResponse res1 = check redshiftData->execute(`SELECT * FROM Users`);
     test:assertTrue(res1.sessionId is string && res1.sessionId != "");
 
     runtime:sleep(2); // wait for session to establish
-    ExecutionResponse res2 = check redshift->execute(`SELECT * FROM Users`,
+    ExecutionResponse res2 = check redshiftData->execute(`SELECT * FROM Users`,
         {dbAccessConfig: res1.sessionId});
     test:assertTrue(res2.sessionId == res1.sessionId);
-    check redshift->close();
+    check redshiftData->close();
 }
 
 @test:Config {
-    groups: ["execute", "liveServer"]
+    groups: ["execute"]
 }
 isolated function testExecutionConfig() returns error? {
     ExecutionConfig config = {
@@ -68,7 +68,7 @@ isolated function testExecutionConfig() returns error? {
 }
 
 @test:Config {
-    groups: ["execute", "liveServer"]
+    groups: ["execute"]
 }
 isolated function testParameterizedStatement() returns error? {
     string tableName = "Users";
@@ -77,7 +77,7 @@ isolated function testParameterizedStatement() returns error? {
 }
 
 @test:Config {
-    groups: ["execute", "liveServer"]
+    groups: ["execute"]
 }
 isolated function testNilParameterizedStatement() returns error? {
     string? username = ();
@@ -87,7 +87,7 @@ isolated function testNilParameterizedStatement() returns error? {
 }
 
 @test:Config {
-    groups: ["execute", "liveServer"]
+    groups: ["execute"]
 }
 isolated function testEmptyStatement() returns error? {
     ExecutionResponse|Error res = redshiftData->execute(``);
@@ -95,10 +95,10 @@ isolated function testEmptyStatement() returns error? {
 }
 
 @test:Config {
-    groups: ["execute", "liveServer"]
+    groups: ["execute"]
 }
 isolated function testWithDbConfigs() returns error? {
-    ConnectionConfig mockConnectionConfig = {
+    ConnectionConfig connectionConfig = {
         region: awsRegion,
         authConfig: testAuthConfig,
         dbAccessConfig: {
@@ -107,18 +107,18 @@ isolated function testWithDbConfigs() returns error? {
             dbUser: ""
         }
     };
-    Client redshift = check new Client(mockConnectionConfig);
-    ExecutionResponse res = check redshift->execute(`SELECT * FROM Users`,
+    Client redshiftData = check new Client(connectionConfig);
+    ExecutionResponse res = check redshiftData->execute(`SELECT * FROM Users`,
         {dbAccessConfig: testDbAccessConfig});
     test:assertTrue(res.statementId != "");
-    check redshift->close();
+    check redshiftData->close();
 }
 
 @test:Config {
-    groups: ["execute", "liveServer"]
+    groups: ["execute"]
 }
 isolated function testWithInvalidDbConfigs() returns error? {
-    ConnectionConfig mockConnectionConfig = {
+    ConnectionConfig connectionConfig = {
         region: awsRegion,
         authConfig: testAuthConfig,
         dbAccessConfig: {
@@ -127,19 +127,19 @@ isolated function testWithInvalidDbConfigs() returns error? {
             dbUser: "dbUser"
         }
     };
-    Client redshift = check new Client(mockConnectionConfig);
-    ExecutionResponse|Error res = redshift->execute(`SELECT * FROM Users`);
+    Client redshiftData = check new Client(connectionConfig);
+    ExecutionResponse|Error res = redshiftData->execute(`SELECT * FROM Users`);
     test:assertTrue(res is Error);
     if res is Error {
         ErrorDetails errorDetails = res.detail();
         test:assertEquals(errorDetails.httpStatusCode, 400);
         test:assertEquals(errorDetails.errorMessage, "Redshift endpoint doesn't exist in this region.");
     }
-    check redshift->close();
+    check redshiftData->close();
 }
 
 @test:Config {
-    groups: ["execute", "liveServer"]
+    groups: ["execute"]
 }
 isolated function testWithInvalidStatementName() returns error? {
     ExecutionResponse|Error res = redshiftData->execute(`SELECT * FROM Users`, statementName = "");
@@ -150,7 +150,7 @@ isolated function testWithInvalidStatementName() returns error? {
 }
 
 @test:Config {
-    groups: ["execute", "liveServer"]
+    groups: ["execute"]
 }
 isolated function testWithInvalidClusterId() returns error? {
     ExecutionResponse|Error res = redshiftData->execute(`SELECT * FROM Users`, dbAccessConfig = {
@@ -163,7 +163,7 @@ isolated function testWithInvalidClusterId() returns error? {
 }
 
 @test:Config {
-    groups: ["execute", "liveServer"]
+    groups: ["execute"]
 }
 isolated function testNoDbAccessConfig() returns error? {
     ConnectionConfig connectionConfig = {
@@ -171,12 +171,12 @@ isolated function testNoDbAccessConfig() returns error? {
         authConfig: testAuthConfig,
         dbAccessConfig: ()
     };
-    Client redshift = check new Client(connectionConfig);
-    ExecutionResponse|Error res = redshift->execute(`SELECT * FROM Users`);
+    Client redshiftData = check new Client(connectionConfig);
+    ExecutionResponse|Error res = redshiftData->execute(`SELECT * FROM Users`);
     test:assertTrue(res is Error);
     if res is Error {
         test:assertEquals(res.message(), "Error occurred while executing the execute: No database access " +
                 "configuration provided in the initialization of the client or in the execute statement config");
     }
-    check redshift->close();
+    check redshiftData->close();
 }
