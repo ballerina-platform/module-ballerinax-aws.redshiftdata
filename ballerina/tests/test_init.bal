@@ -27,13 +27,13 @@ final string dbUser = "awsuser";
 
 final readonly & Region awsRegion = US_EAST_2;
 
-final readonly & Cluster testDbAccessConfig = {
+final readonly & Cluster dbAccessConfig = {
     id: clusterId,
     database,
     dbUser
 };
 
-final readonly & StaticAuthConfig testAuthConfig = {
+final readonly & StaticAuthConfig authConfig = {
     accessKeyId,
     secretAccessKey
 };
@@ -45,8 +45,8 @@ isolated function initClient() returns Client|error {
     if enableTests {
         return new ({
             region: awsRegion,
-            authConfig: {accessKeyId, secretAccessKey},
-            dbAccessConfig: testDbAccessConfig
+            authConfig,
+            dbAccessConfig
         });
     }
     return test:mock(Client);
