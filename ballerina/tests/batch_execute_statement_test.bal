@@ -22,14 +22,12 @@ import ballerina/test;
     groups: ["batchExecute", "liveServer"]
 }
 isolated function testBasicBatchExecuteStatement() returns error? {
-    Client redshift = check new Client(testConnectionConfig);
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM Users`];
-    ExecutionResponse res = check redshift->batchExecute(queries);
+    ExecutionResponse res = check redshiftData->batchExecute(queries);
 
     test:assertTrue(res.statementId != "");
     test:assertTrue(res.createdAt[0] > 0);
     test:assertTrue(res.sessionId is ()); // Since we are not using sessionKeepAliveSeconds
-    check redshift->close();
 }
 
 @test:Config {
@@ -37,12 +35,12 @@ isolated function testBasicBatchExecuteStatement() returns error? {
 }
 isolated function testBatchExecuteSessionId() returns error? {
     ConnectionConfig connectionConfig = {
-        region: testRegion,
+        region: awsRegion,
         authConfig: testAuthConfig,
         dbAccessConfig: {
-            id: testClusterId,
-            database: testDatabaseName,
-            dbUser: testDbUser,
+            id: clusterId,
+            database: database,
+            dbUser: dbUser,
             sessionKeepAliveSeconds: 3600
         }
     };

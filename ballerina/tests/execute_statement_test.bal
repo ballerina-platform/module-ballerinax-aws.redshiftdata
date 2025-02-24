@@ -21,13 +21,11 @@ import ballerina/test;
     groups: ["execute", "liveServer"]
 }
 isolated function testBasicStatement() returns error? {
-    Client redshift = check new Client(testConnectionConfig);
-    ExecutionResponse res = check redshift->execute(`SELECT * FROM Users`);
+    ExecutionResponse res = check redshiftData->execute(`SELECT * FROM Users`);
 
     test:assertTrue(res.statementId != "");
     test:assertTrue(res.createdAt[0] > 0);
     test:assertTrue(res.sessionId is ()); // Since we are not using sessionKeepAliveSeconds
-    check redshift->close();
 }
 
 @test:Config {
@@ -35,12 +33,12 @@ isolated function testBasicStatement() returns error? {
 }
 isolated function testSessionId() returns error? {
     ConnectionConfig connectionConfig = {
-        region: testRegion,
+        region: awsRegion,
         authConfig: testAuthConfig,
         dbAccessConfig: {
-            id: testClusterId,
-            database: testDatabaseName,
-            dbUser: testDbUser,
+            id: clusterId,
+            database: database,
+            dbUser: dbUser,
             sessionKeepAliveSeconds: 3600
         }
     };
@@ -59,49 +57,41 @@ isolated function testSessionId() returns error? {
     groups: ["execute", "liveServer"]
 }
 isolated function testExecutionConfig() returns error? {
-    Client redshift = check new Client(testConnectionConfig);
     ExecutionConfig config = {
         dbAccessConfig: testDbAccessConfig,
         clientToken: "testToken",
         statementName: "testStatement",
         withEvent: true
     };
-    ExecutionResponse res = check redshift->execute(`SELECT * FROM Users`, config);
+    ExecutionResponse res = check redshiftData->execute(`SELECT * FROM Users`, config);
     test:assertTrue(res.statementId != "");
-    check redshift->close();
 }
 
 @test:Config {
     groups: ["execute", "liveServer"]
 }
 isolated function testParameterizedStatement() returns error? {
-    Client redshift = check new Client(testConnectionConfig);
     string tableName = "Users";
-    ExecutionResponse res = check redshift->execute(`SELECT * FROM ${tableName}`);
+    ExecutionResponse res = check redshiftData->execute(`SELECT * FROM ${tableName}`);
     test:assertTrue(res.statementId != "");
-    check redshift->close();
 }
 
 @test:Config {
     groups: ["execute", "liveServer"]
 }
 isolated function testNilParameterizedStatement() returns error? {
-    Client redshift = check new Client(testConnectionConfig);
     string? username = ();
-    ExecutionResponse res = check redshift->execute(`SELECT * FROM User WHERE username = ${username}`);
-    DescriptionResponse descRes = check redshift->describe(res.statementId);
+    ExecutionResponse res = check redshiftData->execute(`SELECT * FROM User WHERE username = ${username}`);
+    DescriptionResponse descRes = check redshiftData->describe(res.statementId);
     test:assertEquals(descRes.queryString, "SELECT * FROM User WHERE username = NULL");
-    check redshift->close();
 }
 
 @test:Config {
     groups: ["execute", "liveServer"]
 }
 isolated function testEmptyStatement() returns error? {
-    Client redshift = check new Client(testConnectionConfig);
-    ExecutionResponse|Error res = redshift->execute(``);
+    ExecutionResponse|Error res = redshiftData->execute(``);
     test:assertTrue(res is Error && (res.message() == "SQL statement cannot be empty."));
-    check redshift->close();
 }
 
 @test:Config {
@@ -109,7 +99,7 @@ isolated function testEmptyStatement() returns error? {
 }
 isolated function testWithDbConfigs() returns error? {
     ConnectionConfig mockConnectionConfig = {
-        region: testRegion,
+        region: awsRegion,
         authConfig: testAuthConfig,
         dbAccessConfig: {
             id: "CLUSTER_ID",
@@ -129,7 +119,7 @@ isolated function testWithDbConfigs() returns error? {
 }
 isolated function testWithInvalidDbConfigs() returns error? {
     ConnectionConfig mockConnectionConfig = {
-        region: testRegion,
+        region: awsRegion,
         authConfig: testAuthConfig,
         dbAccessConfig: {
             id: "clusterId",
@@ -152,28 +142,24 @@ isolated function testWithInvalidDbConfigs() returns error? {
     groups: ["execute", "liveServer"]
 }
 isolated function testWithInvalidStatementName() returns error? {
-    Client redshift = check new Client(testConnectionConfig);
-    ExecutionResponse|Error res = redshift->execute(`SELECT * FROM Users`, statementName = "");
+    ExecutionResponse|Error res = redshiftData->execute(`SELECT * FROM Users`, statementName = "");
     test:assertTrue(res is Error);
     if res is Error {
         test:assertEquals(res.message(), "The statement name should be at least 1 character long.");
     }
-    check redshift->close();
 }
 
 @test:Config {
     groups: ["execute", "liveServer"]
 }
 isolated function testWithInvalidClusterId() returns error? {
-    Client redshift = check new Client(testConnectionConfig);
-    ExecutionResponse|Error res = redshift->execute(`SELECT * FROM Users`, dbAccessConfig = {
+    ExecutionResponse|Error res = redshiftData->execute(`SELECT * FROM Users`, dbAccessConfig = {
         id: "",
-        database: testDatabaseName
+        database: database
     });
     if res is Error {
         test:assertEquals(res.message(), "The cluster ID should be at least 1 character long.");
     }
-    check redshift->close();
 }
 
 @test:Config {
@@ -181,7 +167,7 @@ isolated function testWithInvalidClusterId() returns error? {
 }
 isolated function testNoDbAccessConfig() returns error? {
     ConnectionConfig connectionConfig = {
-        region: testRegion,
+        region: awsRegion,
         authConfig: testAuthConfig,
         dbAccessConfig: ()
     };
