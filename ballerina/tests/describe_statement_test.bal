@@ -19,7 +19,7 @@ import ballerina/sql;
 import ballerina/test;
 
 @test:Config {
-    groups: ["describe", "liveServer"]
+    groups: ["describe"]
 }
 isolated function testBasicDescribeStatement() returns error? {
     sql:ParameterizedQuery query = `SELECT * FROM Users;`;
@@ -39,7 +39,7 @@ isolated function testBasicDescribeStatement() returns error? {
 }
 
 @test:Config {
-    groups: ["describe", "liveServer"]
+    groups: ["describe"]
 }
 isolated function testBatchDescribeStatement() returns error? {
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM Users;`];
@@ -79,7 +79,7 @@ isolated function testBatchDescribeStatement() returns error? {
 }
 
 @test:Config {
-    groups: ["describe", "liveServer"]
+    groups: ["describe"]
 }
 isolated function testIncorrectStatementDescribeStatement() returns error? {
     ExecutionResponse executionResponse = check redshiftData->execute(`SELECT * FROM non_existent_table;`);
@@ -91,7 +91,7 @@ isolated function testIncorrectStatementDescribeStatement() returns error? {
 }
 
 @test:Config {
-    groups: ["describe", "liveServer"]
+    groups: ["describe"]
 }
 isolated function testIncorrectBatchStatementDescribeStatement() returns error? {
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM non_existent_table;`];
@@ -113,7 +113,7 @@ isolated function testIncorrectBatchStatementDescribeStatement() returns error? 
 }
 
 @test:Config {
-    groups: ["describe", "liveServer"]
+    groups: ["describe"]
 }
 isolated function testDescribeStatementWithInvalidStatementId() returns error? {
     StatementId invalidStatementId = "InvalidStatementId";
