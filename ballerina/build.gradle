@@ -48,7 +48,7 @@ ballerina {
     packageOrganization = packageOrg
     module = packageName
     isConnector = true
-    platform = "java17"
+    platform = "java21"
 }
 
 configurations {
