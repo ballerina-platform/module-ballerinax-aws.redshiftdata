@@ -19,42 +19,40 @@ import ballerina/sql;
 import ballerina/test;
 
 @test:Config {
-    groups: ["batchExecute", "liveServer"]
+    groups: ["batchExecute"]
 }
 isolated function testBasicBatchExecuteStatement() returns error? {
-    Client redshift = check new Client(testConnectionConfig);
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM Users`];
-    ExecutionResponse res = check redshift->batchExecute(queries);
+    ExecutionResponse res = check redshiftData->batchExecute(queries);
 
     test:assertTrue(res.statementId != "");
     test:assertTrue(res.createdAt[0] > 0);
     test:assertTrue(res.sessionId is ()); // Since we are not using sessionKeepAliveSeconds
-    check redshift->close();
 }
 
 @test:Config {
-    groups: ["batchExecute", "liveServer"]
+    groups: ["batchExecute"]
 }
 isolated function testBatchExecuteSessionId() returns error? {
     ConnectionConfig connectionConfig = {
-        region: testRegion,
-        authConfig: testAuthConfig,
+        region: awsRegion,
+        authConfig,
         dbAccessConfig: {
-            id: testClusterId,
-            database: testDatabaseName,
-            dbUser: testDbUser,
+            id: clusterId,
+            database: database,
+            dbUser: dbUser,
             sessionKeepAliveSeconds: 3600
         }
     };
-    Client redshift = check new Client(connectionConfig);
+    Client redshiftData = check new Client(connectionConfig);
     sql:ParameterizedQuery[] queries = [`SELECT * FROM Users`, `SELECT * FROM Users`];
-    ExecutionResponse res1 = check redshift->batchExecute(queries);
+    ExecutionResponse res1 = check redshiftData->batchExecute(queries);
 
     test:assertTrue(res1.statementId != "");
     test:assertTrue(res1.sessionId is string && res1.sessionId != "");
 
     runtime:sleep(2); // wait for session to establish
-    ExecutionResponse res2 = check redshift->batchExecute(queries, {dbAccessConfig: res1.sessionId});
+    ExecutionResponse res2 = check redshiftData->batchExecute(queries, {dbAccessConfig: res1.sessionId});
     test:assertTrue(res2.sessionId == res1.sessionId);
-    check redshift->close();
+    check redshiftData->close();
 }
