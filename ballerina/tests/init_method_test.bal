@@ -22,7 +22,7 @@ import ballerina/test;
 isolated function testInit() returns error? {
     ConnectionConfig connectionConfig = {
         region: awsRegion,
-        authConfig,
+        auth,
         dbAccessConfig
     };
     Client redshiftData = check new (connectionConfig);
@@ -35,7 +35,7 @@ isolated function testInit() returns error? {
 isolated function testNilDbAccessConfig() returns error? {
     ConnectionConfig connectionConfig = {
         region: awsRegion,
-        authConfig
+        auth
     };
     Client redshiftData = check new (connectionConfig);
     check redshiftData->close();
