@@ -33,7 +33,7 @@ final readonly & Cluster dbAccessConfig = {
     dbUser
 };
 
-final readonly & StaticAuthConfig authConfig = {
+final readonly & StaticAuthConfig auth = {
     accessKeyId,
     secretAccessKey
 };
@@ -45,7 +45,7 @@ isolated function initClient() returns Client|error {
     if enableTests {
         return new ({
             region: awsRegion,
-            authConfig,
+            auth,
             dbAccessConfig
         });
     }

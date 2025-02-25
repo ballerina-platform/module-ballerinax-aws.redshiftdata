@@ -25,7 +25,7 @@ public isolated client class Client {
     # Initialize AWS Redshift Data API client.
     # ```ballerina
     # redshiftdata:Client redshift = check new (region = redshiftdata:US_EAST_2,
-    #    authConfig = {
+    #    auth = {
     #        accessKeyId: "<aws-access-key>",
     #        secretAccessKey: "<aws-secret-key>"
     #    },

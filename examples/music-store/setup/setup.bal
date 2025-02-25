@@ -28,7 +28,7 @@ public function main() returns error? {
     // Create a Redshift client
     redshiftdata:Client redshift = check new ({
         region: redshiftdata:US_EAST_2,
-        authConfig: {
+        auth: {
             accessKeyId,
             secretAccessKey
         },

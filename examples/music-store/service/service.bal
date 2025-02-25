@@ -35,7 +35,7 @@ service / on new http:Listener(8080) {
     function init() returns error? {
         self.redshift = check new ({
             region: redshiftdata:US_EAST_2,
-            authConfig: {
+            auth: {
                 accessKeyId,
                 secretAccessKey
             },

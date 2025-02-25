@@ -34,7 +34,7 @@ isolated function testBasicStatement() returns error? {
 isolated function testSessionId() returns error? {
     ConnectionConfig connectionConfig = {
         region: awsRegion,
-        authConfig,
+        auth,
         dbAccessConfig: {
             id: clusterId,
             database: database,
@@ -100,7 +100,7 @@ isolated function testEmptyStatement() returns error? {
 isolated function testWithDbConfigs() returns error? {
     ConnectionConfig connectionConfig = {
         region: awsRegion,
-        authConfig,
+        auth,
         dbAccessConfig: {
             id: "CLUSTER_ID",
             database: "",
@@ -120,7 +120,7 @@ isolated function testWithDbConfigs() returns error? {
 isolated function testWithInvalidDbConfigs() returns error? {
     ConnectionConfig connectionConfig = {
         region: awsRegion,
-        authConfig,
+        auth,
         dbAccessConfig: {
             id: "clusterId",
             database: "dbName",
@@ -168,7 +168,7 @@ isolated function testWithInvalidClusterId() returns error? {
 isolated function testNoDbAccessConfig() returns error? {
     ConnectionConfig connectionConfig = {
         region: awsRegion,
-        authConfig
+        auth
     };
     Client redshiftData = check new Client(connectionConfig);
     ExecutionResponse|Error res = redshiftData->execute(`SELECT * FROM Users`);
