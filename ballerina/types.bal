@@ -20,7 +20,7 @@ import ballerina/time;
 # Represents connection configurations related to Redshift Data API.
 #
 # + region - The AWS region with which the connector should communicate
-# + authConfig - The authentication configurations for the Redshift Data API
+# + auth - The authentication configurations for the Redshift Data API
 # + dbAccessConfig - The database access configurations for the Redshift Data API
 # This can be overridden in the individual `execute` and `batchExecute` requests
 public type ConnectionConfig record {|
