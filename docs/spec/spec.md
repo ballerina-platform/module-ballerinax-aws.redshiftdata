@@ -193,14 +193,6 @@ is related to the query execution. The `ExecutionConfig` record represents the a
 could be used when executing a single query or a query batch.
 
 ```ballerina
-# Represents the configuration details required for `execute` method.
-#
-# + dbAccessConfig - The database access configurations for the Redshift Data
-# If a `dbAccessConfig` is provided in the ExecutionConfig , it will override the init level dbAccessConfig
-# + clientToken - A unique, case-sensitive identifier that you provide to ensure the idempotency of the request 
-# + statementName - The name of the SQL statement
-# + withEvent - A value that indicates whether to send an event to the Amazon EventBridge event bus after the SQL 
-# statement runs
 public type ExecutionConfig record {|
     # The database access configurations for the Redshift Data
     Cluster|WorkGroup|SessionId dbAccessConfig?;
