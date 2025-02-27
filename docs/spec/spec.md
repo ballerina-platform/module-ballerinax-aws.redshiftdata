@@ -167,6 +167,25 @@ public type WorkGroup record {|
 
 ### 2.2. Initialization
 
+- A `redshiftdata:Client` can be initialized by providing the `redshiftdata:ConnectionConfig`.
+
+```ballerina
+# Initialize AWS Redshift Data API client.
+# ```ballerina
+# redshiftdata:Client redshift = check new (region = redshiftdata:US_EAST_2,
+#    authConfig = {
+#        accessKeyId: "<aws-access-key>",
+#        secretAccessKey: "<aws-secret-key>"
+#    },
+#    dbAccessConfig = {
+#        id: "<cluster-id>",
+#        database: "<database-name>",
+#        dbUser: "<db-user>"
+#    }
+# );
+public isolated function init(*redshift:ConnectionConfig connectionConfig) returns redshift:Error?;
+```
+
 ### 2.3. Execution configurations
 
 ### 2.4. Functions
