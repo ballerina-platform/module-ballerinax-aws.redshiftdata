@@ -109,13 +109,15 @@ isolated function testSupportedTypes() returns error? {
         (${data.intType}, ${data.bigintType}, ${data.doubleType}, ${data.booleanType},
          ${data.stringType},  ${data.nilType}
         );`;
-    _ = check redshiftData->execute(insertQuery);
+    ExecutionResponse insertStmResponse = check redshiftData->execute(insertQuery);
+    DescriptionResponse insertStmResult = check waitForCompletion(redshiftData, insertStmResponse.statementId);
+    test:assertEquals(insertStmResult.status, FINISHED);
 
     sql:ParameterizedQuery selectQuery = `SELECT * FROM SupportedTypes;`;
-    ExecutionResponse res = check redshiftData->execute(selectQuery);
-    DescriptionResponse descriptionResponse = check waitForCompletion(redshiftData, res.statementId);
-    test:assertEquals(descriptionResponse.status, FINISHED);
-    stream<SupportedTypes, Error?> queryResult = check redshiftData->getResultAsStream(res.statementId);
+    ExecutionResponse selectQueryResponse = check redshiftData->execute(selectQuery);
+    DescriptionResponse selectQueryResult = check waitForCompletion(redshiftData, selectQueryResponse.statementId);
+    test:assertEquals(selectQueryResult.status, FINISHED);
+    stream<SupportedTypes, Error?> queryResult = check redshiftData->getResultAsStream(selectQueryResponse.statementId);
 
     SupportedTypes[] resultArray = check from SupportedTypes item in queryResult
         select item;

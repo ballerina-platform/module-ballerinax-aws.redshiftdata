@@ -21,11 +21,11 @@ import ballerina/test;
 final string accessKeyId = os:getEnv("BALLERINA_AWS_TEST_ACCESS_KEY_ID");
 final string secretAccessKey = os:getEnv("BALLERINA_AWS_TEST_SECRET_ACCESS_KEY");
 
-final string clusterId = "redshift-cluster-integration";
+final string clusterId = "ballerina-redshift-cluster";
 final string database = "dev";
 final string dbUser = "awsuser";
 
-final readonly & Region awsRegion = US_EAST_2;
+final readonly & Region awsRegion = US_EAST_1;
 
 final readonly & Cluster dbAccessConfig = {
     id: clusterId,
@@ -33,7 +33,7 @@ final readonly & Cluster dbAccessConfig = {
     dbUser
 };
 
-final readonly & StaticAuthConfig authConfig = {
+final readonly & StaticAuthConfig auth = {
     accessKeyId,
     secretAccessKey
 };
@@ -45,7 +45,7 @@ isolated function initClient() returns Client|error {
     if enableTests {
         return new ({
             region: awsRegion,
-            authConfig,
+            auth,
             dbAccessConfig
         });
     }
