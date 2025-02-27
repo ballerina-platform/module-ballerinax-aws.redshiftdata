@@ -27,7 +27,8 @@ The conforming implementation of the specification is released to Ballerina Cent
 2. [Client](#1-client)
     * 2.1. [Configurations](#21-configurations)
     * 2.2. [Initialization](#22-initialization)
-    * 2.3. [Functions](#23-functions)
+    * 2.3. [Execution configurations](#23-execution-configurations)
+    * 2.4. [Functions](#24-functions)
 
 ## 1. Overview
 
@@ -46,4 +47,6 @@ The `redshiftdata:Client` object represents an AWS Redshift Data API client.
 
 ### 2.2. Initialization
 
-### 2.3. Functions
+### 2.3. Execution configurations
+
+### 2.4. Functions
