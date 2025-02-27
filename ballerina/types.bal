@@ -25,7 +25,7 @@ import ballerina/time;
 # This can be overridden in the individual `execute` and `batchExecute` requests
 public type ConnectionConfig record {|
     Region region;
-    StaticAuthConfig|EC2IAMRoleConfig authConfig;
+    StaticAuthConfig|EC2IAMRoleConfig auth;
     Cluster|WorkGroup dbAccessConfig?;
 |};
 
