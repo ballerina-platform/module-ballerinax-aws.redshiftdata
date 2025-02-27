@@ -188,4 +188,30 @@ public isolated function init(*redshift:ConnectionConfig connectionConfig) retur
 
 ### 2.3. Execution configurations
 
+- When executing a database query on AWS redshift, the developer could provide additiona configurations which 
+is related to the query execution. The `ExecutionConfig` record represents the additional configuration which 
+could be used when executing a single query or a query batch.
+
+```ballerina
+# Represents the configuration details required for `execute` method.
+#
+# + dbAccessConfig - The database access configurations for the Redshift Data
+# If a `dbAccessConfig` is provided in the ExecutionConfig , it will override the init level dbAccessConfig
+# + clientToken - A unique, case-sensitive identifier that you provide to ensure the idempotency of the request 
+# + statementName - The name of the SQL statement
+# + withEvent - A value that indicates whether to send an event to the Amazon EventBridge event bus after the SQL 
+# statement runs
+public type ExecutionConfig record {|
+    # The database access configurations for the Redshift Data
+    Cluster|WorkGroup|SessionId dbAccessConfig?;
+    # A unique, case-sensitive identifier that you provide to ensure the idempotency of the request
+    string clientToken?;
+    # The name of the SQL statement
+    string statementName?;
+    # Flag which indicates to send an event after the SQL statement execution to 
+    # an event bus instance running in Amazon EventBridge
+    boolean withEvent?;
+|};
+```
+
 ### 2.4. Functions
