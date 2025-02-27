@@ -45,6 +45,126 @@ The `redshiftdata:Client` object represents an AWS Redshift Data API client.
 
 ### 2.1. Configurations
 
+- `ConnectionConfig` record represents the connection configuration related to AWS Redshift Data API.
+
+```ballerina
+public type ConnectionConfig record {|
+    # The AWS region with which the connector should communicate
+    Region region;
+    # The authentication configurations for the Redshift Data API
+    StaticAuthConfig|EC2IAMRoleConfig authConfig;
+    # The database access configurations for the Redshift Data API 
+    # which can be overridden in the individual `execute` and `batchExecute` requests
+    Cluster|WorkGroup dbAccessConfig?;
+|};
+```
+
+- `Region` enum represents the AWS region that host the application which uses the connector.
+
+```ballerina
+public enum Region {
+    AF_SOUTH_1 = "af-south-1",
+    AP_EAST_1 = "ap-east-1",
+    AP_NORTHEAST_1 = "ap-northeast-1",
+    AP_NORTHEAST_2 = "ap-northeast-2",
+    AP_NORTHEAST_3 = "ap-northeast-3",
+    AP_SOUTH_1 = "ap-south-1",
+    AP_SOUTH_2 = "ap-south-2",
+    AP_SOUTHEAST_1 = "ap-southeast-1",
+    AP_SOUTHEAST_2 = "ap-southeast-2",
+    AP_SOUTHEAST_3 = "ap-southeast-3",
+    AP_SOUTHEAST_4 = "ap-southeast-4",
+    AWS_CN_GLOBAL = "aws-cn-global",
+    AWS_GLOBAL = "aws-global",
+    AWS_ISO_GLOBAL = "aws-iso-global",
+    AWS_ISO_B_GLOBAL = "aws-iso-b-global",
+    AWS_US_GOV_GLOBAL = "aws-us-gov-global",
+    CA_WEST_1 = "ca-west-1",
+    CA_CENTRAL_1 = "ca-central-1",
+    CN_NORTH_1 = "cn-north-1",
+    CN_NORTHWEST_1 = "cn-northwest-1",
+    EU_CENTRAL_1 = "eu-central-1",
+    EU_CENTRAL_2 = "eu-central-2",
+    EU_ISOE_WEST_1 = "eu-isoe-west-1",
+    EU_NORTH_1 = "eu-north-1",
+    EU_SOUTH_1 = "eu-south-1",
+    EU_SOUTH_2 = "eu-south-2",
+    EU_WEST_1 = "eu-west-1",
+    EU_WEST_2 = "eu-west-2",
+    EU_WEST_3 = "eu-west-3",
+    IL_CENTRAL_1 = "il-central-1",
+    ME_CENTRAL_1 = "me-central-1",
+    ME_SOUTH_1 = "me-south-1",
+    SA_EAST_1 = "sa-east-1",
+    US_EAST_1 = "us-east-1",
+    US_EAST_2 = "us-east-2",
+    US_GOV_EAST_1 = "us-gov-east-1",
+    US_GOV_WEST_1 = "us-gov-west-1",
+    US_ISOB_EAST_1 = "us-isob-east-1",
+    US_ISO_EAST_1 = "us-iso-east-1",
+    US_ISO_WEST_1 = "us-iso-west-1",
+    US_WEST_1 = "us-west-1",
+    US_WEST_2 = "us-west-2"
+}
+```
+
+- `StaticAuthConfig` record represents AWS static authentication configurations.  
+
+```ballerina
+public type StaticAuthConfig record {|
+    # The AWS access key ID, used to identify the user interacting with AWS
+    string accessKeyId;
+    # The AWS secret access key, used to authenticate the user interacting with AWS
+    string secretAccessKey;
+    # The AWS session token, used for authenticating a user with temporary permission to a resource
+    string sessionToken?;
+|};
+```
+
+- `EC2IAMRoleConfig` record represents the EC2 IAM role based authentication configurations.
+
+```ballerina
+public type EC2IAMRoleConfig record {|
+    # Configure the profile name used for loading IMDS-related configuration,
+    # like the endpoint mode (IPv4 vs IPv6)
+    string profileName?;
+    # The path to the file containing the profile configuration
+    string profileFile?;
+|};
+```
+
+- `Cluster` record represents the configuration details required for connecting to an Amazon Redshift cluster.
+
+```ballerina
+public type Cluster record {|
+    # The cluster identifier 
+    string id;
+    # The name of the database
+    string database;
+    # The database user name
+    string dbUser?;
+    # The name or ARN of the secret that enables access to the database
+    string secretArn?;
+    # The number of seconds to keep the session alive after the query finishes
+    int sessionKeepAliveSeconds?;
+|};
+```
+
+- `WorkGroup` record represents the configuration details required for connecting to an Amazon Redshift serverless workgroup
+
+```ballerina
+public type WorkGroup record {|
+    # The serverless workgroup name or Amazon Resource Name (ARN)
+    string name;
+    # The name of the database
+    string database;
+    # The name or ARN of the secret that enables access to the database
+    string secretArn?;
+    # The number of seconds to keep the session alive after the query finishes
+    int sessionKeepAliveSeconds?;
+|};
+```
+
 ### 2.2. Initialization
 
 ### 2.3. Execution configurations
