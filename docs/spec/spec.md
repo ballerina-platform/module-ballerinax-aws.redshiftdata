@@ -171,8 +171,8 @@ public type WorkGroup record {|
 
 ```ballerina
 # Initialize AWS Redshift Data API client.
-# ```ballerina
-# redshiftdata:Client redshift = check new (region = redshiftdata:US_EAST_2,
+# ```
+# redshiftdata:Client redshiftdata = check new (region = redshiftdata:US_EAST_2,
 #    authConfig = {
 #        accessKeyId: "<aws-access-key>",
 #        secretAccessKey: "<aws-secret-key>"
@@ -183,14 +183,19 @@ public type WorkGroup record {|
 #        dbUser: "<db-user>"
 #    }
 # );
+#
+# + connectionConfig - The Redshift Data API client configurations
+# If a `dbAccessConfig` is provided, it will be used for the statement executions and it can be overridden 
+# using the `dbAccessConfig` at the API level
+# + return - The `redshiftdata:Client` or a `redshiftdata:Error` if the initialization fails
 public isolated function init(*redshift:ConnectionConfig connectionConfig) returns redshift:Error?;
 ```
 
 ### 2.3. Execution configurations
 
-- When executing a database query on AWS redshift, the developer could provide additiona configurations which 
+- When executing a SQL statement on AWS redshift, the developer could provide additiona configurations which 
 is related to the query execution. The `ExecutionConfig` record represents the additional configuration which 
-could be used when executing a single query or a query batch.
+could be used when executing a single SQL statement or a SQL statement batch.
 
 ```ballerina
 public type ExecutionConfig record {|
@@ -207,3 +212,72 @@ public type ExecutionConfig record {|
 ```
 
 ### 2.4. Functions
+
+- To run a SQL statement on AWS Redshift instance, `execute` function can be used.
+
+```ballerina
+# Runs an SQL statement, which can be data manipulation language (DML) or data definition language (DDL).
+# ```
+# redshiftdata:ExecutionResponse response = check redshiftdata->execute(`SELECT * FROM Users`);
+# ```
+#
+# + statement - The SQL statement to be executed
+# + executionConfig - The configurations related to the execution of the statement
+# + return - The `redshiftdata:ExecutionResponse` or a `redshiftdata:Error` if the execution fails
+remote isolated function execute(sql:ParameterizedQuery statement, *redshift:ExecutionConfig executionConfig) returns redshift:ExecutionResponse|redshift:Error;
+```
+
+- To run multiple SQL statements on AWS Redshift instance, `batchExecute` function can be used.
+
+```ballerina
+# Runs one or more SQL statements, which can be data manipulation language (DML) or data definition language (DDL). 
+# The batch size should not exceed 40.
+# ```
+# redshiftdata:ExecutionResponse response = check redshiftdata->batchExecute([`<statement>`, `<statement>`]);
+# ```
+#
+# + statements - The SQL statements to be executed
+# + executionConfig - The configurations related to the execution of the statements
+# + return - The `redshiftdata:ExecutionResponse` or a `redshiftdata:Error` if the execution fails
+remote isolated function batchExecute(sql:ParameterizedQuery[] statements, *redshift:ExecutionConfig executionConfig) 
+returns redshift:ExecutionResponse|redshift:Error;
+```
+
+- To retrieve the results for a previously executed SQL statement, `getResultAsStream` function can be used.
+
+```ballerina
+# Retrieves the results for a previously executed SQL statement.
+# ```
+# stream<User, Error?> response = check redshiftdata->getResultAsStream("<statement-id>");
+# ```
+#
+# + statementId - The identifier of the SQL statement
+# + rowTypes - The typedesc of the record to which the result needs to be returned
+# + return - Stream of records in the type of rowTypes or a `redshiftdata:Error` if the retrieval fails
+remote isolated function getResultAsStream(redshift:StatementId statementId, typedesc<record {}> rowTypes = <>) returns stream<rowTypes, redshift:Error?>|redshift:Error;
+```
+
+- To retrieve the execution status for a previously executed SQL statement, `describe` function can be used.
+
+```ballerina
+# Retrieves the execution status for a previously executed SQL statement.
+# ```
+# redshiftdata:DescriptionResponse response = check redshiftdata->describe("<statement-id>");
+# ```
+#
+# + statementId - The identifier of the SQL statement
+# + return - The `redshiftdata:DescriptionResponse` or a `redshiftdata:Error` if the execution fails
+remote isolated function describe(redshiftdata:StatementId statementId) returns redshiftdata:DescriptionResponse|redshiftdata:Error;
+```
+
+- To gracefully close and AWS Redshift Data API client resources, `close` function can be used.
+
+```ballerina
+# Gracefully close and AWS Redshift Data API client resources.
+# ```
+# check redshiftdata->close();
+# ```
+#
+# + return - A `redshiftdata:Error` if there is an error while closing the client resources or else nil
+remote isolated function close() returns redshiftdata:Error?;
+```
