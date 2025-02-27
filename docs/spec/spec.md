@@ -40,7 +40,7 @@ This specification outlines the implementation of a client API for connecting to
 
 ## 2. Client
 
-The `redshiftdata:Client` object represents a AWS Redshift Data API client.
+The `redshiftdata:Client` object represents an AWS Redshift Data API client.
 
 ### 2.1. Configurations
 
