@@ -188,7 +188,7 @@ public type WorkGroup record {|
 # If a `dbAccessConfig` is provided, it will be used for the statement executions and it can be overridden 
 # using the `dbAccessConfig` at the API level
 # + return - The `redshiftdata:Client` or a `redshiftdata:Error` if the initialization fails
-public isolated function init(*redshift:ConnectionConfig connectionConfig) returns redshift:Error?;
+public isolated function init(*redshiftdata:ConnectionConfig connectionConfig) returns redshiftdata:Error?;
 ```
 
 ### 2.3. Execution configurations
