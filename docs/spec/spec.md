@@ -220,7 +220,7 @@ public type ExecutionConfig record {|
 # + statement - The SQL statement to be executed
 # + executionConfig - The configurations related to the execution of the statement
 # + return - The `redshiftdata:ExecutionResponse` or a `redshiftdata:Error` if the execution fails
-remote isolated function execute(sql:ParameterizedQuery statement, *redshift:ExecutionConfig executionConfig) returns redshift:ExecutionResponse|redshift:Error;
+remote isolated function execute(sql:ParameterizedQuery statement, *redshiftdata:ExecutionConfig executionConfig) returns redshiftdata:ExecutionResponse|redshiftdata:Error;
 ```
 
 - To run multiple SQL statements on AWS Redshift instance, `batchExecute` function can be used.
@@ -235,8 +235,8 @@ remote isolated function execute(sql:ParameterizedQuery statement, *redshift:Exe
 # + statements - The SQL statements to be executed
 # + executionConfig - The configurations related to the execution of the statements
 # + return - The `redshiftdata:ExecutionResponse` or a `redshiftdata:Error` if the execution fails
-remote isolated function batchExecute(sql:ParameterizedQuery[] statements, *redshift:ExecutionConfig executionConfig) 
-returns redshift:ExecutionResponse|redshift:Error;
+remote isolated function batchExecute(sql:ParameterizedQuery[] statements, *redshiftdata:ExecutionConfig executionConfig) 
+returns redshiftdata:ExecutionResponse|redshiftdata:Error;
 ```
 
 - To retrieve the results for a previously executed SQL statement, `getResultAsStream` function can be used.
@@ -250,7 +250,7 @@ returns redshift:ExecutionResponse|redshift:Error;
 # + statementId - The identifier of the SQL statement
 # + rowTypes - The typedesc of the record to which the result needs to be returned
 # + return - Stream of records in the type of rowTypes or a `redshiftdata:Error` if the retrieval fails
-remote isolated function getResultAsStream(redshift:StatementId statementId, typedesc<record {}> rowTypes = <>) returns stream<rowTypes, redshift:Error?>|redshift:Error;
+remote isolated function getResultAsStream(redshiftdata:StatementId statementId, typedesc<record {}> rowTypes = <>) returns stream<rowTypes, redshiftdata:Error?>|redshiftdata:Error;
 ```
 
 - To retrieve the execution status for a previously executed SQL statement, `describe` function can be used.
