@@ -24,6 +24,7 @@ The conforming implementation of the specification is released to Ballerina Cent
     * 2.2. [Initialization](#22-initialization)
     * 2.3. [Execution configurations](#23-execution-configurations)
     * 2.4. [Functions](#24-functions)
+3. [Reference usage](#3-reference-usage)
 
 ## 1. Overview
 
@@ -275,4 +276,46 @@ remote isolated function describe(redshiftdata:StatementId statementId) returns 
 #
 # + return - A `redshiftdata:Error` if there is an error while closing the client resources or else nil
 remote isolated function close() returns redshiftdata:Error?;
+```
+
+## 3. Reference usage
+
+### 3.1. Executing a single SQL statement
+
+```ballerina
+// Execute the SQL statement
+redshiftdata:ExecutionResponse statementResponse = check redshiftData->execute(`SELECT * FROM Users`);
+string statementId = statementResponse.statementId;
+
+// Check the execution state by calling the `describe` function
+redshiftdata:DescriptionResponse statementResult = check redshiftData->describe(statementId);
+
+// If the statement execution is completed, retrieve the results
+if statementResult.status is redshiftdata:FINISHED {
+    stream<User, redshiftdata:Error?> userStream = check redshiftData->getResultAsStream(statementId);
+}
+```
+
+### 3.2. Executing a batch of SQL statements
+
+```ballerina
+User[] users = [
+    {userId: 1, username: "Alice", email: "alice@gmail.com", age: 25},
+    {userId: 2, username: "Bob", email: "bob@gmail.com", age: 30}
+];
+
+sql:ParameterizedQuery[] insertStatements = from var row in users
+        select `INSERT INTO Users (user_id, username, email, age) VALUES
+            (${row.userId}, ${row.username}, ${row.email}, ${row.age})`;
+
+// Execute the SQL statement batch
+redshiftdata:ExecutionResponse statementBatchResponse = check redshiftData->batchExecute(insertStatements);
+string statementId = statementBatchResponse.statementId;
+
+// Check the execution state by calling the `describe` function
+redshiftdata:DescriptionResponse statementBatchResult = check redshiftData->describe(statementId);
+
+if statementBatchResult.status is redshiftdata:FINISHED {
+    // implement custom logic here
+}
 ```
