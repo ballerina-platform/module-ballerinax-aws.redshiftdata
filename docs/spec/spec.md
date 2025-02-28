@@ -179,6 +179,7 @@ public type WorkGroup record {|
 #        dbUser: "<db-user>"
 #    }
 # );
+# ```
 #
 # + connectionConfig - The Redshift Data API client configurations
 # If a `dbAccessConfig` is provided, it will be used for the statement executions and it can be overridden 
