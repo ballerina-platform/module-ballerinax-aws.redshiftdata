@@ -270,7 +270,7 @@ remote isolated function getResultAsStream(redshift:StatementId statementId, typ
 remote isolated function describe(redshiftdata:StatementId statementId) returns redshiftdata:DescriptionResponse|redshiftdata:Error;
 ```
 
-- To gracefully close and AWS Redshift Data API client resources, `close` function can be used.
+- To gracefully close the AWS Redshift Data API client resources, `close` function can be used.
 
 ```ballerina
 # Gracefully close and AWS Redshift Data API client resources.
