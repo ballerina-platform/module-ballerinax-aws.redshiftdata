@@ -17,26 +17,26 @@
 import ballerina/test;
 
 @test:Config {
-    groups: ["init", "liveServer"]
+    groups: ["init"]
 }
 isolated function testInit() returns error? {
-    Client|Error redshift = new (testConnectionConfig);
-    test:assertTrue(redshift is Client);
-    Client redshiftClient = check redshift.ensureType();
-    check redshiftClient->close();
+    ConnectionConfig connectionConfig = {
+        region: awsRegion,
+        auth,
+        dbAccessConfig
+    };
+    Client redshiftData = check new (connectionConfig);
+    check redshiftData->close();
 }
 
 @test:Config {
-    groups: ["init", "liveServer"]
+    groups: ["init"]
 }
 isolated function testNilDbAccessConfig() returns error? {
     ConnectionConfig connectionConfig = {
-        region: testRegion,
-        authConfig: testAuthConfig,
-        dbAccessConfig: ()
+        region: awsRegion,
+        auth
     };
-    Client|Error redshift = new (connectionConfig);
-    test:assertTrue(redshift is Client);
-    Client redshiftClient = check redshift.ensureType();
-    check redshiftClient->close();
+    Client redshiftData = check new (connectionConfig);
+    check redshiftData->close();
 }
