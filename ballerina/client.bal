@@ -149,7 +149,7 @@ public isolated client class Client {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
 
-    # Gracefully close and AWS Redshift Data API client resources.
+    # Gracefully closes AWS Redshift Data API client resources.
     # ```ballerina
     # check redshift->close();
     # ```
