@@ -24,7 +24,7 @@ The conforming implementation of the specification is released to Ballerina Cent
     * 2.2. [Initialization](#22-initialization)
     * 2.3. [Execution configurations](#23-execution-configurations)
     * 2.4. [Functions](#24-functions)
-3. [Reference usage](#3-reference-usage)
+3. [Example usage](#3-example-usage)
 
 ## 1. Overview
 
@@ -278,7 +278,7 @@ remote isolated function describe(redshiftdata:StatementId statementId) returns 
 remote isolated function close() returns redshiftdata:Error?;
 ```
 
-## 3. Reference usage
+## 3. Example usage
 
 ### 3.1. Executing a single SQL statement
 
