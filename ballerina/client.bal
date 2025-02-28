@@ -30,9 +30,9 @@ public isolated client class Client {
     #        secretAccessKey: "<aws-secret-key>"
     #    },
     #    dbAccessConfig = {
-    #        id: CLUSTER_ID,
-    #        database: DATABASE_NAME,
-    #        dbUser: DB_USER
+    #        id: "<cluster-id>",
+    #        database: "<database-name>",
+    #        dbUser: "<db-user>"
     #    }
     # );
     # ```
@@ -114,7 +114,7 @@ public isolated client class Client {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
 
-    # Retrieves the results of a previously executed SQL statement.
+    # Retrieves the results for a previously executed SQL statement.
     # ```ballerina
     # stream<User, Error?> response = check redshift->getResultAsStream("<statement-id>");
     # ```
@@ -127,7 +127,7 @@ public isolated client class Client {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
 
-    # Describes the details about a specific instance when a query was run by the Amazon Redshift Data API.
+    # Retrieves the execution status for a previously executed SQL statement.
     # ```ballerina
     # redshiftdata:DescriptionResponse response = check redshift->describe("<statement-id>");
     # ```
@@ -149,7 +149,7 @@ public isolated client class Client {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
 
-    # Closes the AWS Redshift Data API client.
+    # Gracefully closes AWS Redshift Data API client resources.
     # ```ballerina
     # check redshift->close();
     # ```
