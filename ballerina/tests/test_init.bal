@@ -15,14 +15,48 @@
 //  under the License.
 
 import ballerina/log;
+import ballerina/os;
 import ballerina/test;
 
-@test:BeforeSuite
-function beforeFunction() returns error? {
-    log:printInfo("Setting up tables");
-    Client redshift = check new Client(testConnectionConfig);
+final string accessKeyId = os:getEnv("BALLERINA_AWS_TEST_ACCESS_KEY_ID");
+final string secretAccessKey = os:getEnv("BALLERINA_AWS_TEST_SECRET_ACCESS_KEY");
 
-    ExecutionResponse createSupportedTypes = check redshift->execute(`
+final string clusterId = "ballerina-redshift-cluster";
+final string database = "dev";
+final string dbUser = "awsuser";
+
+final readonly & Region awsRegion = US_EAST_1;
+
+final readonly & Cluster dbAccessConfig = {
+    id: clusterId,
+    database,
+    dbUser
+};
+
+final readonly & StaticAuthConfig auth = {
+    accessKeyId,
+    secretAccessKey
+};
+
+final Client redshiftData = check initClient();
+
+isolated function initClient() returns Client|error {
+    boolean enableTests = accessKeyId !is "" && secretAccessKey !is "";
+    if enableTests {
+        return new ({
+            region: awsRegion,
+            auth,
+            dbAccessConfig
+        });
+    }
+    return test:mock(Client);
+}
+
+@test:BeforeSuite
+function beforeTestSuite() returns error? {
+    log:printInfo("Setting up tables");
+
+    ExecutionResponse createSupportedTypes = check redshiftData->execute(`
         CREATE TABLE IF NOT EXISTS SupportedTypes (
         int_type INTEGER,
         bigint_type BIGINT,
@@ -33,10 +67,10 @@ function beforeFunction() returns error? {
     );
     `);
     DescriptionResponse SupportedTypesDescription =
-        check waitForCompletion(redshift, createSupportedTypes.statementId);
+        check waitForCompletion(redshiftData, createSupportedTypes.statementId);
     test:assertEquals(SupportedTypesDescription.status, FINISHED);
 
-    ExecutionResponse createUserTable = check redshift->execute(`
+    ExecutionResponse createUserTable = check redshiftData->execute(`
         CREATE TABLE Users (
         user_id INT,
         username VARCHAR(255),
@@ -45,35 +79,31 @@ function beforeFunction() returns error? {
     );
     `);
     DescriptionResponse createUserTableDescription =
-        check waitForCompletion(redshift, createUserTable.statementId);
+        check waitForCompletion(redshiftData, createUserTable.statementId);
     test:assertEquals(createUserTableDescription.status, FINISHED);
 
-    ExecutionResponse insertUsers = check redshift->execute(`
+    ExecutionResponse insertUsers = check redshiftData->execute(`
         INSERT INTO Users (user_id, username, email, age) VALUES
         (1, 'JohnDoe', 'john.doe@example.com', 25),
         (2, 'JaneSmith', 'jane.smith@example.com', 30),
         (3, 'BobJohnson', 'bob.johnson@example.com', 22);
     `);
     DescriptionResponse insertUsersDescription =
-        check waitForCompletion(redshift, insertUsers.statementId);
+        check waitForCompletion(redshiftData, insertUsers.statementId);
     test:assertEquals(insertUsersDescription.status, FINISHED);
-
-    check redshift->close();
 }
 
 @test:AfterSuite
-function afterFunction() returns error? {
+function afterTestSuite() returns error? {
     log:printInfo("Cleaning up resources");
-    Client redshift = check new Client(testConnectionConfig);
 
-    ExecutionResponse dropUsers = check redshift->execute(`DROP TABLE IF EXISTS Users`);
-    DescriptionResponse dropUsersDescription = check waitForCompletion(redshift, dropUsers.statementId);
+    ExecutionResponse dropUsers = check redshiftData->execute(`DROP TABLE IF EXISTS Users`);
+    DescriptionResponse dropUsersDescription = check waitForCompletion(redshiftData, dropUsers.statementId);
     test:assertEquals(dropUsersDescription.status, FINISHED);
 
-    ExecutionResponse dropSupportedTypes = check redshift->execute(`DROP TABLE IF EXISTS SupportedTypes`);
+    ExecutionResponse dropSupportedTypes = check redshiftData->execute(`DROP TABLE IF EXISTS SupportedTypes`);
     DescriptionResponse dropSupportedTypesDescription =
-        check waitForCompletion(redshift, dropSupportedTypes.statementId);
+        check waitForCompletion(redshiftData, dropSupportedTypes.statementId);
     test:assertEquals(dropSupportedTypesDescription.status, FINISHED);
-
-    check redshift->close();
+    check redshiftData->close();
 }

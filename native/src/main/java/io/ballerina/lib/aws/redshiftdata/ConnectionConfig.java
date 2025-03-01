@@ -38,7 +38,7 @@ import static io.ballerina.lib.aws.redshiftdata.StaticAuthConfig.AWS_ACCESS_KEY_
 public record ConnectionConfig(Region region, Object authConfig, Object dbAccessConfig) {
     static final BString CONNECTION_CONFIG_DB_ACCESS_CONFIG = StringUtils.fromString("dbAccessConfig");
     private static final BString CONNECTION_CONFIG_REGION = StringUtils.fromString("region");
-    private static final BString CONNECTION_CONFIG_AUTH_CONFIG = StringUtils.fromString("authConfig");
+    private static final BString CONNECTION_CONFIG_AUTH_CONFIG = StringUtils.fromString("auth");
 
     public ConnectionConfig(BMap<BString, Object> bConnectionConfig) {
         this(
