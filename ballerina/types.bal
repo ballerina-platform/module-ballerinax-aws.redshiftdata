@@ -17,15 +17,15 @@
 import ballerina/constraint;
 import ballerina/time;
 
-# Additional configurations related to Redshift Data API
+# Represents connection configurations related to Redshift Data API.
 #
 # + region - The AWS region with which the connector should communicate
-# + authConfig - The authentication configurations for the Redshift Data API
+# + auth - The authentication configurations for the Redshift Data API
 # + dbAccessConfig - The database access configurations for the Redshift Data API
 # This can be overridden in the individual `execute` and `batchExecute` requests
 public type ConnectionConfig record {|
     Region region;
-    StaticAuthConfig|EC2_IAM_ROLE authConfig;
+    StaticAuthConfig|EC2IAMRoleConfig auth;
     Cluster|WorkGroup dbAccessConfig?;
 |};
 
@@ -75,7 +75,7 @@ public enum Region {
     US_WEST_2 = "us-west-2"
 }
 
-# Auth configurations for the Redshift Data API.
+# Represents static authentication configurations for the Redshift Data API.
 #
 # + accessKeyId - The AWS access key ID, used to identify the user interacting with AWS
 # + secretAccessKey - The AWS secret access key, used to authenticate the user interacting with AWS
@@ -86,12 +86,12 @@ public type StaticAuthConfig record {|
     string sessionToken?;
 |};
 
-# Represents the EC2 IAM role based authentication for the Redshift Data API.
+# Represents the EC2 IAM role based authentication configurations for the Redshift Data API.
 #
 # + profileName - Configure the profile name used for loading IMDS-related configuration,
 # like the endpoint mode (IPv4 vs IPv6)
 # + profileFile - The path to the file containing the profile configuration
-public type EC2_IAM_ROLE record {|
+public type EC2IAMRoleConfig record {|
     string profileName?;
     string profileFile?;
 |};
@@ -131,7 +131,7 @@ public type Cluster record {|
     int sessionKeepAliveSeconds?;
 |};
 
-# Represents the configuration details required for connecting to an Amazon Redshift workgroup.
+# Represents the configuration details required for connecting to an Amazon Redshift serverless workgroup.
 #
 # + name - The serverless workgroup name or Amazon Resource Name (ARN)
 # + database - The name of the database 
@@ -169,8 +169,8 @@ public type SessionId string;
 # If a `dbAccessConfig` is provided in the ExecutionConfig , it will override the init level dbAccessConfig
 # + clientToken - A unique, case-sensitive identifier that you provide to ensure the idempotency of the request 
 # + statementName - The name of the SQL statement
-# + withEvent - A value that indicates whether to send an event to the Amazon EventBridge event bus after the SQL 
-# statement runs
+# + withEvent - Flag which indicates to send an event after the SQL statement execution 
+# to an event bus instance running in Amazon EventBridge
 public type ExecutionConfig record {|
     Cluster|WorkGroup|SessionId dbAccessConfig?;
     string clientToken?;

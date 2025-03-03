@@ -113,7 +113,7 @@ import ballerinax/aws.redshiftdata;
 
 ### Step 2: Instantiate a new connector
 
-Create a new `redshiftdata:Client` by providing the region, authConfig and dbAccessConfig.
+Create a new `redshiftdata:Client` by providing the region, authentication configurations and dbAccessConfig.
 
 The `dbAccessConfig` in the `ConnectionConfig` record defines the database access configuration for connecting to the Redshift Data API. It can be set to either a Cluster or a WorkGroup (Serverless mode). Additionally, users can override this configuration for specific requests by providing it in individual calls to methods like execute or batchExecute, allowing for more granular control over database access per execution.
 
@@ -122,9 +122,9 @@ configurable string accessKeyId = ?;
 configurable string secretAccessKey = ?;
 configurable redshiftdata:Cluster dbAccessConfig = ?;
 
-redshiftdata:Client redshift = check new ({
+redshiftdata:Client redshiftdata = check new ({
    region: redshiftdata:US_EAST_2,
-   authConfig: {
+   auth: {
       accessKeyId,
       secretAccessKey
    },
@@ -137,11 +137,11 @@ redshiftdata:Client redshift = check new ({
 Now, utilize the available connector operations.
 
 ```ballerina
-redshiftdata:ExecutionResponse response = check redshift->execute(`SELECT * FROM Users`);
+redshiftdata:ExecutionResponse response = check redshiftdata->execute(`SELECT * FROM Users`);
 
-redshiftdata:DescriptionResponse descriptionResponse = check redshift->describe(response.statementId);
+redshiftdata:DescriptionResponse descriptionResponse = check redshiftdata->describe(response.statementId);
 
-stream<User, redshiftdata:Error?> statementResult = check redshift->getResultAsStream(response.statementId);
+stream<User, redshiftdata:Error?> statementResult = check redshiftdata->getResultAsStream(response.statementId);
 ```
 
 ### Step 4: Run the Ballerina application
