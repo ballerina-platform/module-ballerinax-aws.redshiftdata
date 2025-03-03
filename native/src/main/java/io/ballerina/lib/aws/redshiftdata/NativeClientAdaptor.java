@@ -19,12 +19,9 @@
 package io.ballerina.lib.aws.redshiftdata;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -46,8 +43,6 @@ import software.amazon.awssdk.services.redshiftdata.model.GetStatementResultResp
 
 import java.nio.file.Path;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Representation of {@link RedshiftDataClient} with
@@ -56,8 +51,6 @@ import java.util.concurrent.Executors;
 public class NativeClientAdaptor {
     static final String NATIVE_CLIENT = "nativeClient";
     private static final String NATIVE_DB_ACCESS_CONFIG = "nativeDbAccessConfig";
-    private static final ExecutorService EXECUTOR_SERVICE = Executors
-            .newCachedThreadPool(new RedshiftDataThreadFactory());
 
     private NativeClientAdaptor() {
     }
@@ -108,23 +101,19 @@ public class NativeClientAdaptor {
                                  BMap<BString, Object> bExecutionConfig) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(NATIVE_CLIENT);
         Object initLevelDbAccessConfig = bClient.getNativeData(NATIVE_DB_ACCESS_CONFIG);
-        Future future = env.markAsync();
-        EXECUTOR_SERVICE.execute(() -> {
+        return env.yieldAndRun(() -> {
             try {
                 ExecuteStatementRequest executeRequest = CommonUtils.getNativeExecuteRequest(
                         bSqlStatement, bExecutionConfig, initLevelDbAccessConfig);
                 ExecuteStatementResponse executionResponse = nativeClient
                         .executeStatement(executeRequest);
-                BMap<BString, Object> bResponse = CommonUtils.getExecutionResponse(executionResponse);
-                future.complete(bResponse);
+                return CommonUtils.getExecutionResponse(executionResponse);
             } catch (Exception e) {
                 String errorMsg = String.format("Error occurred while executing the execute: %s",
                         Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
-                BError bError = CommonUtils.createError(errorMsg, e);
-                future.complete(bError);
+                return CommonUtils.createError(errorMsg, e);
             }
         });
-        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -132,68 +121,55 @@ public class NativeClientAdaptor {
                                       BMap<BString, Object> bExecutionConfig) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(NATIVE_CLIENT);
         Object initLevelDbAccessConfig = bClient.getNativeData(NATIVE_DB_ACCESS_CONFIG);
-        Future future = env.markAsync();
-        EXECUTOR_SERVICE.execute(() -> {
+        return env.yieldAndRun(() -> {
             try {
                 BatchExecuteStatementRequest batchExecuteStatementRequest = CommonUtils
                         .getNativeBatchExecuteRequest(
                                 bSqlStatements, bExecutionConfig, initLevelDbAccessConfig);
                 BatchExecuteStatementResponse batchExecutionResponse = nativeClient
                         .batchExecuteStatement(batchExecuteStatementRequest);
-                BMap<BString, Object> bResponse = CommonUtils
-                        .getBatchExecutionResponse(batchExecutionResponse);
-                future.complete(bResponse);
+                return CommonUtils.getBatchExecutionResponse(batchExecutionResponse);
             } catch (Exception e) {
                 String errorMsg = String.format("Error occurred while executing the batchExecute: %s",
                         Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
-                BError bError = CommonUtils.createError(errorMsg, e);
-                future.complete(bError);
+                return CommonUtils.createError(errorMsg, e);
             }
         });
-        return null;
     }
 
     @SuppressWarnings("unchecked")
     public static Object describe(Environment env, BObject bClient, BString bStatementId) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(NATIVE_CLIENT);
         String statementId = bStatementId.getValue();
-        Future future = env.markAsync();
-        EXECUTOR_SERVICE.execute(() -> {
+        return env.yieldAndRun(() -> {
             try {
                 DescribeStatementResponse describeStatementResponse = nativeClient.describeStatement(
                         DescribeStatementRequest.builder().id(statementId).build());
-                BMap<BString, Object> bResponse = CommonUtils.getDescriptionResponse(describeStatementResponse);
-                future.complete(bResponse);
+                return CommonUtils.getDescriptionResponse(describeStatementResponse);
             } catch (Exception e) {
                 String errorMsg = String.format("Error occurred while executing the describe: %s",
                         Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
-                BError bError = CommonUtils.createError(errorMsg, e);
-                future.complete(bError);
+                return CommonUtils.createError(errorMsg, e);
             }
         });
-        return null;
     }
 
     public static Object getResultAsStream(Environment env, BObject bClient, BString bStatementId,
                                            BTypedesc recordType) {
         RedshiftDataClient nativeClient = (RedshiftDataClient) bClient.getNativeData(NATIVE_CLIENT);
         String statementId = bStatementId.getValue();
-        Future future = env.markAsync();
-        EXECUTOR_SERVICE.execute(() -> {
+        return env.yieldAndRun(() -> {
             try {
                 GetStatementResultResponse nativeResultResponse = nativeClient
                         .getStatementResult(GetStatementResultRequest.builder().id(statementId).build());
-                BStream resultStream = QueryResultProcessor
-                        .getRecordStream(nativeClient, statementId, nativeResultResponse, recordType);
-                future.complete(resultStream);
+                return QueryResultProcessor.getRecordStream(nativeClient,
+                        statementId, nativeResultResponse, recordType);
             } catch (Exception e) {
                 String errorMsg = String.format("Error occurred while executing the getResultAsStream: %s",
                         Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
-                BError bError = CommonUtils.createError(errorMsg, e);
-                future.complete(bError);
+                return CommonUtils.createError(errorMsg, e);
             }
         });
-        return null;
     }
 
     public static Object close(BObject bClient) {
