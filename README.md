@@ -122,7 +122,7 @@ configurable string accessKeyId = ?;
 configurable string secretAccessKey = ?;
 configurable redshiftdata:Cluster dbAccessConfig = ?;
 
-redshiftdata:Client redshift = check new ({
+redshiftdata:Client redshiftdata = check new ({
    region: redshiftdata:US_EAST_2,
    auth: {
       accessKeyId,
@@ -137,11 +137,11 @@ redshiftdata:Client redshift = check new ({
 Now, utilize the available connector operations.
 
 ```ballerina
-redshiftdata:ExecutionResponse response = check redshift->execute(`SELECT * FROM Users`);
+redshiftdata:ExecutionResponse response = check redshiftdata->execute(`SELECT * FROM Users`);
 
-redshiftdata:DescriptionResponse descriptionResponse = check redshift->describe(response.statementId);
+redshiftdata:DescriptionResponse descriptionResponse = check redshiftdata->describe(response.statementId);
 
-stream<User, redshiftdata:Error?> statementResult = check redshift->getResultAsStream(response.statementId);
+stream<User, redshiftdata:Error?> statementResult = check redshiftdata->getResultAsStream(response.statementId);
 ```
 
 ### Step 4: Run the Ballerina application
