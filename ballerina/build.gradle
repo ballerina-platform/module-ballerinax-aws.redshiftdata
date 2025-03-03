@@ -165,7 +165,10 @@ clean {
     delete 'build'
 }
 
-build.dependsOn ":aws.redshiftdata-native:build"
-test.dependsOn ":aws.redshiftdata-native:build"
 build.dependsOn copyToLib
+build.dependsOn ":${packageName}-native:build"
+
+test.dependsOn ":${packageName}-native:build"
+
 publish.dependsOn build
+publishToMavenLocal.dependsOn build
