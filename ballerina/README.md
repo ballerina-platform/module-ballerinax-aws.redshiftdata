@@ -2,7 +2,15 @@
 
 [Amazon Redshift](https://docs.aws.amazon.com/redshift/latest/mgmt/welcome.html) is a powerful and fully-managed data warehouse service provided by Amazon Web Services (AWS), designed to efficiently analyze large datasets with high performance and scalability.
 
-The `ballerinax/aws.redshiftdata` package allows developers to interact with Amazon Redshift Data API seamlessly using Ballerina. The Redshift Data API simplifies data access by eliminating the need for managing persistent database connections or the Redshift JDBC driver.
+The Amazon Redshift Data connector allows developers to interact with Amazon Redshift Data API seamlessly. The Redshift Data API simplifies data access by eliminating the need for managing persistent database connections or the Redshift JDBC driver.
+
+### Key Features
+
+- Simplifies data access by using the Redshift Data API
+- Eliminates the need for managing persistent database connections
+- Support for executing SQL statements and retrieving results as a stream
+- Support for both Cluster and WorkGroup (Serverless mode) configurations
+- GraalVM compatible for native image builds
 
 ## Setup guide
 
