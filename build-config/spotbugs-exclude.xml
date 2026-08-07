@@ -19,4 +19,16 @@
     <Match>
         <Class name="io.ballerina.lib.aws.redshiftdata.QueryResultProcessor"/>
     </Match>
+    <!--
+      `endpointConfig` holds the Ballerina `aws:EndpointConfig` value as received across the
+      interop boundary. It is passed on to the shared `aws` library as-is, so it can neither
+      be defensively copied nor replaced by a plain Java type.
+    -->
+    <Match>
+        <Class name="io.ballerina.lib.aws.redshiftdata.ConnectionConfig"/>
+        <Or>
+            <Bug pattern="EI_EXPOSE_REP"/>
+            <Bug pattern="EI_EXPOSE_REP2"/>
+        </Or>
+    </Match>
 </FindBugsFilter>

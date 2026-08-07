@@ -3,7 +3,7 @@
 _Authors_: @ayeshLK \
 _Reviewers_: @ThisaruGuruge @chathushkaayash \
 _Created_: 2025/02/27 \
-_Updated_: 2025/02/28 \
+_Updated_: 2026/08/07 \
 _Edition_: Swan Lake 
 
 ## Introduction
@@ -45,87 +45,54 @@ The `redshiftdata:Client` object represents an AWS Redshift Data API client.
 
 ```ballerina
 public type ConnectionConfig record {|
-    # The AWS region with which the connector should communicate
-    Region region;
-    # The authentication configurations for the Redshift Data API
-    StaticAuthConfig|EC2IAMRoleConfig authConfig;
+    # Authentication configuration: any standard credential source supported by AWS
+    auth:AuthConfig auth;
+    # AWS region: an `aws:Region` enum member or a plain region string
+    aws:Region|string region;
+    # Optional endpoint options: FIPS/dualstack variants, or a custom endpoint override
+    aws:EndpointConfig endpoint?;
     # The database access configurations for the Redshift Data API 
     # which can be overridden in the individual `execute` and `batchExecute` requests
     Cluster|WorkGroup dbAccessConfig?;
 |};
 ```
 
-- `Region` enum represents the AWS region that host the application which uses the connector.
+Authentication, region, and endpoint resolution are provided by the shared
+[`ballerinax/aws`](https://github.com/ballerina-platform/module-ballerinax-aws) package, so
+the connector behaves identically to the other AWS connectors in this area.
+
+- `auth:AuthConfig` is the union of every credential source standardized across the AWS
+connectors. Credentials are resolved per request through the AWS SDK provider chain, so
+expiring temporary credentials are refreshed automatically.
 
 ```ballerina
-public enum Region {
-    AF_SOUTH_1 = "af-south-1",
-    AP_EAST_1 = "ap-east-1",
-    AP_NORTHEAST_1 = "ap-northeast-1",
-    AP_NORTHEAST_2 = "ap-northeast-2",
-    AP_NORTHEAST_3 = "ap-northeast-3",
-    AP_SOUTH_1 = "ap-south-1",
-    AP_SOUTH_2 = "ap-south-2",
-    AP_SOUTHEAST_1 = "ap-southeast-1",
-    AP_SOUTHEAST_2 = "ap-southeast-2",
-    AP_SOUTHEAST_3 = "ap-southeast-3",
-    AP_SOUTHEAST_4 = "ap-southeast-4",
-    AWS_CN_GLOBAL = "aws-cn-global",
-    AWS_GLOBAL = "aws-global",
-    AWS_ISO_GLOBAL = "aws-iso-global",
-    AWS_ISO_B_GLOBAL = "aws-iso-b-global",
-    AWS_US_GOV_GLOBAL = "aws-us-gov-global",
-    CA_WEST_1 = "ca-west-1",
-    CA_CENTRAL_1 = "ca-central-1",
-    CN_NORTH_1 = "cn-north-1",
-    CN_NORTHWEST_1 = "cn-northwest-1",
-    EU_CENTRAL_1 = "eu-central-1",
-    EU_CENTRAL_2 = "eu-central-2",
-    EU_ISOE_WEST_1 = "eu-isoe-west-1",
-    EU_NORTH_1 = "eu-north-1",
-    EU_SOUTH_1 = "eu-south-1",
-    EU_SOUTH_2 = "eu-south-2",
-    EU_WEST_1 = "eu-west-1",
-    EU_WEST_2 = "eu-west-2",
-    EU_WEST_3 = "eu-west-3",
-    IL_CENTRAL_1 = "il-central-1",
-    ME_CENTRAL_1 = "me-central-1",
-    ME_SOUTH_1 = "me-south-1",
-    SA_EAST_1 = "sa-east-1",
-    US_EAST_1 = "us-east-1",
-    US_EAST_2 = "us-east-2",
-    US_GOV_EAST_1 = "us-gov-east-1",
-    US_GOV_WEST_1 = "us-gov-west-1",
-    US_ISOB_EAST_1 = "us-isob-east-1",
-    US_ISO_EAST_1 = "us-iso-east-1",
-    US_ISO_WEST_1 = "us-iso-west-1",
-    US_WEST_1 = "us-west-1",
-    US_WEST_2 = "us-west-2"
-}
+public type AuthConfig StaticAuthConfig|ProfileAuthConfig|AssumeRoleConfig|WebIdentityConfig|SsoAuthConfig|ProcessAuthConfig|DEFAULT_CREDENTIALS;
 ```
 
-- `StaticAuthConfig` record represents AWS static authentication configurations.  
+| Member | Credential source |
+|---|---|
+| `auth:StaticAuthConfig` | Static access key/secret, optionally with a session token |
+| `auth:ProfileAuthConfig` | A named profile in a local AWS credentials file |
+| `auth:AssumeRoleConfig` | Temporary credentials from an STS assume-role call |
+| `auth:WebIdentityConfig` | A web identity (OIDC) token exchanged for a role |
+| `auth:SsoAuthConfig` | An IAM Identity Center (SSO) session |
+| `auth:ProcessAuthConfig` | An external `credential_process` command |
+| `auth:DEFAULT_CREDENTIALS` | The AWS default credential provider chain |
+
+- `aws:Region` enumerates the AWS regions known to the bundled SDK. A plain region string is
+also accepted, for regions newer than the enum.
+
+- `aws:EndpointConfig` selects a FIPS or dualstack endpoint variant, or overrides the endpoint
+entirely (e.g. LocalStack, VPC interface endpoints).
 
 ```ballerina
-public type StaticAuthConfig record {|
-    # The AWS access key ID, used to identify the user interacting with AWS
-    string accessKeyId;
-    # The AWS secret access key, used to authenticate the user interacting with AWS
-    string secretAccessKey;
-    # The AWS session token, used for authenticating a user with temporary permission to a resource
-    string sessionToken?;
-|};
-```
-
-- `EC2IAMRoleConfig` record represents the EC2 IAM role based authentication configurations.
-
-```ballerina
-public type EC2IAMRoleConfig record {|
-    # Configure the profile name used for loading IMDS-related configuration,
-    # like the endpoint mode (IPv4 vs IPv6)
-    string profileName?;
-    # The path to the file containing the profile configuration
-    string profileFile?;
+public type EndpointConfig record {|
+    # Use the FIPS 140-validated endpoint variant
+    boolean fips = false;
+    # Use the dualstack (IPv4/IPv6) endpoint variant
+    boolean dualstack = false;
+    # Full endpoint URL override; when set, all other options are ignored
+    string customEndpoint?;
 |};
 ```
 
@@ -168,17 +135,18 @@ public type WorkGroup record {|
 ```ballerina
 # Initialize AWS Redshift Data API client.
 # ```
-# redshiftdata:Client redshiftdata = check new (region = redshiftdata:US_EAST_2,
-#    authConfig = {
+# redshiftdata:Client redshiftdata = check new ({
+#    auth: {
 #        accessKeyId: "<aws-access-key>",
 #        secretAccessKey: "<aws-secret-key>"
 #    },
-#    dbAccessConfig = {
+#    region: aws:US_EAST_2,
+#    dbAccessConfig: {
 #        id: "<cluster-id>",
 #        database: "<database-name>",
 #        dbUser: "<db-user>"
 #    }
-# );
+# });
 # ```
 #
 # + connectionConfig - The Redshift Data API client configurations

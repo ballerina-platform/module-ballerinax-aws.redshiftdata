@@ -14,56 +14,7 @@ The Amazon Redshift Data connector allows developers to interact with Amazon Red
 
 ## Setup guide
 
-### Login to AWS Console
-
-Log into the [AWS Management Console](https://console.aws.amazon.com/console). If you don’t have an AWS account yet, you can create one by visiting the AWS [sign-up](https://aws.amazon.com/free/) page. Sign up is free, and you can explore many services under the Free Tier.
-
-### Create a user
-
-1. In the AWS Management Console, search for IAM in the services search bar.
-2. Click on IAM
-
-   ![create-user-1.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/create-user-1.png)
-
-3. Click Users
-
-   ![create-user-2.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/create-user-2.png)
-
-4. Click Create User
-
-   ![create-user-3.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/create-user-3.png)
-
-5. Provide a suitable name for the user and continue
-
-   ![specify-user-details.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/specify-user-details.png)
-
-6. Add necessary permissions by adding the user to a user group, copy permissions or directly attach the policies. And click next.
-
-   ![set-user-permissions.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/set-user-permissions.png)
-
-7. Review and create the user
-
-   ![review-create-user.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/review-create-user.png)
-
-### Get user access keys
-
-1. Click the user that created
-
-   ![users.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/users.png)
-
-2. Click `Create access key`
-
-   ![create-access-key-1.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/create-access-key-1.png)
-
-3. Click your use case and click next.
-
-   ![select-usecase.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/select-usecase.png)
-
-4. Record the Access Key and Secret access key. These credentials will be used to authenticate your Ballerina application with the Redshift cluster.
-
-   ![retrieve-access-key.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/retrieve-access-key.png)
-
-### Setup a Cluster
+### Setup a Redshift cluster
 
 To use the Ballerina AWS Redshift data connector, follow these steps to set up an Amazon Redshift cluster:
 
@@ -102,6 +53,20 @@ To use the Ballerina AWS Redshift data connector, follow these steps to set up a
 
 > **Note:** Amazon Redshift now offers a serverless option, allowing you to use the data warehouse without managing infrastructure. Redshift Serverless automatically scales to handle your workloads, providing a flexible and efficient way to run analytics. To configure a **Redshift serverless** setup, please refer to [AWS documentation.](https://docs.aws.amazon.com/redshift/latest/gsg/new-user-serverless.html)
 
+### Obtain IAM user credentials
+
+To create an IAM user and generate an access key, follow the [obtaining IAM user credentials](https://central.ballerina.io/ballerinax/aws/latest#obtaining-iam-user-credentials) guide.
+
+Attach the Redshift Data API permissions your application needs to the user — the AWS managed `AmazonRedshiftDataFullAccess` policy grants full access, or scope a custom policy to only the `redshift-data` actions you call.
+
+The `redshift-data` actions alone are not sufficient: the user also needs permission to obtain the database credential named by your `dbAccessConfig`.
+
+| `dbAccessConfig` | Additional action required |
+|---|---|
+| `Cluster` with `dbUser` | `redshift:GetClusterCredentials` |
+| `WorkGroup` (serverless) | `redshift-serverless:GetCredentials` |
+| either one, with `secretArn` | `secretsmanager:GetSecretValue` |
+
 ## Quickstart
 
 To use the `aws.redshiftdata` connector in your Ballerina project, modify the .bal file as follows:
@@ -109,6 +74,7 @@ To use the `aws.redshiftdata` connector in your Ballerina project, modify the .b
 ### Step 1: Import the module
 
 ```ballerina
+import ballerinax/aws;
 import ballerinax/aws.redshiftdata;
 ```
 
@@ -124,7 +90,7 @@ configurable string secretAccessKey = ?;
 configurable redshiftdata:Cluster dbAccessConfig = ?;
 
 redshiftdata:Client redshiftdata = check new ({
-   region: redshiftdata:US_EAST_2,
+   region: aws:US_EAST_2,
    auth: {
       accessKeyId,
       secretAccessKey
@@ -132,6 +98,41 @@ redshiftdata:Client redshiftdata = check new ({
    dbAccessConfig
 });
 ```
+
+#### Alternative authentication methods
+
+##### Profile-based authentication
+
+You can use AWS profile-based authentication as an alternative to static credentials.
+
+```ballerina
+redshiftdata:Client redshiftdata = check new ({
+   region: aws:US_EAST_1,
+   auth: {
+      profileName: "myAwsProfile",
+      credentialsFilePath: "/path/to/custom/credentials"
+   }
+});
+```
+
+##### Default credential provider chain
+
+The standard default credential provider chain, trying each of the following in order and taking the first source that yields credentials:
+
+1. Environment variables (`AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`, and `AWS_WEB_IDENTITY_TOKEN_FILE` if set)
+2. The shared config/credentials file's active profile (`AWS_PROFILE`, or `default` if unset) — which may itself resolve via SSO
+, an external process, or a chained `AssumeRole` call, depending on that profile's configuration
+3. Container credentials (ECS/EKS)
+4. EC2 instance profile (IMDS)
+
+```ballerina
+redshiftdata:Client redshiftdata = check new ({
+   region: aws:US_EAST_1,
+   auth: auth:DEFAULT_CREDENTIALS
+});
+```
+
+> **Note:** Beyond the three options above, the `credentials` field also accepts `auth:AssumeRoleConfig` (STS assume-role), `auth:WebIdentityConfig` (web identity / OIDC), `auth:SsoAuthConfig` (IAM Identity Center), and `auth:ProcessAuthConfig` (external credential process). See the [`Ballerina AWS`](https://central.ballerina.io/ballerinax/aws/latest) documentation for details.
 
 ### Step 3: Invoke the connector operations
 

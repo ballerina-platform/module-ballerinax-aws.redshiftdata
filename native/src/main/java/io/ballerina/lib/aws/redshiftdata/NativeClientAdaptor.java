@@ -18,20 +18,16 @@
 
 package io.ballerina.lib.aws.redshiftdata;
 
+import io.ballerina.lib.aws.EndpointConfigUtils;
+import io.ballerina.lib.aws.auth.ProviderFactory;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.AwsCredentials;
-import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
-import software.amazon.awssdk.auth.credentials.InstanceProfileCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.profiles.ProfileFile;
 import software.amazon.awssdk.services.redshiftdata.RedshiftDataClient;
+import software.amazon.awssdk.services.redshiftdata.RedshiftDataClientBuilder;
 import software.amazon.awssdk.services.redshiftdata.model.BatchExecuteStatementRequest;
 import software.amazon.awssdk.services.redshiftdata.model.BatchExecuteStatementResponse;
 import software.amazon.awssdk.services.redshiftdata.model.DescribeStatementRequest;
@@ -41,7 +37,6 @@ import software.amazon.awssdk.services.redshiftdata.model.ExecuteStatementRespon
 import software.amazon.awssdk.services.redshiftdata.model.GetStatementResultRequest;
 import software.amazon.awssdk.services.redshiftdata.model.GetStatementResultResponse;
 
-import java.nio.file.Path;
 import java.util.Objects;
 
 /**
@@ -56,44 +51,42 @@ public class NativeClientAdaptor {
     }
 
     public static Object init(BObject bClient, BMap<BString, Object> bConnectionConfig) {
+        ConnectionConfig connectionConfig = null;
         try {
-            ConnectionConfig connectionConfig = new ConnectionConfig(bConnectionConfig);
-            AwsCredentialsProvider credentialsProvider = getCredentialsProvider(connectionConfig.authConfig());
-            RedshiftDataClient nativeClient = RedshiftDataClient.builder()
-                    .region(connectionConfig.region())
-                    .credentialsProvider(credentialsProvider)
-                    .build();
+            connectionConfig = new ConnectionConfig(bConnectionConfig);
+            RedshiftDataClient nativeClient = buildRedshiftDataClient(connectionConfig);
             bClient.addNativeData(NATIVE_CLIENT, nativeClient);
             bClient.addNativeData(NATIVE_DB_ACCESS_CONFIG, connectionConfig.dbAccessConfig());
         } catch (Exception e) {
+            releaseProvider(connectionConfig, e);
             String errorMsg = String.format("Error occurred while initializing the Redshift client: %s",
-                    e.getMessage());
+                    Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
             return CommonUtils.createError(errorMsg, e);
         }
         return null;
     }
 
-    private static AwsCredentialsProvider getCredentialsProvider(Object authConfig) {
-        if (authConfig instanceof StaticAuthConfig staticAuth) {
-            AwsCredentials credentials = Objects.nonNull(staticAuth.sessionToken()) ?
-                    AwsSessionCredentials.create(
-                            staticAuth.accessKeyId(), staticAuth.secretAccessKey(), staticAuth.sessionToken()) :
-                    AwsBasicCredentials.create(staticAuth.accessKeyId(), staticAuth.secretAccessKey());
-            return StaticCredentialsProvider.create(credentials);
+    private static RedshiftDataClient buildRedshiftDataClient(ConnectionConfig connectionConfig) {
+        RedshiftDataClientBuilder builder = RedshiftDataClient.builder()
+                .region(connectionConfig.region())
+                .credentialsProvider(connectionConfig.credentialsProvider());
+        EndpointConfigUtils.applyEndpointConfig(builder, connectionConfig.endpointConfig());
+        return builder.build();
+    }
+
+    /**
+     * Releases the credentials provider of a configuration whose client could not be
+     * built, recording any failure to do so on the originating exception.
+     */
+    private static void releaseProvider(ConnectionConfig connectionConfig, Exception failure) {
+        if (connectionConfig == null) {
+            return;
         }
-        InstanceProfileCredentials instanceProfileCredentials = (InstanceProfileCredentials) authConfig;
-        InstanceProfileCredentialsProvider.Builder instanceCredentialBuilder =
-                InstanceProfileCredentialsProvider.builder();
-        if (Objects.nonNull(instanceProfileCredentials.profileName())) {
-            instanceCredentialBuilder.profileName(instanceProfileCredentials.profileName());
+        try {
+            ProviderFactory.closeProvider(connectionConfig.credentialsProvider());
+        } catch (Exception closeFailure) {
+            failure.addSuppressed(closeFailure);
         }
-        if (Objects.nonNull(instanceProfileCredentials.profileFile())) {
-            instanceCredentialBuilder.profileFile(ProfileFile.builder()
-                    .content(Path.of(instanceProfileCredentials.profileFile()))
-                    .type(ProfileFile.Type.CONFIGURATION)
-                    .build());
-        }
-        return instanceCredentialBuilder.build();
     }
 
     @SuppressWarnings("unchecked")
