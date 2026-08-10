@@ -54,5 +54,5 @@ isolated function testBatchExecuteSessionId() returns error? {
     runtime:sleep(2); // wait for session to establish
     ExecutionResponse res2 = check redshiftData->batchExecute(queries, {dbAccessConfig: res1.sessionId});
     test:assertTrue(res2.sessionId == res1.sessionId);
-    check redshiftData->close();
+    check redshiftData.close();
 }

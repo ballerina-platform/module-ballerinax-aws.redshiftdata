@@ -3,7 +3,7 @@
 _Authors_: @ayeshLK \
 _Reviewers_: @ThisaruGuruge @chathushkaayash \
 _Created_: 2025/02/27 \
-_Updated_: 2026/08/07 \
+_Updated_: 2026/08/10 \
 _Edition_: Swan Lake 
 
 ## Introduction
@@ -238,13 +238,13 @@ remote isolated function describe(redshiftdata:StatementId statementId) returns 
 - To gracefully close the AWS Redshift Data API client resources, `close` function can be used.
 
 ```ballerina
-# Gracefully close and AWS Redshift Data API client resources.
+# Gracefully closes AWS Redshift Data API client resources.
 # ```
-# check redshiftdata->close();
+# check redshiftdata.close();
 # ```
 #
 # + return - A `redshiftdata:Error` if there is an error while closing the client resources or else nil
-remote isolated function close() returns redshiftdata:Error?;
+public isolated function close() returns redshiftdata:Error?;
 ```
 
 ## 3. Example usage

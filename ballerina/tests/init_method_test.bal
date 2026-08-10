@@ -26,7 +26,7 @@ isolated function testInit() returns error? {
         dbAccessConfig
     };
     Client redshiftData = check new (connectionConfig);
-    check redshiftData->close();
+    check redshiftData.close();
 }
 
 @test:Config {
@@ -38,5 +38,5 @@ isolated function testNilDbAccessConfig() returns error? {
         auth: authConfig
     };
     Client redshiftData = check new (connectionConfig);
-    check redshiftData->close();
+    check redshiftData.close();
 }

@@ -107,5 +107,5 @@ function afterTestSuite() returns error? {
     DescriptionResponse dropSupportedTypesDescription =
         check waitForCompletion(redshiftData, dropSupportedTypes.statementId);
     test:assertEquals(dropSupportedTypesDescription.status, FINISHED);
-    check redshiftData->close();
+    check redshiftData.close();
 }

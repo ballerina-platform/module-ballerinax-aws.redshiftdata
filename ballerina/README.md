@@ -14,7 +14,7 @@ The Amazon Redshift Data connector allows developers to interact with Amazon Red
 
 ## Setup guide
 
-### Setup a Redshift cluster
+### Set up a Redshift cluster
 
 To use the Ballerina AWS Redshift data connector, follow these steps to set up an Amazon Redshift cluster:
 
@@ -120,8 +120,7 @@ redshiftdata:Client redshiftdata = check new ({
 The standard default credential provider chain, trying each of the following in order and taking the first source that yields credentials:
 
 1. Environment variables (`AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`, and `AWS_WEB_IDENTITY_TOKEN_FILE` if set)
-2. The shared config/credentials file's active profile (`AWS_PROFILE`, or `default` if unset) — which may itself resolve via SSO
-, an external process, or a chained `AssumeRole` call, depending on that profile's configuration
+2. The shared config/credentials file's active profile (`AWS_PROFILE`, or `default` if unset) — which may itself resolve via SSO, an external process, or a chained `AssumeRole` call, depending on that profile's configuration
 3. Container credentials (ECS/EKS)
 4. EC2 instance profile (IMDS)
 
@@ -132,7 +131,7 @@ redshiftdata:Client redshiftdata = check new ({
 });
 ```
 
-> **Note:** Beyond the three options above, the `credentials` field also accepts `auth:AssumeRoleConfig` (STS assume-role), `auth:WebIdentityConfig` (web identity / OIDC), `auth:SsoAuthConfig` (IAM Identity Center), and `auth:ProcessAuthConfig` (external credential process). See the [`Ballerina AWS`](https://central.ballerina.io/ballerinax/aws/latest) documentation for details.
+> **Note:** Beyond the three options above, the `auth` field also accepts `auth:AssumeRoleConfig` (STS assume-role), `auth:WebIdentityConfig` (web identity / OIDC), `auth:SsoAuthConfig` (IAM Identity Center), and `auth:ProcessAuthConfig` (external credential process). See the [`Ballerina AWS`](https://central.ballerina.io/ballerinax/aws/latest) documentation for details.
 
 ### Step 3: Invoke the connector operations
 
