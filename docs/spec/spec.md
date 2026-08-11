@@ -57,9 +57,7 @@ public type ConnectionConfig record {|
 |};
 ```
 
-Authentication, region, and endpoint resolution are provided by the shared
-[`ballerinax/aws`](https://github.com/ballerina-platform/module-ballerinax-aws) package, so
-the connector behaves identically to the other AWS connectors in this area.
+Authentication, region, and endpoint resolution are provided by the shared [`ballerinax/aws`](https://central.ballerina.io/ballerinax/aws/latest) package, so the connector behaves identically to the other AWS connectors in this area.
 
 - `auth:AuthConfig` is the union of every credential source standardized across the AWS
 connectors. Credentials are resolved per request through the AWS SDK provider chain, so
