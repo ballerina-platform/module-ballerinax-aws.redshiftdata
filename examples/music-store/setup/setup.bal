@@ -17,6 +17,7 @@
 import ballerina/io;
 import ballerina/lang.runtime;
 import ballerina/sql;
+import ballerinax/aws;
 import ballerinax/aws.redshiftdata;
 
 configurable string accessKeyId = ?;
@@ -27,7 +28,7 @@ public function main() returns error? {
     io:println("Setting up the Music Store database...");
     // Create a Redshift client
     redshiftdata:Client redshift = check new ({
-        region: redshiftdata:US_EAST_2,
+        region: aws:US_EAST_2,
         auth: {
             accessKeyId,
             secretAccessKey

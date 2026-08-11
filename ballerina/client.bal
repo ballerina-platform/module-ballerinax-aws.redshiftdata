@@ -24,7 +24,7 @@ public isolated client class Client {
 
     # Initialize AWS Redshift Data API client.
     # ```ballerina
-    # redshiftdata:Client redshift = check new (region = redshiftdata:US_EAST_2,
+    # redshiftdata:Client redshift = check new (region = aws:US_EAST_2,
     #    auth = {
     #        accessKeyId: "<aws-access-key>",
     #        secretAccessKey: "<aws-secret-key>"
@@ -151,11 +151,11 @@ public isolated client class Client {
 
     # Gracefully closes AWS Redshift Data API client resources.
     # ```ballerina
-    # check redshift->close();
+    # check redshift.close();
     # ```
     #
     # + return - A `redshiftdata:Error` if there is an error while closing the client resources or else nil
-    remote isolated function close() returns Error? = @java:Method {
+    public isolated function close() returns Error? = @java:Method {
         'class: "io.ballerina.lib.aws.redshiftdata.NativeClientAdaptor"
     } external;
 

@@ -34,7 +34,7 @@ isolated function testBasicStatement() returns error? {
 isolated function testSessionId() returns error? {
     ConnectionConfig connectionConfig = {
         region: awsRegion,
-        auth,
+        auth: authConfig,
         dbAccessConfig: {
             id: clusterId,
             database: database,
@@ -50,7 +50,7 @@ isolated function testSessionId() returns error? {
     ExecutionResponse res2 = check redshiftData->execute(`SELECT * FROM Users`,
         {dbAccessConfig: res1.sessionId});
     test:assertTrue(res2.sessionId == res1.sessionId);
-    check redshiftData->close();
+    check redshiftData.close();
 }
 
 @test:Config {
@@ -100,7 +100,7 @@ isolated function testEmptyStatement() returns error? {
 isolated function testWithDbConfigs() returns error? {
     ConnectionConfig connectionConfig = {
         region: awsRegion,
-        auth,
+        auth: authConfig,
         dbAccessConfig: {
             id: "CLUSTER_ID",
             database: "",
@@ -111,7 +111,7 @@ isolated function testWithDbConfigs() returns error? {
     ExecutionResponse res = check redshiftData->execute(`SELECT * FROM Users`,
         {dbAccessConfig});
     test:assertTrue(res.statementId != "");
-    check redshiftData->close();
+    check redshiftData.close();
 }
 
 @test:Config {
@@ -120,7 +120,7 @@ isolated function testWithDbConfigs() returns error? {
 isolated function testWithInvalidDbConfigs() returns error? {
     ConnectionConfig connectionConfig = {
         region: awsRegion,
-        auth,
+        auth: authConfig,
         dbAccessConfig: {
             id: "clusterId",
             database: "dbName",
@@ -135,7 +135,7 @@ isolated function testWithInvalidDbConfigs() returns error? {
         test:assertEquals(errorDetails.httpStatusCode, 400);
         test:assertEquals(errorDetails.errorMessage, "Redshift endpoint doesn't exist in this region.");
     }
-    check redshiftData->close();
+    check redshiftData.close();
 }
 
 @test:Config {
@@ -168,7 +168,7 @@ isolated function testWithInvalidClusterId() returns error? {
 isolated function testNoDbAccessConfig() returns error? {
     ConnectionConfig connectionConfig = {
         region: awsRegion,
-        auth
+        auth: authConfig
     };
     Client redshiftData = check new Client(connectionConfig);
     ExecutionResponse|Error res = redshiftData->execute(`SELECT * FROM Users`);
@@ -177,5 +177,5 @@ isolated function testNoDbAccessConfig() returns error? {
         test:assertEquals(res.message(), "Error occurred while executing the execute: No database access " +
                 "configuration provided in the initialization of the client or in the execute statement config");
     }
-    check redshiftData->close();
+    check redshiftData.close();
 }

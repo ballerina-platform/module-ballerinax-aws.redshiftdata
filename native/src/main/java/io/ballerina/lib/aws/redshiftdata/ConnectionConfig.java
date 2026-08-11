@@ -18,32 +18,43 @@
 
 package io.ballerina.lib.aws.redshiftdata;
 
+import io.ballerina.lib.aws.auth.ProviderFactory;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 
 import static io.ballerina.lib.aws.redshiftdata.Cluster.CLUSTER_ID;
-import static io.ballerina.lib.aws.redshiftdata.StaticAuthConfig.AWS_ACCESS_KEY_ID;
 
 /**
  * {@code ConnectionConfig} represents the connection configuration required for
  * ballerina Redshift Data API Client.
  *
- * @param region         The AWS region where the Redshift cluster is located.
- * @param authConfig     The authentication configuration required for the
- *                       Redshift Data API Client.
- * @param dbAccessConfig The database access configurations for the Redshift Data API.
+ * <p>The {@code auth} field is a {@code ballerinax/aws.auth:AuthConfig} value;
+ * credential resolution is delegated to the shared {@code aws.auth} library
+ * ({@link ProviderFactory}), which supports all standardized AWS credential
+ * sources (static keys, profile, STS assume-role, web identity, IAM Identity
+ * Center, external process, and the default provider chain) with automatic
+ * refresh of expiring credentials.
+ *
+ * @param region              The AWS region where the Redshift cluster is located.
+ * @param credentialsProvider The credentials provider resolved from the configured auth.
+ * @param endpointConfig      The endpoint options; {@code null} when not configured.
+ * @param dbAccessConfig      The database access configurations for the Redshift Data API.
  */
-public record ConnectionConfig(Region region, Object authConfig, Object dbAccessConfig) {
+public record ConnectionConfig(Region region, AwsCredentialsProvider credentialsProvider,
+                               BMap<BString, Object> endpointConfig, Object dbAccessConfig) {
     static final BString CONNECTION_CONFIG_DB_ACCESS_CONFIG = StringUtils.fromString("dbAccessConfig");
     private static final BString CONNECTION_CONFIG_REGION = StringUtils.fromString("region");
     private static final BString CONNECTION_CONFIG_AUTH_CONFIG = StringUtils.fromString("auth");
+    private static final BString CONNECTION_CONFIG_ENDPOINT = StringUtils.fromString("endpoint");
 
     public ConnectionConfig(BMap<BString, Object> bConnectionConfig) {
         this(
                 getRegion(bConnectionConfig),
-                getAuthConfig(bConnectionConfig),
+                ProviderFactory.buildProvider(bConnectionConfig.get(CONNECTION_CONFIG_AUTH_CONFIG)),
+                getEndpointConfig(bConnectionConfig),
                 getDbAccessConfig(bConnectionConfig)
         );
     }
@@ -53,13 +64,9 @@ public record ConnectionConfig(Region region, Object authConfig, Object dbAccess
     }
 
     @SuppressWarnings("unchecked")
-    private static Object getAuthConfig(BMap<BString, Object> bConnectionConfig) {
-        BMap<BString, Object> bAuthConfig = (BMap<BString, Object>) bConnectionConfig
-                .getMapValue(CONNECTION_CONFIG_AUTH_CONFIG);
-        if (bAuthConfig.containsKey(AWS_ACCESS_KEY_ID)) {
-            return new StaticAuthConfig(bAuthConfig);
-        }
-        return new InstanceProfileCredentials(bAuthConfig);
+    private static BMap<BString, Object> getEndpointConfig(BMap<BString, Object> bConnectionConfig) {
+        // The `endpoint` field is optional; null when not configured.
+        return (BMap<BString, Object>) bConnectionConfig.getMapValue(CONNECTION_CONFIG_ENDPOINT);
     }
 
     @SuppressWarnings("unchecked")

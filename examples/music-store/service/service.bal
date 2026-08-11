@@ -16,6 +16,7 @@
 
 import ballerina/http;
 import ballerina/lang.runtime;
+import ballerinax/aws;
 import ballerinax/aws.redshiftdata;
 
 configurable string accessKeyId = ?;
@@ -34,7 +35,7 @@ service / on new http:Listener(8080) {
 
     function init() returns error? {
         self.redshift = check new ({
-            region: redshiftdata:US_EAST_2,
+            region: aws:US_EAST_2,
             auth: {
                 accessKeyId,
                 secretAccessKey

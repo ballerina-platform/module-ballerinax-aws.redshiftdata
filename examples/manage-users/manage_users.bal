@@ -17,6 +17,7 @@
 import ballerina/io;
 import ballerina/lang.runtime;
 import ballerina/sql;
+import ballerinax/aws;
 import ballerinax/aws.redshiftdata;
 
 configurable string accessKeyId = ?;
@@ -34,11 +35,11 @@ type User record {|
 public function main() returns error? {
     // Create a Redshift client
     redshiftdata:Client redshift = check new ({
-        region: redshiftdata:US_EAST_2,
         auth: {
             accessKeyId,
             secretAccessKey
         },
+        region: aws:US_EAST_2,
         dbAccessConfig
     });
 
