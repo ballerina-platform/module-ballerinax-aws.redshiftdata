@@ -1,4 +1,4 @@
-//  Copyright (c) 2025, WSO2 LLC. (http://www.wso2.org).
+//  Copyright (c) 2026, WSO2 LLC. (http://www.wso2.org).
 //
 //  WSO2 LLC. licenses this file to you under the Apache License,
 //  Version 2.0 (the "License"); you may not use this file except
@@ -133,16 +133,16 @@ isolated function getStatementResult(map<json> payload) returns json|http:BadReq
                 "Please check query status with DescribeStatement.");
     }
 
+    int totalRows = result.rows.length();
     int offset = 0;
     string? nextToken = stringValue(payload, "NextToken");
     if nextToken is string {
         int|error pageStart = int:fromString(nextToken);
-        if pageStart is error {
+        if pageStart is error || pageStart < 0 || pageStart > totalRows {
             return validationError("Invalid pagination token.");
         }
         offset = pageStart;
     }
-    int totalRows = result.rows.length();
     int pageEnd = int:min(offset + RESULT_PAGE_SIZE, totalRows);
 
     map<json> response = {
