@@ -51,17 +51,15 @@ To use the Ballerina AWS Redshift data connector, follow these steps to set up a
 
    ![wait-for-availability.png](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-aws.redshiftdata/main/docs/setup/resources/wait-for-availability.png)
 
-> **Note:** Amazon Redshift now offers a serverless option, allowing you to use the data warehouse without managing infrastructure. Redshift Serverless automatically scales to handle your workloads, providing a flexible and efficient way to run analytics. To configure a **Redshift serverless** setup, please refer to [AWS documentation.](https://docs.aws.amazon.com/redshift/latest/gsg/new-user-serverless.html)
-
 ### Obtain IAM user credentials
 
 To create an IAM user and generate an access key, follow the [obtaining IAM user credentials](https://central.ballerina.io/ballerinax/aws/latest#obtaining-iam-user-credentials) guide.
 
 Attach the Redshift Data API permissions your application needs to the user — the AWS managed `AmazonRedshiftDataFullAccess` policy grants full access, or scope a custom policy to only the `redshift-data` actions you call.
 
-The `redshift-data` actions alone are not sufficient: the user also needs permission to obtain the database credential named by your `dbAccessConfig`.
+The `redshift-data` actions alone are not sufficient: the user also needs permission to obtain the database credential.
 
-| `dbAccessConfig` | Additional action required |
+| Database Access Config | Additional action required |
 |---|---|
 | `Cluster` with `dbUser` | `redshift:GetClusterCredentials` |
 | `WorkGroup` (serverless) | `redshift-serverless:GetCredentials` |
