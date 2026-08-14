@@ -18,22 +18,22 @@
 import ballerina/http;
 import ballerina/time;
 
-const int MOCK_SERVICE_PORT = 9090;
-const string TARGET_PREFIX = "RedshiftData.";
+const MOCK_SERVICE_PORT = 9090;
+const TARGET_PREFIX = "RedshiftData.";
 
 // The endpoint the tests point their clients at, through `endpointConfig`.
 final string mockServiceUrl = string `http://localhost:${MOCK_SERVICE_PORT}`;
 
 // The number of records in a single `GetStatementResult` page; the rest is served
 // through `NextToken`, the way the service paginates.
-const int RESULT_PAGE_SIZE = 500;
+const RESULT_PAGE_SIZE = 500;
 
 // Statement metadata the tests only assert to be positive.
-const int REDSHIFT_PID = 1073741823;
-const int REDSHIFT_QUERY_ID = 262144;
-const int DURATION_NANOS = 123456789;
+const REDSHIFT_PID = 1073741823;
+const REDSHIFT_QUERY_ID = 262144;
+const DURATION_NANOS = 123456789;
 
-const string STATEMENT_ERROR = "ERROR: relation \"non_existent_table\" does not exist";
+const STATEMENT_ERROR = "ERROR: relation \"non_existent_table\" does not exist";
 
 // The identifier format the Redshift Data API accepts for a statement.
 final string:RegExp STATEMENT_ID_PATTERN =
@@ -44,6 +44,9 @@ service on new http:Listener(MOCK_SERVICE_PORT) {
     isolated resource function post .(@http:Header {name: "X-Amz-Target"} string target, http:Request request)
             returns json|http:BadRequest|error {
         map<json> payload = check parsePayload(request);
+        if !target.startsWith(TARGET_PREFIX) {
+            return awsError("UnknownOperationException", string `Unsupported operation: ${target}`);
+        }
         match target.substring(TARGET_PREFIX.length()) {
             "ExecuteStatement" => {
                 return executeStatement(payload);
@@ -70,7 +73,7 @@ isolated function executeStatement(map<json> payload) returns json|http:BadReque
         return accessError;
     }
     string sql = stringValue(payload, "Sql") ?: "";
-    return executionResponse(newStatement(nextStatementId(), sql, statementKindOf(sql), sessionOf(payload)));
+    return executionResponse(newStatement(nextStatementId(), sql, statementKindOf(sql), sessionFor(payload)));
 }
 
 isolated function batchExecuteStatement(map<json> payload) returns json|http:BadRequest {
@@ -92,7 +95,7 @@ isolated function batchExecuteStatement(map<json> payload) returns json|http:Bad
         string sqlText = sql is string ? sql : "";
         subStatements.push(newStatement(string `${batchId}:${index + 1}`, sqlText, statementKindOf(sqlText), ()));
     }
-    return executionResponse(newStatement(batchId, "", BATCH, sessionOf(payload), subStatements));
+    return executionResponse(newStatement(batchId, "", BATCH, sessionFor(payload), subStatements));
 }
 
 isolated function describeStatement(map<json> payload) returns json|http:BadRequest {
@@ -105,7 +108,7 @@ isolated function describeStatement(map<json> payload) returns json|http:BadRequ
         return validationError("Query does not exist.");
     }
 
-    map<json> response = statementData(statement);
+    map<json> response = buildStatementData(statement);
     response["RedshiftPid"] = REDSHIFT_PID;
     string? sessionId = statement.sessionId;
     if sessionId is string {
@@ -113,7 +116,7 @@ isolated function describeStatement(map<json> payload) returns json|http:BadRequ
     }
     if statement.kind == BATCH {
         response["SubStatements"] = from MockStatement subStatement in statement.subStatements
-            select statementData(subStatement);
+            select buildStatementData(subStatement);
     }
     return response;
 }
@@ -127,7 +130,7 @@ isolated function getStatementResult(map<json> payload) returns json|http:BadReq
     if statement is () {
         return validationError("Query does not exist.");
     }
-    MockResultSet? result = resultOf(statement.kind);
+    MockResultSet? result = findResult(statement.kind);
     if result is () {
         return validationError("Query does not have result. " +
                 "Please check query status with DescribeStatement.");
@@ -150,7 +153,7 @@ isolated function getStatementResult(map<json> payload) returns json|http:BadReq
             select {"name": column.name, "label": column.name, "typeName": column.typeName, "nullable": 1},
         "Records": from int rowIndex in offset ..< pageEnd
             select from MockValue value in result.rows[rowIndex]
-                select fieldValue(value),
+                select toFieldValue(value),
         "TotalNumRows": totalRows
     };
     if pageEnd < totalRows {
@@ -170,12 +173,12 @@ isolated function executionResponse(MockStatement statement) returns json {
     return response;
 }
 
-isolated function statementData(MockStatement statement) returns map<json> {
+isolated function buildStatementData(MockStatement statement) returns map<json> {
     StatementKind kind = statement.kind;
     boolean batch = kind == BATCH;
     MockStatement[] subStatements = statement.subStatements;
     boolean failed = batch ? subStatements.some(sub => sub.kind == FAILING) : kind == FAILING;
-    MockResultSet? result = resultOf(kind);
+    MockResultSet? result = findResult(kind);
     int rows = result is MockResultSet ? result.rows.length() : 0;
 
     map<json> statementData = {
@@ -183,13 +186,13 @@ isolated function statementData(MockStatement statement) returns map<json> {
         "CreatedAt": statement.createdAt,
         "UpdatedAt": statement.createdAt,
         "Status": failed ? FAILED : FINISHED,
-        "HasResultSet": batch ? subStatements.some(sub => resultOf(sub.kind) is MockResultSet) :
+        "HasResultSet": batch ? subStatements.some(sub => findResult(sub.kind) is MockResultSet) :
             result is MockResultSet,
         // A batch statement reports no query identifier or result counts of its
         // own; those belong to its sub-statements.
         "RedshiftQueryId": batch || failed ? 0 : REDSHIFT_QUERY_ID,
         "ResultRows": batch ? -1 : rows,
-        "ResultSize": batch ? -1 : resultSizeOf(kind, rows),
+        "ResultSize": batch ? -1 : computeResultSize(kind, rows),
         "Duration": DURATION_NANOS
     };
     if statement.queryString != "" {
@@ -201,7 +204,7 @@ isolated function statementData(MockStatement statement) returns map<json> {
     return statementData;
 }
 
-isolated function fieldValue(MockValue value) returns json {
+isolated function toFieldValue(MockValue value) returns json {
     if value is () {
         return {"isNull": true};
     }
@@ -234,7 +237,7 @@ isolated function validateDbAccess(map<json> payload) returns http:BadRequest? {
 
 // The session a statement runs in: the requested one, or a newly started session
 // when the request asks to keep one alive.
-isolated function sessionOf(map<json> payload) returns string? {
+isolated function sessionFor(map<json> payload) returns string? {
     string? sessionId = stringValue(payload, "SessionId");
     if sessionId is string {
         return sessionId;
@@ -313,8 +316,8 @@ final readonly & MockValue[][] SUPPORTED_TYPE_ROWS = [
     [12, 9223372036854774807, 123.34, true, "test", ()]
 ];
 
-const int PAGINATION_ROW_COUNT = 1601;
-const int PAGINATION_COLUMN_LENGTH = 100000;
+const PAGINATION_ROW_COUNT = 1601;
+const PAGINATION_COLUMN_LENGTH = 100000;
 
 isolated function statementKindOf(string sql) returns StatementKind {
     string query = sql.trim().toUpperAscii();
@@ -339,7 +342,7 @@ isolated function statementKindOf(string sql) returns StatementKind {
     return ALL_USERS;
 }
 
-isolated function resultOf(StatementKind kind) returns MockResultSet? {
+isolated function findResult(StatementKind kind) returns MockResultSet? {
     match kind {
         ALL_USERS => {
             return {columns: USER_COLUMNS, rows: USER_ROWS};
@@ -364,7 +367,7 @@ isolated function resultOf(StatementKind kind) returns MockResultSet? {
     return ();
 }
 
-isolated function resultSizeOf(StatementKind kind, int rows) returns int =>
+isolated function computeResultSize(StatementKind kind, int rows) returns int =>
     kind == PAGINATED ? rows * PAGINATION_COLUMN_LENGTH : rows * 64;
 
 // ===== Statements in flight =====
@@ -382,8 +385,8 @@ type MockStatement record {|
 
 // Prefixes that, with a sequence number, produce identifiers in the format the
 // Redshift Data API uses.
-const string STATEMENT_ID_PREFIX = "3f0c7e2a-9b41-4d6e-8f5a-";
-const string SESSION_ID_PREFIX = "5d2b18c4-6ea7-4f39-b0c1-";
+const STATEMENT_ID_PREFIX = "3f0c7e2a-9b41-4d6e-8f5a-";
+const SESSION_ID_PREFIX = "5d2b18c4-6ea7-4f39-b0c1-";
 
 isolated map<readonly & MockStatement> statements = {};
 isolated int sequence = 0;
