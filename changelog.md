@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [2.0.0] - 2026-08-18
+
 This release revamps the connector's authentication and region configuration to use the shared
 [`ballerinax/aws`](https://github.com/ballerina-platform/module-ballerinax-aws) package, so that all AWS
 connectors share a single, consistent credential model.
