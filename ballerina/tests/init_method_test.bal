@@ -23,6 +23,7 @@ isolated function testInit() returns error? {
     ConnectionConfig connectionConfig = {
         region: awsRegion,
         auth: authConfig,
+        endpoint: endpointConfig,
         dbAccessConfig
     };
     Client redshiftData = check new (connectionConfig);
@@ -35,7 +36,8 @@ isolated function testInit() returns error? {
 isolated function testNilDbAccessConfig() returns error? {
     ConnectionConfig connectionConfig = {
         region: awsRegion,
-        auth: authConfig
+        auth: authConfig,
+        endpoint: endpointConfig
     };
     Client redshiftData = check new (connectionConfig);
     check redshiftData.close();

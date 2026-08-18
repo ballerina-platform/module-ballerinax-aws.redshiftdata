@@ -37,6 +37,7 @@ isolated function testBatchExecuteSessionId() returns error? {
     ConnectionConfig connectionConfig = {
         region: awsRegion,
         auth: authConfig,
+        endpoint: endpointConfig,
         dbAccessConfig: {
             id: clusterId,
             database: database,

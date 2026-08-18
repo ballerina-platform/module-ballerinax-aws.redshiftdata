@@ -20,8 +20,10 @@ import ballerina/test;
 import ballerinax/aws;
 import ballerinax/aws.auth;
 
-final string accessKeyId = os:getEnv("BALLERINA_AWS_TEST_ACCESS_KEY_ID");
-final string secretAccessKey = os:getEnv("BALLERINA_AWS_TEST_SECRET_ACCESS_KEY");
+configurable boolean isLiveServer = false;
+
+final string accessKeyId = isLiveServer ? os:getEnv("BALLERINA_AWS_TEST_ACCESS_KEY_ID") : "test";
+final string secretAccessKey = isLiveServer ? os:getEnv("BALLERINA_AWS_TEST_SECRET_ACCESS_KEY") : "test";
 
 final string clusterId = "ballerina-redshift-cluster";
 final string database = "dev";
@@ -40,18 +42,20 @@ final readonly & auth:StaticAuthConfig authConfig = {
     secretAccessKey
 };
 
+final readonly & aws:EndpointConfig endpointConfig = isLiveServer ? {} : {customEndpoint: mockServiceUrl};
+
 final Client redshiftData = check initClient();
 
 isolated function initClient() returns Client|error {
-    boolean enableTests = accessKeyId !is "" && secretAccessKey !is "";
-    if enableTests {
-        return new ({
-            region: awsRegion,
-            auth: authConfig,
-            dbAccessConfig
-        });
+    if isLiveServer && (accessKeyId is "" || secretAccessKey is "") {
+        return test:mock(Client);
     }
-    return test:mock(Client);
+    return new ({
+        region: awsRegion,
+        auth: authConfig,
+        endpoint: endpointConfig,
+        dbAccessConfig
+    });
 }
 
 @test:BeforeSuite
