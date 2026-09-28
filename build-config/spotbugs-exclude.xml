@@ -31,4 +31,14 @@
             <Bug pattern="EI_EXPOSE_REP2"/>
         </Or>
     </Match>
+    <!--
+      validateAndGetDbAccessConfig() is a private, first-party validation helper, not a
+      framework-interface override; it declares `throws Exception` only to throw its own
+      custom validation-error message when no DB access config is provided.
+    -->
+    <Match>
+        <Class name="io.ballerina.lib.aws.redshiftdata.CommonUtils"/>
+        <Method name="validateAndGetDbAccessConfig"/>
+        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
+    </Match>
 </FindBugsFilter>
