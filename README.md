@@ -1,7 +1,7 @@
 # AWS Redshift Data API connector for Ballerina
 
 [![Build](https://github.com/ballerina-platform/module-ballerinax-aws.redshiftdata/actions/workflows/ci.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-aws.redshiftdata/actions/workflows/ci.yml)
-[![Trivy](https://github.com/ballerina-platform/module-ballerinax-aws.redshiftdata/actions/workflows/trivy-scan.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-aws.redshiftdata/actions/workflows/trivy-scan.yml)
+[![Security Scan](https://github.com/ballerina-platform/module-ballerinax-aws.redshiftdata/actions/workflows/security-scan.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-aws.redshiftdata/actions/workflows/security-scan.yml)
 [![codecov](https://codecov.io/gh/ballerina-platform/module-ballerinax-aws.redshiftdata/branch/main/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/module-ballerinax-aws.redshiftdata)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/ballerina-platform/module-ballerinax-aws.redshiftdata.svg)](https://github.com/ballerina-platform/module-ballerinax-aws.redshiftdata/commits/main)
 [![GraalVM Check](https://github.com/ballerina-platform/module-ballerinax-aws.redshiftdata/actions/workflows/build-with-bal-test-graalvm.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-aws.redshiftdata/actions/workflows/build-with-bal-test-graalvm.yml)
